@@ -1,5 +1,4 @@
 <template>
-  <div>HW</div>
+  <div>Header</div>
 </template>
-
 <script setup></script>

@@ -1,5 +1,4 @@
 <template>
-  <div>HW</div>
+  <div>Footer</div>
 </template>
-
 <script setup></script>
