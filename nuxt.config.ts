@@ -2,7 +2,7 @@ export default defineNuxtConfig({
   modules: ["@nuxtjs/eslint-module", "@nuxtjs/tailwindcss", "@pinia/nuxt"],
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL,
+      METADATA_URL: process.env.METADATA_URL,
     },
   },
   app: {
@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     lintOnStart: false,
     emitWarning: false,
     emitError: false,
+    exclude: ["**/.nuxt/**"],
   },
   devtools: { enabled: true },
 });

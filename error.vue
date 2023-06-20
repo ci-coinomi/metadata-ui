@@ -1,5 +1,5 @@
 <template>
-  <div>HW</div>
+  <div>Error Page</div>
 </template>
 
 <script setup></script>
