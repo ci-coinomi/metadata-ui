@@ -21,9 +21,10 @@
 </template>
 
 <script setup>
-import { auth } from "~/api/user";
+import { signin } from "~/api/user";
 
 const router = useRouter();
+const event = useRequestEvent();
 
 const loginData = ref("");
 const passwordData = ref("");
@@ -33,8 +34,14 @@ const formSubmitHandler = async () => {
   isAuthMessage.value = "";
 
   if (loginData.value && passwordData.value) {
-    const res = await auth(loginData.value, passwordData.value);
-
+    const res = await signin(loginData.value, passwordData.value);
+    console.log(res);
+    // const res = await fetchWithCookie(
+    //   event,
+    //   loginData.value,
+    //   passwordData.value
+    // );
+    // console.log("Res in index", res);
     if (res === 403) {
       isAuthMessage.value = "User login or password is incorrect";
       return;
