@@ -1,39 +1,32 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-const tempUrl = "https://backend-dev2.euclabs.net/metadata/admin/auth/login";
 
-const getApi = async (endpoint) => {
-  const app = useNuxtApp();
+const getApi = async (endpoint, payload) => {
   try {
-    const res = await app.$api.get(endpoint);
-    return res;
+    const config = useRuntimeConfig();
+    const response = await $fetch.raw(endpoint, {
+      method: "GET",
+      baseURL: config.public.METADATA_URL,
+      headers: {
+        "Access-Control-Allow-Credentials": true,
+        "Content-type": "application/json",
+      },
+      body: payload,
+      credentials: "include",
+    });
+    return response;
   } catch (err) {
-    console.log(err);
+    console.log("postApi error", err);
+    return err;
   }
 };
 
 export const getConfigs = async () => {
-  // const response = await getApi(`v1/admin/configs`);
-
-  const response = await $fetch
-    .raw("https://backend-dev2.euclabs.net/metadata/admin/configs")
-    .catch((err) => {
-      console.log(err);
-      return err;
-    });
-
-  return response;
+  const { _data } = await getApi(`v1/admin/configs`);
+  return _data;
 };
 
 export const getConfigsTypes = async () => {
-  // const response = await getApi(`v1/admin/configs/types`);
-
-  const response = await $fetch
-    .raw("https://backend-dev2.euclabs.net/metadata/admin/configs/types")
-    .catch((err) => {
-      console.log(err);
-      return err;
-    });
-
-  return response;
+  const { _data } = await getApi(`v1/admin/configs/types`);
+  return _data;
 };
