@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { signin } from "~/api/user";
+import { signin, signout } from "~/api/user";
 
 const router = useRouter();
 
@@ -34,6 +34,17 @@ const formSubmitHandler = async () => {
   isAuthMessage.value = "";
 
   if (loginData.value && passwordData.value) {
+    /* 
+      Если пользователь вернулся назад на страницу авторизации в рамках старой сессии без signout то при попытке ввести
+      логин и пароль сервер вернет 403, а не перезапишет токен. Код ошибки идентичен неверному логину/паролю, так что я не 
+      могу ни проверить наличие токена из-за http-only, ни редиректнуть его на config, обработав уникальный для этой 
+      ситуации статус.
+      
+      Так что приходится в качестве временного решения всегда вызывать signout, пусть она и будет вызывать ошибку, если
+      токена авторизации нет и мы пытаемся войти впервые.
+    */
+    await signout();
+
     const res = await signin(loginData.value, passwordData.value);
 
     if (res === 403) {

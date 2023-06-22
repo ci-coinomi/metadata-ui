@@ -3,16 +3,10 @@
 
 const getApi = async (endpoint, payload) => {
   try {
-    const config = useRuntimeConfig();
-    const response = await $fetch.raw(endpoint, {
+    const app = useNuxtApp();
+    const response = await app.$myFetch.raw(endpoint, {
       method: "GET",
-      baseURL: config.public.METADATA_URL,
-      headers: {
-        "Access-Control-Allow-Credentials": true,
-        "Content-type": "application/json",
-      },
       body: payload,
-      credentials: "include",
     });
     return response;
   } catch (err) {
@@ -23,6 +17,11 @@ const getApi = async (endpoint, payload) => {
 
 export const getConfigs = async () => {
   const { _data } = await getApi(`v1/admin/configs`);
+  return _data;
+};
+
+export const getConfigItemById = async (id) => {
+  const { _data } = await getApi(`v1/admin/configs/${id}`);
   return _data;
 };
 

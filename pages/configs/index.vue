@@ -4,29 +4,34 @@
     <p class="text-gray-500 text-sm">Design is just for data visualization!</p>
     <div class="flex gap-4">
       <p>Configs types are:</p>
-      <div v-for="typeItem in configsTypes" :key="typeItem"> {{ typeItem }}</div>
+      <div v-for="typeItem in configTypes" :key="typeItem">{{ typeItem }}</div>
     </div>
     <div class="flex flex-col gap-4 w-full">
       <p>Total count: {{ configs.length }}</p>
-      <configListItem v-for="config in configs" :key="config.configId" :config="config" />
+      <configListItem
+        v-for="config in configs"
+        :key="config.configId"
+        :config="config"
+      />
     </div>
   </main>
 </template>
 <script setup>
-import { getConfigs, getConfigsTypes } from "~/api/configs";
+import { getConfigs } from "~/api/configs";
+import { useStore } from "~/store";
+
+const store = useStore();
 
 const configs = ref([]);
-const configsTypes = ref([])
+const configTypes = computed(() => store.configTypes);
 
 definePageMeta({
   layout: "signedin",
 });
 
 onMounted(async () => {
+  await store.getConfigTypes();
   const configsData = await getConfigs();
   configs.value = configsData;
-  const configsTypesData = await getConfigsTypes();
-  configsTypes.value = configsTypesData;
 });
 </script>
-<style></style>
