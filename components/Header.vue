@@ -1,5 +1,5 @@
 <template>
-  <header class="flex justify-between p-3">
+  <header class="flex justify-between pb-4">
     <h2>Metadata UI</h2>
     <div class="flex gap-4">
       <UiButton @click="onLogoutHandler">Sign Out</UiButton>

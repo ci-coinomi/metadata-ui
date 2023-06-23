@@ -1,10 +1,9 @@
 /* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 const postApi = async (endpoint, payload) => {
   try {
     const app = useNuxtApp();
-    const response = await app.$myFetch.raw(endpoint, {
+    const response = await app.$api.raw(endpoint, {
       method: "POST",
       body: payload,
     });

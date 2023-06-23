@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { signin, signout } from "~/api/user";
+import { signin } from "~/api/user";
 
 const router = useRouter();
 
@@ -42,8 +42,8 @@ const formSubmitHandler = async () => {
       
       Так что приходится в качестве временного решения всегда вызывать signout, пусть она и будет вызывать ошибку, если
       токена авторизации нет и мы пытаемся войти впервые.
+      await signout();
     */
-    await signout();
 
     const res = await signin(loginData.value, passwordData.value);
 
