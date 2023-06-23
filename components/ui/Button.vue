@@ -1,26 +1,31 @@
 <template>
   <button
     type="button"
-    class="flex disabled:opacity-25 justify-center items-center rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-400 hover:ring-gray-500 hover:ring-2 active:ring-gray-600"
+    class="flex disabled:opacity-25 justify-center items-center rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline outline-1 outline-gray-400 hover:outline-2 active:outline-[3px]"
   >
     <slot />
   </button>
 </template>
 
 <style scoped>
+.warning,
+.success,
+.danger {
+  color: #fff;
+}
+
 .danger {
   background-color: #f93e3e;
-  color: #fff;
-  box-shadow: 0 0 0;
+  outline-color: #bf1919;
 }
 
 .success {
   background-color: #49cc90;
-  color: #fff;
+  outline-color: #33a370;
 }
 
 .warning {
   background-color: #fca130;
-  color: #fff;
+  outline-color: #ba7723;
 }
 </style>

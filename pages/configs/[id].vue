@@ -1,22 +1,18 @@
 <template>
-  <main class="flex flex-col justify-center items-center gap-6">
+  <main class="flex flex-col justify-center items-center gap-6 pb-10">
     <div class="flex justify-between w-full">
       <UiButton @click="onConfigNavigateHandler">To config list</UiButton>
       <h1 class="text-2xl font-bold">{{ config.configName }}</h1>
-      <UiButton class="warning font-bold" @click="handleSubmit"
-        >Update config</UiButton
-      >
+      <UiButton class="warning" @click="handleSubmit">Update config</UiButton>
     </div>
     <div class="flex flex-col gap-3 w-full">
       <div><strong>Type:</strong> {{ config.configType }}</div>
       <configNestedLine
-        :myObject="configFile"
+        :configNestedObject="configFile"
         @nested-object-updated="handleNestedObjectUpdated"
       />
     </div>
-    <UiButton class="warning font-bold" @click="handleSubmit"
-      >Update config</UiButton
-    >
+    <UiButton class="warning" @click="handleSubmit">Update config</UiButton>
   </main>
 </template>
 
