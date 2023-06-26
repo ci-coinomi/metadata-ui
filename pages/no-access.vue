@@ -1,7 +1,7 @@
 <template>
   <main class="pt-10 flex flex-col justify-center items-center gap-6">
-    <h1 class="text-2xl font-bold">Error 404</h1>
-    <p>The page you are looking for doesn't exist or has been moved.</p>
+    <h1 class="text-2xl font-bold">Error 403</h1>
+    <p>You have no access to this page</p>
     <div class="flex gap-4">
       <UiButton @click="onPreviousPageHandler"> To previous page </UiButton>
       <UiButton @click="onLoginPageHandler"> To login page </UiButton>
@@ -15,7 +15,7 @@ const router = useRouter();
 
 const onPreviousPageHandler = () => {
   clearError();
-  router.go(-1);
+  router.go(-2);
 };
 
 const onLoginPageHandler = async () => {

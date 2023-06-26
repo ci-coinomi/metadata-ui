@@ -2,12 +2,16 @@
   <main class="flex flex-col justify-center items-center gap-6 pb-10">
     <div class="flex justify-between w-full">
       <UiButton @click="onConfigNavigateHandler">To config list</UiButton>
-      <h1 class="text-2xl font-bold">{{ config.configName }}</h1>
+      <h1 class="text-2xl font-bold">{{ config.configName || 'Config is loading' }}</h1>
       <UiButton class="warning" @click="handleSubmit">Update config</UiButton>
     </div>
     <div class="flex flex-col gap-3 w-full">
-      <div><strong>Type:</strong> {{ config.configType }}</div>
+      <div><strong>Type:</strong> {{ config.configType || 'loading...' }}</div>
+      <div v-if="isLoading" class="flex justify-center items-center">
+        <configItemSkeleton class="w-[90vw]" />
+      </div>
       <configNestedLine
+        v-else
         :configNestedObject="configFile"
         @nested-object-updated="handleNestedObjectUpdated"
       />
@@ -29,6 +33,7 @@ const router = useRouter();
 
 const config = ref({});
 const configFile = ref({});
+const isLoading = ref(true)
 
 const handleNestedObjectUpdated = (updatedObject) => {
   configFile.value = updatedObject;
@@ -46,8 +51,10 @@ const onConfigNavigateHandler = () => {
 };
 
 onMounted(async () => {
+  isLoading.value = true
   config.value = await getConfigItemById(route.params.id);
   configFile.value = JSON.parse(config.value.configFile);
+  isLoading.value = false
 });
 </script>
 <style></style>

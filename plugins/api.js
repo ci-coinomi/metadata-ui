@@ -15,7 +15,7 @@ export default defineNuxtPlugin((nuxtApp) => {
           router.push("/");
           break;
         case 403:
-          router.push("/noAccessPage");
+          router.push("/no-access");
           break;
       }
     },
