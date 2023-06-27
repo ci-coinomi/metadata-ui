@@ -83,7 +83,8 @@ const onTypesSelectHandler = (evt) => {
 onMounted(async () => {
   isLoading.value = true;
   await store.getConfigTypes();
-  configs.value = await getConfigs();
+  const configsList = await getConfigs();
+  configs.value = configsList.sort((a, b) => b.configId - a.configId);
   filtredConfigs.value = configs.value;
   isLoading.value = false;
 });

@@ -10,10 +10,15 @@
 <style scoped>
 .warning,
 .success,
-.danger {
+.danger,
+.gray {
   color: #fff;
 }
 
+.gray {
+  background-color: #a39292;
+  outline-color: #463f3f;
+}
 .danger {
   background-color: #f93e3e;
   outline-color: #bf1919;
