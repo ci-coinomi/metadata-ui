@@ -1,6 +1,6 @@
 <template>
   <content-loader
-    viewBox="0 0 1024 400"
+    viewBox="0 0 1024 600"
     :speed="2"
     primaryColor="#f3f3f3"
     secondaryColor="#ecebeb"

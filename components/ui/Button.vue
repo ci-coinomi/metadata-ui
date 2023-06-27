@@ -21,7 +21,7 @@
 }
 .danger {
   background-color: #f93e3e;
-  outline-color: #bf1919;
+  outline-color: #d92a2a;
 }
 
 .success {
@@ -31,6 +31,6 @@
 
 .warning {
   background-color: #fca130;
-  outline-color: #ba7723;
+  outline-color: #d38b32;
 }
 </style>

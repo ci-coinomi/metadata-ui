@@ -1,9 +1,8 @@
-
 name: deploy-to-dev
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: ["develop"]
   workflow_dispatch:
 
 jobs:

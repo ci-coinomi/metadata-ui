@@ -4,10 +4,15 @@ import { getConfigsTypes } from "~/api/configs";
 export const useStore = defineStore("app-store", {
   state: () => ({
     configTypes: [],
+    headerTitle: "",
   }),
   actions: {
     setConfigTypes(payload) {
       this.configTypes = payload;
+    },
+
+    setHeaderTitle(payload) {
+      this.headerTitle = payload;
     },
 
     async getConfigTypes() {

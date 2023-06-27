@@ -2,6 +2,7 @@
   <div
     v-for="(value, key) in props.configNestedObject"
     :key="key"
+    :class="!isObject(value) ? 'items-center' : ''"
     class="flex p-1 gap-4 rounded-sm"
   >
     <p class="text-gray-400">{{ key }}:</p>

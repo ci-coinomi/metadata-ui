@@ -1,7 +1,7 @@
 <template>
   <div class="flex pt-40">
     <div
-      class="flex p-5 flex-col gap-4 items-center border-gray-400 border m-auto rounded-md"
+      class="flex flex-col gap-4 items-center m-auto bg-white p-6 shadow-md rounded"
     >
       <h1 class="text-xl">Metadata UI</h1>
       <h2>Sign in</h2>

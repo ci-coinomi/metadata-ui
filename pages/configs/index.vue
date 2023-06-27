@@ -1,8 +1,9 @@
 <template>
-  <main class="flex flex-col justify-center items-center gap-6">
-    <h1 class="text-2xl font-bold">Configs</h1>
-    <configIndexSkeleton v-if="isLoading" class="w-[65vw]" />
-    <div v-else class="flex flex-col justify-center items-center gap-6">
+  <main
+    class="flex flex-col justify-center items-center gap-6 w-3/4 m-auto bg-white p-4 shadow-md mt-3 rounded"
+  >
+    <configIndexSkeleton v-if="isLoading" class="w-[75vw]" />
+    <div v-else class="flex flex-col justify-center items-center gap-6 w-full">
       <div class="flex gap-4 items-center">
         <h4>Current type:</h4>
         <select
@@ -21,7 +22,7 @@
           </option>
         </select>
       </div>
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-4 w-4/5">
         <div class="flex gap-4 w-full justify-center">
           <p>
             <span class="text-gray-500">Total count: </span>{{ configs.length }}
@@ -86,6 +87,7 @@ onMounted(async () => {
   const configsList = await getConfigs();
   configs.value = configsList.sort((a, b) => b.configId - a.configId);
   filtredConfigs.value = configs.value;
+  store.setHeaderTitle(`Configs`);
   isLoading.value = false;
 });
 </script>

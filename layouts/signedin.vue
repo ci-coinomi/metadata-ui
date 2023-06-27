@@ -1,6 +1,8 @@
 <template>
-  <div class="max-w-[1440px] m-auto p-4">
+  <div class="bg-gray-100 min-h-[100vh]">
     <Header />
-    <slot />
+    <div class="max-w-[1440px] m-auto">
+      <slot />
+    </div>
   </div>
 </template>

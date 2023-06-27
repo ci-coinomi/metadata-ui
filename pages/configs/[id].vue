@@ -1,5 +1,7 @@
 <template>
-  <main class="flex flex-col justify-center items-center gap-6 pb-10 relative">
+  <main
+    class="flex flex-col justify-center items-center gap-6 pb-10 relative w-3/4 m-auto bg-white p-4 shadow-md mt-3 rounded"
+  >
     <configModal
       v-if="isModalVisible"
       v-model="clonedConfigName"
@@ -8,12 +10,6 @@
     />
     <div class="flex justify-between w-full">
       <UiButton @click="onConfigNavigateHandler">To config list</UiButton>
-      <h1 v-if="clonedConfigName" class="text-2xl font-bold">
-        Clone: {{ clonedConfigName }}
-      </h1>
-      <h1 v-else class="text-2xl font-bold">
-        {{ config.configName || "Config is loading" }}
-      </h1>
       <div class="flex gap-2">
         <UiButton
           :class="clonedConfigName ? 'gray' : 'danger'"
@@ -64,12 +60,16 @@
 </template>
 
 <script setup>
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
 import {
   getConfigById,
   updateConfig,
   cloneConfig,
   deleteConfig,
 } from "~/api/configs";
+import { useStore } from "~/store";
 
 definePageMeta({
   layout: "signedin",
@@ -77,6 +77,8 @@ definePageMeta({
 
 const route = useRoute();
 const router = useRouter();
+const store = useStore();
+const toast = useToast();
 
 const config = ref({});
 const configFile = ref({});
@@ -111,6 +113,7 @@ const onCloneClickHandler = () => {
 const onDeleteClickHandler = () => {
   if (clonedConfigName.value) {
     clonedConfigName.value = "";
+    store.setHeaderTitle(config.value.configName);
     configFile.value = JSON.parse(config.value.configFile);
   } else {
     modalType.value = "DELETE";
@@ -137,6 +140,7 @@ const modalConfirmHandler = (isConfirmed, cloneName) => {
         break;
       case "SETCLONENAME":
         clonedConfigName.value = cloneName;
+        store.setHeaderTitle(`Clone: ${clonedConfigName.value}`);
         break;
       case "DELETE":
         deleteConfigRequest();
@@ -150,13 +154,19 @@ const cloneConfigRequest = async () => {
   isLoading.value = true;
   const response = await cloneConfig(clonedConfigName.value, config.value);
   if (response?.configId) {
-    alert("Config was cloned");
+    toast.open({
+      message: "Config was successfully cloned",
+      type: "success",
+    });
     config.value = response;
     router.push(`/configs/${config.value.configId}`);
     configFile.value = JSON.parse(config.value.configFile);
     clonedConfigName.value = "";
   } else {
-    alert("Something went wrong :(");
+    toast.open({
+      message: "Something went wrong :(",
+      type: "error",
+    });
   }
   isLoading.value = false;
 };
@@ -165,12 +175,18 @@ const deleteConfigRequest = async () => {
   isLoading.value = true;
   const response = await deleteConfig(config.value.configId);
   if (response === 204) {
-    alert("Config was deleted");
+    toast.open({
+      message: "Config was successfully deleted",
+      type: "success",
+    });
     router.push({
       name: "configs",
     });
   } else {
-    alert("Something went wrong :(");
+    toast.open({
+      message: "Something went wrong :(",
+      type: "error",
+    });
   }
   isLoading.value = false;
 };
@@ -178,11 +194,15 @@ const deleteConfigRequest = async () => {
 const updateConfigRequest = async () => {
   const updatedConfig = JSON.stringify(configFile.value);
   /* 
-  We need this extra JSON-reparcing for cases when in config.value.configFile we have "value":0.0000010,
-  but after JSON.parse(JSON.stringify) of configFile.value it will be converted to "value":0.000001
+  We need this extra JSON-reparcing for cases when in config.value.configFile (which was recieved from BE) we have 
+  "value":0.0000010, but after JSON.parse(JSON.stringify(config.value.configFile)) (configFile-object we are working with)
+  it will be converted to "value":0.000001. Before such reparcing they had the same value.
   */
   if (updatedConfig === JSON.stringify(JSON.parse(config.value.configFile))) {
-    alert("You need to update some fields before update");
+    toast.open({
+      message: "You need to update some fields before update",
+      type: "warning",
+    });
     return;
   }
 
@@ -190,9 +210,15 @@ const updateConfigRequest = async () => {
   const response = await updateConfig(config.value, updatedConfig);
 
   if (JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig) {
-    alert("Updating was successful");
+    toast.open({
+      message: "Config was successfully updated",
+      type: "success",
+    });
   } else {
-    alert("Something went wrong :(");
+    toast.open({
+      message: "Something went wrong :(",
+      type: "error",
+    });
   }
   isLoading.value = false;
 };
@@ -208,5 +234,6 @@ onMounted(async () => {
   config.value = await getConfigById(route.params.id);
   configFile.value = JSON.parse(config.value.configFile);
   isLoading.value = false;
+  store.setHeaderTitle(config.value.configName);
 });
 </script>

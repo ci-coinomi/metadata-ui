@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 
-const postApi = async (endpoint, payload) => {
+const api = async (endpoint, method, payload) => {
   try {
     const app = useNuxtApp();
     const response = await app.$api.raw(endpoint, {
-      method: "POST",
+      method: method,
       body: payload,
     });
     return response;
@@ -15,7 +15,7 @@ const postApi = async (endpoint, payload) => {
 };
 
 export const signin = async (username, password) => {
-  const response = await postApi(`admin/auth/login`, {
+  const response = await api(`admin/auth/login`, "POST", {
     username,
     password,
   });
@@ -25,6 +25,6 @@ export const signin = async (username, password) => {
 };
 
 export const signout = async () => {
-  const response = await postApi("admin/auth/logout");
+  const response = await api("admin/auth/logout", "POST");
   return response;
 };

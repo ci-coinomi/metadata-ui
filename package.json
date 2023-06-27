@@ -28,6 +28,7 @@
     "@nuxtjs/tailwindcss": "^6.7.2",
     "@pinia/nuxt": "^0.4.11",
     "pinia": "^2.1.4",
-    "vue-content-loader": "^2.0.1"
+    "vue-content-loader": "^2.0.1",
+    "vue-toast-notification": "^3.1.1"
   }
 }
