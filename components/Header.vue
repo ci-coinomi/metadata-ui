@@ -4,7 +4,14 @@
       <h2 class="flex items-center">Metadata UI</h2>
       <h1 class="flex items-center text-2xl font-bold">{{ headerTitle }}</h1>
       <div class="flex gap-4">
-        <UiButton @click="onLogoutHandler">Sign Out</UiButton>
+        <UiButton @click="onUsersNavigateHandler">Users</UiButton>
+        <UiButton @click="onLogoutHandler">
+          <img
+            src="~/assets/icons/icon-logout.svg"
+            class="w-4 h-4"
+            alt="logout"
+          />
+        </UiButton>
       </div>
     </div>
   </header>
@@ -22,6 +29,12 @@ const onLogoutHandler = async () => {
   await signout();
   router.push({
     path: `/`,
+  });
+};
+
+const onUsersNavigateHandler = () => {
+  router.push({
+    path: `/users`,
   });
 };
 </script>

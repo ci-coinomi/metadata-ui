@@ -25,7 +25,7 @@
         v-else
         v-model="configNestedObject[key]"
         type="text"
-        :disabled="key === '@type'"
+        :disabled="key === '@type' || key === 'eucId'"
       />
     </template>
   </div>

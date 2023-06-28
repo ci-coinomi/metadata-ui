@@ -28,3 +28,19 @@ export const signout = async () => {
   const response = await api("admin/auth/logout", "POST");
   return response;
 };
+
+export const addUser = async (username, password, role) => {
+  const response = await api(`admin/users`, "POST", {
+    username,
+    password,
+    roles: [role],
+  });
+  if (response.status) return response.status;
+  return response.response.status;
+};
+
+export const deleteUser = async (login) => {
+  const response = await api(`admin/users/${login}`, "DELETE");
+  if (response.status) return response.status;
+  return response.response.status;
+};
