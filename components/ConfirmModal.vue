@@ -19,13 +19,13 @@
 <script setup>
 const emit = defineEmits(["isModalConfirmed"]);
 
-const props = defineProps(["type", "payload"]);
+const props = defineProps(["payload"]);
 
 const onCanselHandler = () => {
-  emit("isModalConfirmed", props.type, false, props.payload);
+  emit("isModalConfirmed", false, props.payload);
 };
 
 const onConfirmHandler = () => {
-  emit("isModalConfirmed", props.type, true, props.payload);
+  emit("isModalConfirmed", true, props.payload);
 };
 </script>

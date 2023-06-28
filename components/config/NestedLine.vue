@@ -19,7 +19,6 @@
       <label v-if="typeof value === 'boolean'" class="switch">
         <input v-model="configNestedObject[key]" type="checkbox" />
         <span class="slider"></span>
-        {{ value }}
       </label>
       <UiInputField
         v-else

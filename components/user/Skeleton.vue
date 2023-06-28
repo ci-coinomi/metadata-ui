@@ -5,8 +5,8 @@
     primaryColor="#f3f3f3"
     secondaryColor="#ecebeb"
   >
-    <rect x="55" y="0" rx="6" ry="6" width="75" height="40" /> 
-    <rect x="400" y="0" rx="6" ry="6" width="250" height="40" /> 
+    <rect x="55" y="0" rx="6" ry="6" width="75" height="40" />
+    <rect x="400" y="0" rx="6" ry="6" width="250" height="40" />
     <rect x="450" y="56" rx="6" ry="6" width="150" height="40" />
     <rect x="55" y="112" rx="6" ry="6" width="924" height="40" />
     <rect x="55" y="168" rx="6" ry="6" width="924" height="40" />
