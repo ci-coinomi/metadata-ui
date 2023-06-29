@@ -6,6 +6,7 @@ export const useStore = defineStore("app-store", {
     configTypes: [],
     headerTitle: "",
     userRole: "ADMIN",
+    imagesParentConfig: null,
   }),
   actions: {
     setConfigTypes(payload) {
@@ -14,6 +15,10 @@ export const useStore = defineStore("app-store", {
 
     setHeaderTitle(payload) {
       this.headerTitle = payload;
+    },
+
+    setImagesParentConfig(payload) {
+      this.imagesParentConfig = payload;
     },
 
     async getConfigTypes() {

@@ -1,24 +1,16 @@
 <template>
   <article
-    class="flex gap-3 items-center ring-1 ring-inset ring-gray-400 rounded-md p-2 w-full"
+    class="p-8 flex flex-col gap-4 border rounded-md shadow-md max-w-[300px]"
   >
-    <p class="w-1/3">
-      <span class="text-gray-500">Name:</span>
-      {{ props.user.username }}
-    </p>
-    <p class="w-1/3">
-      <span class="text-gray-500">Role:</span>
-      {{ props.user.roles.length > 1 ? "Super Admin" : "Admin" }}
-    </p>
-    <p class="w-1/3 flex items-center gap-1">
-      <span class="text-gray-500">Status:</span>
-      <UiSwitcher
-        :value="props.user.enabled"
-        :disabled="true"
-        class="opacity-60"
+    <div class="flex justify-center">
+      <img
+        :src="getImageSrc(props.image)"
+        class="max-w-full max-h-[150px] h-full self-center"
+        :alt="props.image.imageName"
       />
-    </p>
-    <div class="ml-auto flex justify-center items-center gap-1">
+    </div>
+    <h3>{{ props.image.imageName }}</h3>
+    <div class="flex justify-evenly items-center gap-1">
       <uiButton
         class="warning px-2 py-2 h-[34px]"
         @click="onUpdateClickHandler"
@@ -29,10 +21,7 @@
           alt="delete user"
         />
       </uiButton>
-      <uiButton
-        class="ml-auto danger px-2 py-2 h-[34px]"
-        @click="onDeleteClickHandler"
-      >
+      <uiButton class="danger px-2 py-2 h-[34px]" @click="onDeleteClickHandler">
         <img
           src="~/assets/icons/icon-trash.svg"
           class="w-6 h-6 icon-trash"
@@ -44,17 +33,25 @@
 </template>
 <script setup>
 const props = defineProps({
-  user: Object,
+  image: Object,
 });
 
 const emit = defineEmits(["onDeleteClick", "onUpdateClick"]);
 
 const onDeleteClickHandler = () => {
-  emit("onDeleteClick", props.user.username);
+  emit("onDeleteClick", props.image);
 };
 
 const onUpdateClickHandler = () => {
-  emit("onUpdateClick", props.user);
+  emit("onUpdateClick", props.image);
+};
+
+const getImageSrc = (image) => {
+  const extension = image.imageName.substring(
+    image.imageName.lastIndexOf(".") + 1
+  );
+  const base64Prefix = "data:image/" + extension + ";base64,";
+  return `${base64Prefix}${image.imageData}`;
 };
 </script>
 
