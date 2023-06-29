@@ -18,7 +18,13 @@
     <userSkeleton v-if="isLoading" class="w-[75vw]" />
     <div v-else class="flex flex-col justify-center items-center gap-6 w-4/5">
       <div class="flex justify-between w-full items-center">
-        <UiButton @click="onConfigsNavigateHandler">To configs</UiButton>
+        <UiButton @click="onConfigsNavigateHandler">
+          <img
+            src="~/assets/icons/icon-return.svg"
+            class="w-4 h-4"
+            alt="logout"
+          />
+        </UiButton>
         <!-- <h2>Your role is {{ userRole }}</h2> -->
         <div>
           <uiButton class="success" @click="onAddNewUserHandler"
@@ -65,8 +71,6 @@ const confirmModalType = ref("");
 const isUserDataModalVisible = ref(false);
 const userDataModalType = ref("");
 const userDataModalPayload = ref(null);
-
-const userRole = computed(() => store.userRole);
 
 const onConfigsNavigateHandler = () => {
   router.push({

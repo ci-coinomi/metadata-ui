@@ -39,10 +39,7 @@
 
       <div class="flex items-center gap-2">
         <p class="text-sm text-gray-500">Account status:</p>
-        <label class="switch">
-          <input v-model="status" type="checkbox" />
-          <span class="slider"></span>
-        </label>
+        <UiSwitcher :value="status" @update:value="(data) => (status = data)" />
         <p class="text-sm">{{ status ? "Enabled" : "Disabled" }}</p>
       </div>
 
@@ -81,13 +78,13 @@ const onCanselHandler = () => {
 };
 
 const convertRoleToRolesArr = (role) => {
-  switch(role){
-    case 'admin':
-      return ['ADMIN']
-    case 'super_admin':
-      return ['ADMIN', 'SUPER_ADMIN']
+  switch (role) {
+    case "admin":
+      return ["ADMIN"];
+    case "super_admin":
+      return ["ADMIN", "SUPER_ADMIN"];
   }
-}
+};
 
 const onConfirmHandler = () => {
   if (username.value.trim() === "" || password.value.trim() === "") {
@@ -98,7 +95,7 @@ const onConfirmHandler = () => {
     return;
   }
 
-  const rolesArr = convertRoleToRolesArr(role.value)
+  const rolesArr = convertRoleToRolesArr(role.value);
 
   emit("updateUserData", {
     username: username.value,
@@ -110,58 +107,7 @@ const onConfirmHandler = () => {
 
 onMounted(() => {
   if (props.payload?.roles.length === 2) {
-    role.value = 'super_admin'
+    role.value = "super_admin";
   }
 });
 </script>
-
-<style scoped>
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 20px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
-  border-radius: 20px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 1px;
-  bottom: 1px;
-  background-color: white;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #49cc90;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(20px);
-  -ms-transform: translateX(20px);
-  transform: translateX(20px);
-}
-</style>

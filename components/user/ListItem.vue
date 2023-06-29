@@ -2,17 +2,17 @@
   <article
     class="flex gap-3 items-center ring-1 ring-inset ring-gray-400 rounded-md p-2 w-full"
   >
-    <p>
+    <p class="w-1/3">
       <span class="text-gray-500">Name:</span>
       {{ props.user.username }}
     </p>
-    <p>
+    <p class="w-1/3">
       <span class="text-gray-500">Role:</span>
       {{ props.user.roles.length > 1 ? "Super Admin" : "Admin" }}
     </p>
-    <p>
+    <p class="w-1/3 flex items-center gap-1">
       <span class="text-gray-500">Status:</span>
-      {{ props.user.enabled ? "Enabled" : "Disabled" }}
+      <UiSwitcher :value="props.user.enabled" :disabled="true" />
     </p>
     <div class="ml-auto flex gap-1">
       <uiButton class="warning" @click="onUpdateClickHandler">
