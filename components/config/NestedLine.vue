@@ -16,16 +16,16 @@
       </div>
     </template>
     <template v-else>
-      <label v-if="typeof value === 'boolean'" class="switch">
-        <input v-model="configNestedObject[key]" type="checkbox" />
-        <span class="slider"></span>
-        {{ value }}
-      </label>
+      <UiSwitcher
+        v-if="typeof value === 'boolean'"
+        :value="configNestedObject[key]"
+        @update:value="(data) => (configNestedObject[key] = data)"
+      />
       <UiInputField
         v-else
         v-model="configNestedObject[key]"
         type="text"
-        :disabled="key === '@type'"
+        :disabled="key === '@type' || key === 'eucId'"
       />
     </template>
   </div>
@@ -49,54 +49,3 @@ const handleValueChange = (key, value) => {
   });
 };
 </script>
-
-<style scoped>
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 20px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
-  border-radius: 20px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 1px;
-  bottom: 1px;
-  background-color: white;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #49cc90;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(20px);
-  -ms-transform: translateX(20px);
-  transform: translateX(20px);
-}
-</style>

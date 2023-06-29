@@ -28,3 +28,36 @@ export const signout = async () => {
   const response = await api("admin/auth/logout", "POST");
   return response;
 };
+
+export const addUser = async (username, password, roles, status) => {
+  const response = await api(`admin/users`, "POST", {
+    username,
+    password,
+    roles,
+    status,
+  });
+  if (response.status) return response.status;
+  return response.response.status;
+};
+
+export const updateUser = async (username, password, roles, status) => {
+  const response = await api(`admin/users`, "PUT", {
+    username,
+    password,
+    roles,
+    status,
+  });
+  if (response.status) return response.status;
+  return response.response.status;
+};
+
+export const deleteUser = async (login) => {
+  const response = await api(`admin/users/${login}`, "DELETE");
+  if (response.status) return response.status;
+  return response.response.status;
+};
+
+export const getUsers = async () => {
+  const { _data } = await api(`admin/users`, "GET");
+  return _data;
+};

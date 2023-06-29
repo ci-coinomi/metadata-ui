@@ -1,10 +1,9 @@
 <template>
   <div
     class="popup fixed inset-0 z-30 bg-[#0D0D0D]/[.9] flex justify-center items-center"
-    @click="onOutsideModalClickHandler"
   >
     <div class="bg-white p-10 rounded-md flex flex-col gap-6">
-      <h1 class="text-lg text-center font-bold">{{ modalText }}</h1>
+      <h2 class="text-lg text-center font-bold">{{ modalText }}</h2>
       <UiInputField
         v-if="props.modalType === 'SETCLONENAME'"
         v-model="cloneConfigName"
