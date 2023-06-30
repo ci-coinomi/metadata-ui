@@ -62,7 +62,7 @@ import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 
 const emit = defineEmits(["updateUserData"]);
-const props = defineProps(["payload"]);
+const props = defineProps(["payload", "usersList"]);
 
 const toast = useToast();
 
@@ -95,6 +95,16 @@ const onConfirmHandler = () => {
   ) {
     toast.open({
       message: "You need to enter username and password...",
+      type: "warning",
+    });
+    return;
+  }
+
+  const usernamesArr = props.usersList.map((user) => user.username);
+
+  if (usernamesArr.includes(username.value.trim())) {
+    toast.open({
+      message: "User with the same name already exists",
       type: "warning",
     });
     return;

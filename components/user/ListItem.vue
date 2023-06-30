@@ -30,6 +30,7 @@
         />
       </uiButton>
       <uiButton
+        :disabled="props.user.username === store.currentUser.username"
         class="ml-auto danger px-2 py-2 h-[34px]"
         @click="onDeleteClickHandler"
       >
@@ -43,11 +44,14 @@
   </article>
 </template>
 <script setup>
+import { useStore } from "~/store";
 const props = defineProps({
   user: Object,
 });
 
 const emit = defineEmits(["onDeleteClick", "onUpdateClick"]);
+
+const store = useStore();
 
 const onDeleteClickHandler = () => {
   emit("onDeleteClick", props.user.username);

@@ -12,6 +12,7 @@
     <userDataModal
       v-if="isUserDataModalVisible"
       :payload="userDataModalPayload"
+      :usersList="usersList"
       @update-user-data="updateUserDataHandler"
     />
 
