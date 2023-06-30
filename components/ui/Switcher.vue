@@ -35,7 +35,8 @@ const onSwitchHandler = () => {
 <style scoped>
 .switch {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: center;
   width: 40px;
   height: 20px;
 }

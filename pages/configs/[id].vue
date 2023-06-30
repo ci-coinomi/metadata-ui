@@ -9,7 +9,16 @@
       @is-modal-confirmed="modalConfirmHandler"
     />
     <div class="flex justify-between w-full">
-      <UiButton @click="onConfigNavigateHandler">To config list</UiButton>
+      <div class="flex gap-2">
+        <UiButton @click="onConfigListNavigate">
+          <img
+            src="~/assets/icons/icon-return.svg"
+            class="w-4 h-4"
+            alt="return"
+          />
+        </UiButton>
+        <UiButton @click="onConfigImagesNavigate">Images</UiButton>
+      </div>
       <div class="flex gap-2">
         <UiButton
           :class="clonedConfigName ? 'gray' : 'danger'"
@@ -121,10 +130,15 @@ const onDeleteClickHandler = () => {
   }
 };
 
-const onConfigNavigateHandler = () => {
+const onConfigListNavigate = () => {
   router.push({
     name: "configs",
   });
+};
+
+const onConfigImagesNavigate = () => {
+  store.setImagesParentConfig(config.value);
+  router.push(`/images/${route.params.id}`);
 };
 
 const modalConfirmHandler = (isConfirmed, cloneName) => {

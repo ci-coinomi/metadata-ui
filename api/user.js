@@ -43,9 +43,9 @@ export const addUser = async (username, password, roles, status) => {
 export const updateUser = async (username, password, roles, status) => {
   const response = await api(`admin/users`, "PUT", {
     username,
-    password,
+    // password,
     roles,
-    status,
+    enabled: status,
   });
   if (response.status) return response.status;
   return response.response.status;
