@@ -12,11 +12,13 @@
         <span>Create user</span>
       </h2>
       <UiInputField
+        v-if="!props.payload"
         v-model="username"
         type="text"
         :placeholder="'Username...'"
       />
       <UiInputField
+        v-if="!props.payload"
         v-model="password"
         type="password"
         :placeholder="'Password...'"
@@ -67,7 +69,7 @@ const toast = useToast();
 const username = ref(props.payload?.username || "");
 const password = ref("");
 const role = ref("admin");
-const status = ref(props.payload?.status || true);
+const status = ref(props.payload ? props.payload?.enabled : true);
 
 const onRoleSelectHandler = (evt) => {
   role.value = evt.target.value;
@@ -87,7 +89,10 @@ const convertRoleToRolesArr = (role) => {
 };
 
 const onConfirmHandler = () => {
-  if (username.value.trim() === "" || password.value.trim() === "") {
+  if (
+    !props.payload &&
+    (username.value.trim() === "" || password.value.trim() === "")
+  ) {
     toast.open({
       message: "You need to enter username and password...",
       type: "warning",
@@ -101,7 +106,7 @@ const onConfirmHandler = () => {
     username: username.value,
     password: password.value,
     role: rolesArr,
-    status: status.value,
+    enabled: status.value,
   });
 };
 

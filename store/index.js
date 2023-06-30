@@ -5,7 +5,7 @@ export const useStore = defineStore("app-store", {
   state: () => ({
     configTypes: [],
     headerTitle: "",
-    userRole: "ADMIN",
+    currentUser: null,
   }),
   actions: {
     setConfigTypes(payload) {
@@ -14,6 +14,10 @@ export const useStore = defineStore("app-store", {
 
     setHeaderTitle(payload) {
       this.headerTitle = payload;
+    },
+
+    setCurrentUser(payload) {
+      this.currentUser = payload;
     },
 
     async getConfigTypes() {
