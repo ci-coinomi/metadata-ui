@@ -30,8 +30,12 @@
           >
           <span v-else>Total count: {{ imagesList.length }}</span>
         </h2>
-        <UiButton @click="onAddNewImageHandler">
-          <img src="~/assets/icons/icon-add.svg" class="w-4 h-4" alt="add" />
+        <UiButton class="success" @click="onAddNewImageHandler">
+          <img
+            src="~/assets/icons/icon-add.svg"
+            class="w-4 h-4 icon-add"
+            alt="add"
+          />
         </UiButton>
       </header>
 
@@ -146,7 +150,7 @@ const deleteImage = async ({ imageId }) => {
   isLoading.value = true;
   const response = await deleteImageById(imageId, parentConfig.value.configId);
 
-    if (response === 204) {
+  if (response === 204) {
     toast.open({
       message: "Image was deleted",
       type: "success",
@@ -181,7 +185,11 @@ const uploadNewImage = async (imageData) => {
 
 const updateImage = async (newImageData, { imageId }) => {
   isLoading.value = true;
-  const response = await updateImageById(newImageData, imageId, parentConfig.value);
+  const response = await updateImageById(
+    newImageData,
+    imageId,
+    parentConfig.value
+  );
   if (response?.imageId === imageId) {
     toast.open({
       message: "Image was updated",
@@ -232,5 +240,10 @@ onBeforeUnmount(() => {
 <style scoped>
 .imagesPageLayout {
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+.icon-add {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  mask: url(~/assets/icons/icon-add.svg) no-repeat center / contain;
+  background-color: white;
 }
 </style>

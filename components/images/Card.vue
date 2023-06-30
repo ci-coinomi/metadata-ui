@@ -10,7 +10,9 @@
       />
     </div>
     <div class="flex flex-col gap-4">
-      <h3>{{ props.image.imageName }}</h3>
+      <h3 class="flex justify-center items-center">
+        {{ props.image.imageName }}
+      </h3>
       <div class="flex justify-evenly items-center gap-1">
         <uiButton
           class="warning px-2 py-2 h-[34px]"

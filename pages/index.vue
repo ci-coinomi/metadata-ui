@@ -22,15 +22,18 @@
 </template>
 
 <script setup>
+import { useStore } from "~/store";
 import { signin } from "~/api/user";
 
 const router = useRouter();
+const store = useStore();
 
 const loginData = ref("");
 const passwordData = ref("");
 const isAuthMessage = ref("");
 
 const formSubmitHandler = async () => {
+  store.setCurrentUser(null);
   isAuthMessage.value = "";
 
   if (loginData.value && passwordData.value) {

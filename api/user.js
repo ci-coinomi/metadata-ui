@@ -29,23 +29,22 @@ export const signout = async () => {
   return response;
 };
 
-export const addUser = async (username, password, roles, status) => {
+export const addUser = async (username, password, roles, enabled) => {
   const response = await api(`admin/users`, "POST", {
     username,
     password,
     roles,
-    status,
+    enabled,
   });
   if (response.status) return response.status;
   return response.response.status;
 };
 
-export const updateUser = async (username, password, roles, status) => {
+export const updateUser = async (username, roles, enabled) => {
   const response = await api(`admin/users`, "PUT", {
     username,
-    // password,
     roles,
-    enabled: status,
+    enabled,
   });
   if (response.status) return response.status;
   return response.response.status;
@@ -59,5 +58,10 @@ export const deleteUser = async (login) => {
 
 export const getUsers = async () => {
   const { _data } = await api(`admin/users`, "GET");
+  return _data;
+};
+
+export const getMe = async () => {
+  const { _data } = await api(`admin/users/me`, "GET");
   return _data;
 };

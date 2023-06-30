@@ -12,6 +12,7 @@
     <userDataModal
       v-if="isUserDataModalVisible"
       :payload="userDataModalPayload"
+      :usersList="usersList"
       @update-user-data="updateUserDataHandler"
     />
 
@@ -25,7 +26,6 @@
             alt="logout"
           />
         </UiButton>
-        <!-- <h2>Your role is {{ userRole }}</h2> -->
         <div>
           <uiButton class="success" @click="onAddNewUserHandler"
             >Add user</uiButton
@@ -108,11 +108,12 @@ const modalConfirmHandler = (isConfirmed, payload) => {
 
 const updateUserDataHandler = (data) => {
   isUserDataModalVisible.value = false;
-  userDataModalPayload.value = null;
 
   if (data && userDataModalType.value === "CREATE") addNewUser(data);
-  if (data && userDataModalType.value === "UPDATE") updateExistedUser(data);
+  if (data && userDataModalType.value === "UPDATE")
+    updateExistedUser(userDataModalPayload.value.username, data);
 
+  userDataModalPayload.value = null;
   userDataModalType.value = "";
 };
 
@@ -136,9 +137,9 @@ const deleteUserByLogin = async (userName) => {
   }
 };
 
-const addNewUser = async ({ username, password, role, status }) => {
+const addNewUser = async ({ username, password, role, enabled }) => {
   isLoading.value = true;
-  const response = await addUser(username, password, role, status);
+  const response = await addUser(username, password, role, enabled);
   isLoading.value = false;
 
   if (response === 201) {
@@ -155,9 +156,9 @@ const addNewUser = async ({ username, password, role, status }) => {
   }
 };
 
-const updateExistedUser = async ({ username, password, role, status }) => {
+const updateExistedUser = async (username, { role, enabled }) => {
   isLoading.value = true;
-  const response = await updateUser(username, password, role, status);
+  const response = await updateUser(username, role, enabled);
   isLoading.value = false;
 
   if (response === 200) {

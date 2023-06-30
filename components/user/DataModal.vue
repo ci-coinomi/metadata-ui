@@ -12,11 +12,13 @@
         <span>Create user</span>
       </h2>
       <UiInputField
+        v-if="!props.payload"
         v-model="username"
         type="text"
         :placeholder="'Username...'"
       />
       <UiInputField
+        v-if="!props.payload"
         v-model="password"
         type="password"
         :placeholder="'Password...'"
@@ -60,14 +62,14 @@ import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 
 const emit = defineEmits(["updateUserData"]);
-const props = defineProps(["payload"]);
+const props = defineProps(["payload", "usersList"]);
 
 const toast = useToast();
 
 const username = ref(props.payload?.username || "");
 const password = ref("");
 const role = ref("admin");
-const status = ref(props.payload?.status || true);
+const status = ref(props.payload ? props.payload?.enabled : true);
 
 const onRoleSelectHandler = (evt) => {
   role.value = evt.target.value;
@@ -87,9 +89,22 @@ const convertRoleToRolesArr = (role) => {
 };
 
 const onConfirmHandler = () => {
-  if (username.value.trim() === "" || password.value.trim() === "") {
+  if (
+    !props.payload &&
+    (username.value.trim() === "" || password.value.trim() === "")
+  ) {
     toast.open({
       message: "You need to enter username and password...",
+      type: "warning",
+    });
+    return;
+  }
+
+  const usernamesArr = props.usersList.map((user) => user.username);
+
+  if (usernamesArr.includes(username.value.trim())) {
+    toast.open({
+      message: "User with the same name already exists",
       type: "warning",
     });
     return;
@@ -101,7 +116,7 @@ const onConfirmHandler = () => {
     username: username.value,
     password: password.value,
     role: rolesArr,
-    status: status.value,
+    enabled: status.value,
   });
 };
 
