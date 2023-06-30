@@ -12,20 +12,30 @@
     </p>
     <p class="w-1/3 flex items-center gap-1">
       <span class="text-gray-500">Status:</span>
-      <UiSwitcher :value="props.user.enabled" :disabled="true" />
+      <UiSwitcher
+        :value="props.user.enabled"
+        :disabled="true"
+        class="opacity-60"
+      />
     </p>
-    <div class="ml-auto flex gap-1">
-      <uiButton class="warning" @click="onUpdateClickHandler">
+    <div class="ml-auto flex justify-center items-center gap-1">
+      <uiButton
+        class="warning px-2 py-2 h-[34px]"
+        @click="onUpdateClickHandler"
+      >
         <img
           src="~/assets/icons/icon-update.svg"
-          class="w-4 h-4 icon-update"
+          class="w-6 h-6 icon-update"
           alt="delete user"
         />
       </uiButton>
-      <uiButton class="ml-auto danger" @click="onDeleteClickHandler">
+      <uiButton
+        class="ml-auto danger px-2 py-2 h-[34px]"
+        @click="onDeleteClickHandler"
+      >
         <img
           src="~/assets/icons/icon-trash.svg"
-          class="w-4 h-4 icon-trash"
+          class="w-6 h-6 icon-trash"
           alt="delete user"
         />
       </uiButton>

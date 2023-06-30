@@ -6,6 +6,8 @@ export const useStore = defineStore("app-store", {
     configTypes: [],
     headerTitle: "",
     currentUser: null,
+
+    imagesParentConfig: null,
   }),
   actions: {
     setConfigTypes(payload) {
@@ -18,6 +20,10 @@ export const useStore = defineStore("app-store", {
 
     setCurrentUser(payload) {
       this.currentUser = payload;
+    },
+
+    setImagesParentConfig(payload) {
+      this.imagesParentConfig = payload;
     },
 
     async getConfigTypes() {
