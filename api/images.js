@@ -49,9 +49,10 @@ export const updateImageById = async (image, imageId, parentConfig) => {
 };
 
 export const deleteImageById = async (imageId, parentConfigId) => {
-  const { _data } = await api(
+  const response = await api(
     `v1/admin/configs/${parentConfigId}/images/${imageId}`,
     "DELETE"
   );
-  return _data;
+  if (response.status) return response.status;
+  return response.response.status;
 };

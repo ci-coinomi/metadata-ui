@@ -10,8 +10,14 @@
     />
     <div class="flex justify-between w-full">
       <div class="flex gap-2">
-        <UiButton @click="onConfigListNavigate">To configs list</UiButton>
-        <UiButton @click="onConfigImagesNavigate">To config images</UiButton>
+        <UiButton @click="onConfigListNavigate">
+          <img
+            src="~/assets/icons/icon-return.svg"
+            class="w-4 h-4"
+            alt="return"
+          />
+        </UiButton>
+        <UiButton @click="onConfigImagesNavigate">Images</UiButton>
       </div>
       <div class="flex gap-2">
         <UiButton

@@ -2,12 +2,11 @@
   <main
     class="flex flex-col justify-center items-center gap-6 w-3/4 m-auto bg-white p-4 shadow-md mt-3 rounded"
   >
-    <!-- <ConfirmModal
+    <ConfirmModal
       v-if="isConfirmModalVisible"
-      :payload="confirmModalPayload"
       @is-modal-confirmed="modalConfirmHandler"
       >{{ confirmModalText }}</ConfirmModal
-    > -->
+    >
 
     <imagesAddModal
       v-if="isAddModalVisibe"
@@ -15,8 +14,8 @@
       @modal-handler="addModalHandler"
     />
 
-    <userSkeleton v-if="isLoading" class="w-[75vw]" />
-    <div v-else class="flex flex-col justify-center items-center gap-6 w-4/5">
+    <imagesSkeleton v-if="isLoading" class="w-[75vw]" />
+    <div v-else class="flex flex-col justify-center items-center gap-6 w-full">
       <header class="flex justify-between gap-4 w-full items-center">
         <UiButton @click="onConfigNavigate">
           <img
@@ -36,9 +35,12 @@
         </UiButton>
       </header>
 
-      <div v-for="image in imagesList" :key="image.imageId">
+      <div class="grid gap-6 justify-items-center imagesPageLayout w-full">
         <imagesCard
+          v-for="image in imagesList"
+          :key="image.imageId"
           :image="image"
+          class="max-w-[300px]"
           @on-update-click="onUpdateClickHandler"
           @on-delete-click="onDeleteClickHandler"
         />
@@ -47,6 +49,8 @@
   </main>
 </template>
 <script setup>
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
 import { useStore } from "~/store";
 import {
   getImagesByConfigId,
@@ -63,13 +67,14 @@ definePageMeta({
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
+const toast = useToast();
 
 const isLoading = ref(true);
 
-// const isConfirmModalVisible = ref(false);
-// const confirmModalText = ref("");
-// const confirmModalPayload = ref(null);
-// const confirmModalType = ref("");
+const isConfirmModalVisible = ref(false);
+const confirmModalText = ref(null);
+const confirmModalPayload = ref(null);
+const confirmModalType = ref(null);
 
 const isAddModalVisibe = ref(false);
 const addModalPayload = ref(null);
@@ -85,7 +90,10 @@ const onAddNewImageHandler = () => {
 };
 
 const onDeleteClickHandler = (image) => {
-  deleteImage(image);
+  isConfirmModalVisible.value = true;
+  confirmModalText.value = "Are you sure you want to delete this image?";
+  confirmModalType.value = "DELETE";
+  confirmModalPayload.value = image;
 };
 
 const onUpdateClickHandler = (image) => {
@@ -94,12 +102,35 @@ const onUpdateClickHandler = (image) => {
   isAddModalVisibe.value = true;
 };
 
+const modalConfirmHandler = (isConfirmed) => {
+  isConfirmModalVisible.value = false;
+
+  if (confirmModalType.value === "DELETE" && isConfirmed) {
+    deleteImage(confirmModalPayload.value);
+  }
+  if (confirmModalType.value === "UPDATE" && isConfirmed) {
+    const { imageData, addModalPayload } = confirmModalPayload.value;
+    updateImage(imageData, addModalPayload);
+  }
+
+  confirmModalText.value = null;
+  confirmModalType.value = null;
+  confirmModalPayload.value = null;
+};
+
 const addModalHandler = (imageData) => {
   isAddModalVisibe.value = false;
 
   if (imageData && addModalType.value === "ADDNEW") uploadNewImage(imageData);
-  if (imageData && addModalType.value === "UPDATE")
-    updateImage(imageData, addModalPayload.value);
+  if (imageData && addModalType.value === "UPDATE") {
+    isConfirmModalVisible.value = true;
+    confirmModalText.value = "Are you sure you want to update this image?";
+    confirmModalType.value = "UPDATE";
+    confirmModalPayload.value = {
+      imageData,
+      addModalPayload: addModalPayload.value,
+    };
+  }
 
   addModalType.value = null;
   addModalPayload.value = null;
@@ -112,24 +143,58 @@ const onConfigNavigate = () => {
 
 // Fetching functions
 const deleteImage = async ({ imageId }) => {
+  isLoading.value = true;
   const response = await deleteImageById(imageId, parentConfig.value.configId);
-  // TODO закончить
-  console.log(response);
+
+    if (response === 204) {
+    toast.open({
+      message: "Image was deleted",
+      type: "success",
+    });
+    await getImages();
+  } else {
+    toast.open({
+      message: "Something went wrong :(",
+      type: "error",
+    });
+  }
+  isLoading.value = false;
 };
 
 const uploadNewImage = async (imageData) => {
+  isLoading.value = true;
   const response = await addNewImage(imageData, parentConfig.value);
-  // TODO Blocked by CORS
-  console.log(response);
+  if (response?.imageName === imageData.name) {
+    toast.open({
+      message: "Image was added",
+      type: "success",
+    });
+    await getImages();
+  } else {
+    toast.open({
+      message: "Something went wrong :(",
+      type: "error",
+    });
+  }
+  isLoading.value = false;
 };
 
 const updateImage = async (newImageData, { imageId }) => {
-  const response = await updateImageById(
-    newImageData,
-    imageId,
-    parentConfig.value
-  );
-  console.log(response);
+  isLoading.value = true;
+  const response = await updateImageById(newImageData, imageId, parentConfig.value);
+  if (response?.imageId === imageId) {
+    toast.open({
+      message: "Image was updated",
+      type: "success",
+    });
+    await getImages();
+  } else {
+    toast.open({
+      message: "Something went wrong :(",
+      type: "error",
+    });
+  }
+  isLoading.value = false;
 };
 
 const getImages = async () => {
@@ -139,29 +204,33 @@ const getImages = async () => {
 
 const getImagesAndParentName = async () => {
   store.setHeaderTitle(`Loading...`);
+  isLoading.value = true;
   await getImages();
-
   if (store.imagesParentConfig) {
     parentConfig.value = store.imagesParentConfig;
   } else if (imagesList.value.length > 0) {
     parentConfig.value = imagesList.value[0].parentConfig;
   } else {
     const parentResponse = await getConfigById(route.params.id);
-    parentConfig.value = parentResponse.configName;
+    parentConfig.value = parentResponse;
   }
-
   store.setImagesParentConfig(parentConfig.value);
   store.setHeaderTitle(`Config ${parentConfig.value.configName} images`);
+  isLoading.value = false;
 };
 
 // Hooks
 onMounted(() => {
-  isLoading.value = true;
   getImagesAndParentName();
-  isLoading.value = false;
 });
 
 onBeforeUnmount(() => {
   store.setImagesParentConfig(null);
 });
 </script>
+
+<style scoped>
+.imagesPageLayout {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+</style>
