@@ -15,7 +15,7 @@ const router = useRouter();
 
 const onPreviousPageHandler = () => {
   clearError();
-  router.go(-2);
+  router.go(-1);
 };
 
 const onLoginPageHandler = async () => {
