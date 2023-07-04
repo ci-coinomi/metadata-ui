@@ -9,9 +9,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const store = useStore();
 
   if (!store.currentUser) {
-    const user = await getMe();
-    if (user) {
-      store.setCurrentUser(user);
+    const response = await getMe();
+    if (response.status === 200) {
+      store.setCurrentUser(response._data);
     } else {
       return navigateTo("/");
     }

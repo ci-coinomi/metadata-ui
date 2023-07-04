@@ -131,7 +131,7 @@ const deleteUserByLogin = async (userName) => {
     getUsersList();
   } else {
     toast.open({
-      message: "Something went wrong :(",
+      message: `Deleting user error, status: ${response}`,
       type: "error",
     });
   }
@@ -150,7 +150,7 @@ const addNewUser = async ({ username, password, role, enabled }) => {
     getUsersList();
   } else {
     toast.open({
-      message: "Something went wrong :(",
+      message: `Adding new user error, status: ${response}`,
       type: "error",
     });
   }
@@ -169,7 +169,7 @@ const updateExistedUser = async (username, { role, enabled }) => {
     getUsersList();
   } else {
     toast.open({
-      message: "Something went wrong :(",
+      message: `Updating user error, status: ${response}`,
       type: "error",
     });
   }
@@ -182,7 +182,7 @@ const getUsersList = async () => {
     usersList.value = response;
   } else {
     toast.open({
-      message: "Fetching users error",
+      message: `Fetching users error, status: ${response}`,
       type: "error",
     });
   }

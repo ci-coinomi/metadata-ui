@@ -167,7 +167,7 @@ const modalConfirmHandler = (isConfirmed, cloneName) => {
 const cloneConfigRequest = async () => {
   isLoading.value = true;
   const response = await cloneConfig(clonedConfigName.value, config.value);
-  if (response?.configId) {
+  if (response.configId) {
     toast.open({
       message: "Config was successfully cloned",
       type: "success",
@@ -178,7 +178,7 @@ const cloneConfigRequest = async () => {
     clonedConfigName.value = "";
   } else {
     toast.open({
-      message: "Something went wrong :(",
+      message: `Creating clone error, status: ${response}`,
       type: "error",
     });
   }
@@ -198,7 +198,7 @@ const deleteConfigRequest = async () => {
     });
   } else {
     toast.open({
-      message: "Something went wrong :(",
+      message: `Deleting config error, status: ${response}`,
       type: "error",
     });
   }
@@ -212,7 +212,10 @@ const updateConfigRequest = async () => {
   "value":0.0000010, but after JSON.parse(JSON.stringify(config.value.configFile)) (configFile-object we are working with)
   it will be converted to "value":0.000001. Before such reparcing they had the same value.
   */
-  if (updatedConfig === JSON.stringify(JSON.parse(config.value.configFile))) {
+  if (
+    updatedConfig &&
+    updatedConfig === JSON.stringify(JSON.parse(config.value.configFile))
+  ) {
     toast.open({
       message: "You need to update some fields before update",
       type: "warning",
@@ -223,14 +226,33 @@ const updateConfigRequest = async () => {
   isLoading.value = true;
   const response = await updateConfig(config.value, updatedConfig);
 
-  if (JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig) {
+  if (
+    response.configFile &&
+    JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig
+  ) {
     toast.open({
       message: "Config was successfully updated",
       type: "success",
     });
   } else {
     toast.open({
-      message: "Something went wrong :(",
+      message: `Updating config error, status: ${response}`,
+      type: "error",
+    });
+  }
+  isLoading.value = false;
+};
+
+const getConfig = async () => {
+  isLoading.value = true;
+
+  const response = await getConfigById(route.params.id);
+  if (response.configFile) {
+    config.value = response;
+    configFile.value = JSON.parse(response.configFile);
+  } else {
+    toast.open({
+      message: `Getting config error, status: ${response}`,
       type: "error",
     });
   }
@@ -243,11 +265,8 @@ watch(isModalVisible, () => {
     : (document.body.style.overflow = "");
 });
 
-onMounted(async () => {
-  isLoading.value = true;
-  config.value = await getConfigById(route.params.id);
-  configFile.value = JSON.parse(config.value.configFile);
-  isLoading.value = false;
+onMounted(() => {
+  getConfig();
   store.setHeaderTitle(config.value.configName);
 });
 </script>
