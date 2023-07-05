@@ -5,11 +5,6 @@ export default defineNuxtConfig({
       METADATA_URL: process.env.METADATA_URL,
     },
   },
-  // build:{
-  // vue-toastification - old commonjs module 
-    // transpile: ['vue-toast-notification'],
-  // },
-  css: ["vue-toast-notification/dist/theme-default.css"],
   app: {
     head: {
       // __dangerouslyDisableSanitizers: ['script'],

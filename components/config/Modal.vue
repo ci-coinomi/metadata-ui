@@ -30,7 +30,7 @@ const props = defineProps({
 
 const emit = defineEmits(["isModalConfirmed"]);
 
-// const { $toast } = useNuxtApp();
+const { $toast } = useNuxtApp();
 
 const modalText = ref("Are you sure?");
 const cloneConfigName = ref("");

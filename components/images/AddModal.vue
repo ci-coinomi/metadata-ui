@@ -44,7 +44,7 @@
 const emit = defineEmits(["modal-handler"]);
 const props = defineProps(["payload"]);
 
-// const { $toast } = useNuxtApp();
+const { $toast } = useNuxtApp();
 
 const fileInput = ref(null);
 

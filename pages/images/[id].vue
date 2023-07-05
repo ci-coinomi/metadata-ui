@@ -66,7 +66,7 @@ definePageMeta({
   layout: "signedin",
 });
 
-// const { $toast } = useNuxtApp();
+const { $toast } = useNuxtApp();
 
 const store = useStore();
 const router = useRouter();
