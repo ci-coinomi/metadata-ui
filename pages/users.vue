@@ -54,7 +54,7 @@ definePageMeta({
   layout: "signedin",
 });
 
-const { $toast } = useNuxtApp();
+// const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
 const { $toast } = useNuxtApp()
@@ -124,10 +124,8 @@ const deleteUserByLogin = async (userName) => {
 
   if (response === 204) {
     $toast.success(`User was deleted`);
-    $toast.success(`User was deleted`);
     getUsersList();
   } else {
-    $toast.error(`Deleting user error, status: ${response}`);
     $toast.error(`Deleting user error, status: ${response}`);
   }
 };
@@ -139,10 +137,8 @@ const addNewUser = async ({ username, password, role, enabled }) => {
 
   if (response === 201) {
     $toast.success(`User was added`);
-    $toast.success(`User was added`);
     getUsersList();
   } else {
-    $toast.error(`Adding new user error, status: ${response}`);
     $toast.error(`Adding new user error, status: ${response}`);
   }
 };
@@ -154,10 +150,8 @@ const updateExistedUser = async (username, { role, enabled }) => {
 
   if (response === 200) {
     $toast.success(`User was updated`);
-    $toast.success(`User was updated`);
     getUsersList();
   } else {
-    $toast.error(`Updating user error, status: ${response}`);
     $toast.error(`Updating user error, status: ${response}`);
   }
 };
@@ -168,7 +162,6 @@ const getUsersList = async () => {
   if (response && Array.isArray(response)) {
     usersList.value = response;
   } else {
-    $toast.error(`Fetching user error, status: ${response}`);
     $toast.error(`Fetching user error, status: ${response}`);
   }
   isLoading.value = false;

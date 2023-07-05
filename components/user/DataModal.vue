@@ -61,7 +61,7 @@
 const emit = defineEmits(["updateUserData"]);
 const props = defineProps(["payload", "usersList"]);
 
-const { $toast } = useNuxtApp();
+// const { $toast } = useNuxtApp();
 
 const username = ref(props.payload?.username || "");
 const password = ref("");
@@ -91,14 +91,12 @@ const onConfirmHandler = () => {
     (username.value.trim() === "" || password.value.trim() === "")
   ) {
     $toast.warning(`You need to enter username and password`);
-    $toast.warning(`You need to enter username and password`);
     return;
   }
 
   const usernamesArr = props.usersList.map((user) => user.username);
 
   if (!props.payload && usernamesArr.includes(username.value.trim())) {
-    $toast.warning(`User with the same name already exists`);
     $toast.warning(`User with the same name already exists`);
     return;
   }

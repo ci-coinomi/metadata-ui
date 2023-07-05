@@ -66,7 +66,7 @@ definePageMeta({
   layout: "signedin",
 });
 
-const { $toast } = useNuxtApp();
+// const { $toast } = useNuxtApp();
 
 const store = useStore();
 const router = useRouter();
@@ -152,10 +152,8 @@ const deleteImage = async ({ imageId }) => {
 
   if (response === 204) {
     $toast.success(`Image was deleted`);
-    $toast.success(`Image was deleted`);
     await getImages();
   } else {
-    $toast.error(`Deleting image error, status: ${response}`);
     $toast.error(`Deleting image error, status: ${response}`);
   }
   isLoading.value = false;
@@ -166,10 +164,8 @@ const uploadNewImage = async (imageData) => {
   const response = await addNewImage(imageData, parentConfig.value);
   if (response?.imageName === imageData.name) {
     $toast.success(`Image was added`);
-    $toast.success(`Image was added`);
     await getImages();
   } else {
-    $toast.error(`Uploading image error, status: ${response}`);
     $toast.error(`Uploading image error, status: ${response}`);
   }
   isLoading.value = false;
@@ -184,10 +180,8 @@ const updateImage = async (newImageData, { imageId }) => {
   );
   if (response.imageId === imageId) {
     $toast.success(`Image was updated`);
-    $toast.success(`Image was updated`);
     await getImages();
   } else {
-    $toast.error(`Updating image error, status: ${response}`);
     $toast.error(`Updating image error, status: ${response}`);
   }
   isLoading.value = false;
@@ -199,7 +193,6 @@ const getImages = async () => {
     imagesList.value = response;
   } else {
     $toast.error(`Getting config images error, status: ${response}`);
-    $toast.error(`Getting config images error, status: ${response}`);
   }
 };
 
@@ -208,7 +201,6 @@ const getConfig = async () => {
   if (response.configFile) {
     return response;
   } else {
-    $toast.error(`Getting config error, status: ${response}`);
     $toast.error(`Getting config error, status: ${response}`);
     return "Getting config error";
   }

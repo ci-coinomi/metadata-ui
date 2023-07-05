@@ -44,7 +44,7 @@
 const emit = defineEmits(["modal-handler"]);
 const props = defineProps(["payload"]);
 
-const { $toast } = useNuxtApp();
+// const { $toast } = useNuxtApp();
 
 const fileInput = ref(null);
 
@@ -80,7 +80,6 @@ const removeBase64Prefix = (encodedImage) => {
 const onConfirmHandler = () => {
   if (imageUpdatedName.value?.trim() === "") {
     $toast.warning(`Image title cannot contain only spaces`);
-    $toast.warning(`Image title cannot contain only spaces`);
     imageUpdatedName.value = null;
     return;
   }
@@ -91,12 +90,10 @@ const onConfirmHandler = () => {
     props.payload.imageName === (imageUpdatedName.value || imageOldName.value)
   ) {
     $toast.warning(`You have not updated image data`);
-    $toast.warning(`You have not updated image data`);
     return;
   }
 
   if (!imageData.value) {
-    $toast.warning(`You need to upload image`);
     $toast.warning(`You need to upload image`);
     return;
   }
