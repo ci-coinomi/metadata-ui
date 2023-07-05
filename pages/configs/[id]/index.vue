@@ -69,9 +69,6 @@
 </template>
 
 <script setup>
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
-
 import {
   getConfigById,
   updateConfig,
@@ -87,7 +84,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
-const toast = useToast();
+const { $toast } = useNuxtApp();
 
 const config = ref({});
 const configFile = ref({});
@@ -168,19 +165,13 @@ const cloneConfigRequest = async () => {
   isLoading.value = true;
   const response = await cloneConfig(clonedConfigName.value, config.value);
   if (response.configId) {
-    toast.open({
-      message: "Config was successfully cloned",
-      type: "success",
-    });
+    $toast.success(`Config was successfully cloned`);
     config.value = response;
     router.push(`/configs/${config.value.configId}`);
     configFile.value = JSON.parse(config.value.configFile);
     clonedConfigName.value = "";
   } else {
-    toast.open({
-      message: `Creating clone error, status: ${response}`,
-      type: "error",
-    });
+    $toast.error(`Creating clone error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -189,18 +180,12 @@ const deleteConfigRequest = async () => {
   isLoading.value = true;
   const response = await deleteConfig(config.value.configId);
   if (response === 204) {
-    toast.open({
-      message: "Config was successfully deleted",
-      type: "success",
-    });
+    $toast.success(`Config was successfully deleted`);
     router.push({
       name: "configs",
     });
   } else {
-    toast.open({
-      message: `Deleting config error, status: ${response}`,
-      type: "error",
-    });
+    $toast.error(`Deleting config error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -216,10 +201,7 @@ const updateConfigRequest = async () => {
     updatedConfig &&
     updatedConfig === JSON.stringify(JSON.parse(config.value.configFile))
   ) {
-    toast.open({
-      message: "You need to update some fields before update",
-      type: "warning",
-    });
+    $toast.warning(`You need to update some fields before update`);
     return;
   }
 
@@ -230,15 +212,9 @@ const updateConfigRequest = async () => {
     response.configFile &&
     JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig
   ) {
-    toast.open({
-      message: "Config was successfully updated",
-      type: "success",
-    });
+    $toast.success(`Config was successfully updated`);
   } else {
-    toast.open({
-      message: `Updating config error, status: ${response}`,
-      type: "error",
-    });
+    $toast.error(`Updating config error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -260,10 +236,7 @@ const getConfig = async () => {
     configFile.value = JSON.parse(response.configFile);
     store.setHeaderTitle(config.value.configName);
   } else {
-    toast.open({
-      message: `Getting config error, status: ${response}`,
-      type: "error",
-    });
+    $toast.error(`Getting config error, status: ${response}`);
   }
   isLoading.value = false;
 };

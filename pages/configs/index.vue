@@ -45,8 +45,6 @@
   </main>
 </template>
 <script setup>
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
 import { getConfigs, getConfigsTypes } from "~/api/configs";
 import { useStore } from "~/store";
 
@@ -54,9 +52,9 @@ definePageMeta({
   layout: "signedin",
 });
 
+const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
-const toast = useToast();
 
 const configs = ref([]);
 const filtredConfigs = ref([]);
@@ -103,10 +101,7 @@ const fetchConfigTypes = async () => {
   if (Array.isArray(response)) {
     store.setConfigTypes(response);
   } else {
-    toast.open({
-      message: `Fetching config types error, status: ${response}`,
-      type: "error",
-    });
+    $toast.error(`Fetching config types error, status: ${response}`);
   }
 };
 
@@ -116,10 +111,7 @@ const fetchConfigs = async () => {
     configs.value = response.sort((a, b) => b.configId - a.configId);
     filtredConfigs.value = configs.value;
   } else {
-    toast.open({
-      message: `Fetching configs error, status: ${response}`,
-      type: "error",
-    });
+    $toast.error(`Fetching configs error, status: ${response}`);
   }
 };
 
