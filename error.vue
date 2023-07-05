@@ -9,7 +9,6 @@
 </template>
 <script setup>
 const router = useRouter();
-const { $toast } = useNuxtApp()
 
 const onPreviousPageHandler = () => {
   clearError();

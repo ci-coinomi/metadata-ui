@@ -5,9 +5,6 @@ export default defineNuxtConfig({
       METADATA_URL: process.env.METADATA_URL,
     },
   },
-  build: {
-    transpile: ["vue-toastification"],
-  },
   app: {
     head: {
       // __dangerouslyDisableSanitizers: ['script'],

@@ -30,7 +30,7 @@ const props = defineProps({
 
 const emit = defineEmits(["isModalConfirmed"]);
 
-const { $toast } = useNuxtApp()
+const { $toast } = useNuxtApp();
 
 const modalText = ref("Are you sure?");
 const cloneConfigName = ref("");
@@ -44,6 +44,7 @@ const onConfirmHandler = () => {
     props.modalType === "SETCLONENAME" &&
     cloneConfigName.value.trim() === ""
   ) {
+    $toast.warning(`You need to enter new config name`);
     $toast.warning(`You need to enter new config name`);
   } else {
     emit("isModalConfirmed", true, cloneConfigName.value);
