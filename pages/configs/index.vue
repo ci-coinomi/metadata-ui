@@ -38,7 +38,7 @@
           :key="config.configId"
           :config="config"
           class="cursor-pointer hover:ring-gray-500 hover:ring-2 active:ring-gray-600"
-          @click="onConfigItemClickHandler(config.configId)"
+          @click="onConfigItemClickHandler(config)"
         />
       </div>
     </div>
@@ -65,7 +65,21 @@ const isLoading = ref(true);
 
 const configTypes = computed(() => store.configTypes);
 
-const onConfigItemClickHandler = (configId) => {
+const onConfigItemClickHandler = ({ configId, configType }) => {
+  if (configType === "BANNER") {
+    router.push({
+      path: `/configs/${configId}/banner`,
+    });
+    return;
+  }
+
+  if (configType === "NFT_COLLECTION") {
+    router.push({
+      path: `/configs/${configId}/nft-collection`,
+    });
+    return;
+  }
+
   router.push({
     path: `/configs/${configId}`,
   });

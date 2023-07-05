@@ -249,7 +249,16 @@ const getConfig = async () => {
   const response = await getConfigById(route.params.id);
   if (response.configFile) {
     config.value = response;
+    // Redirecting for collections and banners...
+    if (config.value.configType === "BANNER") {
+      router.push(`/configs/${route.params.id}/banner`);
+    }
+    if (config.value.configType === "NFT_COLLECTION") {
+      router.push(`/configs/${route.params.id}/nft-collection`);
+    }
+
     configFile.value = JSON.parse(response.configFile);
+    store.setHeaderTitle(config.value.configName);
   } else {
     toast.open({
       message: `Getting config error, status: ${response}`,
@@ -267,6 +276,5 @@ watch(isModalVisible, () => {
 
 onMounted(() => {
   getConfig();
-  store.setHeaderTitle(config.value.configName);
 });
 </script>

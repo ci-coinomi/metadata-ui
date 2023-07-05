@@ -40,7 +40,7 @@
       </header>
 
       <div class="grid gap-6 justify-items-center imagesPageLayout w-full">
-        <imagesCard
+        <ConfigImageCard
           v-for="image in imagesList"
           :key="image.imageId"
           :image="image"

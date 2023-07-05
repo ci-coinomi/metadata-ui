@@ -2,7 +2,7 @@ import { useStore } from "~/store";
 import { getMe } from "~/api/user";
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  if (process.server || to.name === "index" || to.name === "no-access") {
+  if (process.server || to.name === "index" || to.name === "forbidden") {
     return;
   }
 
