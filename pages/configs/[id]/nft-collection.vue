@@ -111,9 +111,6 @@
 </template>
 
 <script setup>
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
-
 import {
   getConfigById,
   updateConfig,
@@ -135,7 +132,6 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
-const toast = useToast();
 
 const isLoading = ref(true);
 const config = ref({});
@@ -281,16 +277,16 @@ const uploadNewImage = async (imageData) => {
   isLoading.value = true;
   const response = await addNewImage(imageData, config.value);
   if (response?.imageName === imageData.name) {
-    toast.open({
-      message: "Image was added",
-      type: "success",
-    });
+    // toast.open({
+    //   message: "Image was added",
+    //   type: "success",
+    // });
     await getImages();
   } else {
-    toast.open({
-      message: `Uploading image error, status: ${response}`,
-      type: "error",
-    });
+    // toast.open({
+    //   message: `Uploading image error, status: ${response}`,
+    //   type: "error",
+    // });
   }
   isLoading.value = false;
 };
@@ -300,10 +296,10 @@ const getImages = async () => {
   if (Array.isArray(response)) {
     imagesList.value = response;
   } else {
-    toast.open({
-      message: `Getting config images error, status: ${response}`,
-      type: "error",
-    });
+    // toast.open({
+    //   message: `Getting config images error, status: ${response}`,
+    //   type: "error",
+    // });
   }
 };
 
@@ -312,16 +308,16 @@ const deleteImage = async ({ imageId }) => {
   const response = await deleteImageById(imageId, config.value.configId);
 
   if (response === 204) {
-    toast.open({
-      message: "Image was deleted",
-      type: "success",
-    });
+    // toast.open({
+    //   message: "Image was deleted",
+    //   type: "success",
+    // });
     await getImages();
   } else {
-    toast.open({
-      message: `Deleting image error, status: ${response}`,
-      type: "error",
-    });
+    // toast.open({
+    //   message: `Deleting image error, status: ${response}`,
+    //   type: "error",
+    // });
   }
   isLoading.value = false;
 };
@@ -330,16 +326,16 @@ const updateImage = async (newImageData, { imageId }) => {
   isLoading.value = true;
   const response = await updateImageById(newImageData, imageId, config.value);
   if (response.imageId === imageId) {
-    toast.open({
-      message: "Image was updated",
-      type: "success",
-    });
+    // toast.open({
+    //   message: "Image was updated",
+    //   type: "success",
+    // });
     await getImages();
   } else {
-    toast.open({
-      message: `Updating image error, status: ${response}`,
-      type: "error",
-    });
+    // toast.open({
+    //   message: `Updating image error, status: ${response}`,
+    //   type: "error",
+    // });
   }
   isLoading.value = false;
 };
@@ -350,19 +346,19 @@ const cloneConfigRequest = async () => {
   isLoading.value = true;
   const response = await cloneConfig(clonedConfigName.value, config.value);
   if (response.configId) {
-    toast.open({
-      message: "Config was successfully cloned",
-      type: "success",
-    });
+    // toast.open({
+    //   message: "Config was successfully cloned",
+    //   type: "success",
+    // });
     config.value = response;
     router.push(`/configs/${config.value.configId}/nft-collection`);
     configFile.value = JSON.parse(config.value.configFile);
     clonedConfigName.value = "";
   } else {
-    toast.open({
-      message: `Creating clone error, status: ${response}`,
-      type: "error",
-    });
+    // toast.open({
+    //   message: `Creating clone error, status: ${response}`,
+    //   type: "error",
+    // });
   }
   isLoading.value = false;
 };
@@ -371,18 +367,18 @@ const deleteConfigRequest = async () => {
   isLoading.value = true;
   const response = await deleteConfig(config.value.configId);
   if (response === 204) {
-    toast.open({
-      message: "Config was successfully deleted",
-      type: "success",
-    });
+    // toast.open({
+    //   message: "Config was successfully deleted",
+    //   type: "success",
+    // });
     router.push({
       name: "configs",
     });
   } else {
-    toast.open({
-      message: `Deleting config error, status: ${response}`,
-      type: "error",
-    });
+    // toast.open({
+    //   message: `Deleting config error, status: ${response}`,
+    //   type: "error",
+    // });
   }
   isLoading.value = false;
 };
@@ -398,10 +394,10 @@ const updateConfigRequest = async () => {
     updatedConfig &&
     updatedConfig === JSON.stringify(JSON.parse(config.value.configFile))
   ) {
-    toast.open({
-      message: "You need to update some fields before update",
-      type: "warning",
-    });
+    // toast.open({
+    //   message: "You need to update some fields before update",
+    //   type: "warning",
+    // });
     return;
   }
 
@@ -412,15 +408,15 @@ const updateConfigRequest = async () => {
     response.configFile &&
     JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig
   ) {
-    toast.open({
-      message: "Config was successfully updated",
-      type: "success",
-    });
+    // toast.open({
+    //   message: "Config was successfully updated",
+    //   type: "success",
+    // });
   } else {
-    toast.open({
-      message: `Updating config error, status: ${response}`,
-      type: "error",
-    });
+    // toast.open({
+    //   message: `Updating config error, status: ${response}`,
+    //   type: "error",
+    // });
   }
   isLoading.value = false;
 };
@@ -437,10 +433,10 @@ const getNftConfigWithImages = async () => {
     store.setHeaderTitle(`Collection ${config.value.configName}`);
   } else {
     store.setHeaderTitle(`Fetching data error`);
-    toast.open({
-      message: `Getting config error, status: ${response}`,
-      type: "error",
-    });
+    // toast.open({
+    //   message: `Getting config error, status: ${response}`,
+    //   type: "error",
+    // });
   }
 
   await getImages();

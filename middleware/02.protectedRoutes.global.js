@@ -8,8 +8,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const store = useStore();
   const rolesArr = store.currentUser?.roles;
 
-  console.log(to.name)
-
   if (to.name === "configs" && !rolesArr?.includes("ROLE_ADMIN")) {
     return navigateTo("/forbidden");
   }
@@ -22,7 +20,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo("/forbidden");
   }
 
-  if (to.name === "configs-id-nft-collection" && !rolesArr?.includes("ROLE_ADMIN")) {
+  if (
+    to.name === "configs-id-nft-collection" &&
+    !rolesArr?.includes("ROLE_ADMIN")
+  ) {
     return navigateTo("/forbidden");
   }
 
