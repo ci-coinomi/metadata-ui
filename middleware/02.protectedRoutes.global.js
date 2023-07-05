@@ -35,6 +35,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo("/no-access");
   }
 
+  if (to.name === "questions" && !rolesArr?.includes("ROLE_ADMIN")) {
+    return navigateTo("/no-access");
+  }
+
   if (
     to.name === "users" &&
     rolesArr?.includes("ROLE_ADMIN") &&
