@@ -17,16 +17,26 @@
   </header>
 </template>
 <script setup>
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
 import { signout } from "~/api/user";
 import { useStore } from "~/store";
 
 const router = useRouter();
 const store = useStore();
+const toast = useToast();
 
 const headerTitle = computed(() => store.headerTitle);
 
 const onLogoutHandler = async () => {
-  await signout();
+  const response = await signout();
+  if (response !== 204) {
+    toast.open({
+      message: `Logout request error, status: ${response}`,
+      type: "error",
+    });
+  }
   router.push({
     path: `/`,
   });

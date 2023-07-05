@@ -1,12 +1,10 @@
 import { defineStore } from "pinia";
-import { getConfigsTypes } from "~/api/configs";
 
 export const useStore = defineStore("app-store", {
   state: () => ({
     configTypes: [],
     headerTitle: "",
     currentUser: null,
-
     imagesParentConfig: null,
   }),
   actions: {
@@ -24,11 +22,6 @@ export const useStore = defineStore("app-store", {
 
     setImagesParentConfig(payload) {
       this.imagesParentConfig = payload;
-    },
-
-    async getConfigTypes() {
-      const configTypesData = await getConfigsTypes();
-      this.setConfigTypes(configTypesData);
     },
   },
 });

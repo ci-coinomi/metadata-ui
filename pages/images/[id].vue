@@ -158,7 +158,7 @@ const deleteImage = async ({ imageId }) => {
     await getImages();
   } else {
     toast.open({
-      message: "Something went wrong :(",
+      message: `Deleting image error, status: ${response}`,
       type: "error",
     });
   }
@@ -176,7 +176,7 @@ const uploadNewImage = async (imageData) => {
     await getImages();
   } else {
     toast.open({
-      message: "Something went wrong :(",
+      message: `Uploading image error, status: ${response}`,
       type: "error",
     });
   }
@@ -190,7 +190,7 @@ const updateImage = async (newImageData, { imageId }) => {
     imageId,
     parentConfig.value
   );
-  if (response?.imageId === imageId) {
+  if (response.imageId === imageId) {
     toast.open({
       message: "Image was updated",
       type: "success",
@@ -198,7 +198,7 @@ const updateImage = async (newImageData, { imageId }) => {
     await getImages();
   } else {
     toast.open({
-      message: "Something went wrong :(",
+      message: `Updating image error, status: ${response}`,
       type: "error",
     });
   }
@@ -207,7 +207,27 @@ const updateImage = async (newImageData, { imageId }) => {
 
 const getImages = async () => {
   const response = await getImagesByConfigId(route.params.id);
-  imagesList.value = response;
+  if (Array.isArray(response)) {
+    imagesList.value = response;
+  } else {
+    toast.open({
+      message: `Getting config images error, status: ${response}`,
+      type: "error",
+    });
+  }
+};
+
+const getConfig = async () => {
+  const response = await getConfigById(route.params.id);
+  if (response.configFile) {
+    return response;
+  } else {
+    toast.open({
+      message: `Getting config error, status: ${response}`,
+      type: "error",
+    });
+    return "Getting config error";
+  }
 };
 
 const getImagesAndParentName = async () => {
@@ -219,7 +239,7 @@ const getImagesAndParentName = async () => {
   } else if (imagesList.value.length > 0) {
     parentConfig.value = imagesList.value[0].parentConfig;
   } else {
-    const parentResponse = await getConfigById(route.params.id);
+    const parentResponse = await getConfig(route.params.id);
     parentConfig.value = parentResponse;
   }
   store.setImagesParentConfig(parentConfig.value);

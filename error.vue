@@ -9,9 +9,12 @@
   </main>
 </template>
 <script setup>
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
 import { signout } from "~/api/user";
 
 const router = useRouter();
+const toast = useToast();
 
 const onPreviousPageHandler = () => {
   clearError();
@@ -19,7 +22,13 @@ const onPreviousPageHandler = () => {
 };
 
 const onLoginPageHandler = async () => {
-  await signout();
+  const response = await signout();
+  if (response !== 204) {
+    toast.open({
+      message: `Logout request error, status: ${response}`,
+      type: "error",
+    });
+  }
   clearError({ redirect: "/" });
 };
 </script>

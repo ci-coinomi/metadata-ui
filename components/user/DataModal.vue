@@ -102,7 +102,7 @@ const onConfirmHandler = () => {
 
   const usernamesArr = props.usersList.map((user) => user.username);
 
-  if (usernamesArr.includes(username.value.trim())) {
+  if (!props.payload && usernamesArr.includes(username.value.trim())) {
     toast.open({
       message: "User with the same name already exists",
       type: "warning",

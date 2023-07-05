@@ -45,7 +45,9 @@
   </main>
 </template>
 <script setup>
-import { getConfigs } from "~/api/configs";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+import { getConfigs, getConfigsTypes } from "~/api/configs";
 import { useStore } from "~/store";
 
 definePageMeta({
@@ -54,6 +56,7 @@ definePageMeta({
 
 const store = useStore();
 const router = useRouter();
+const toast = useToast();
 
 const configs = ref([]);
 const filtredConfigs = ref([]);
@@ -81,12 +84,35 @@ const onTypesSelectHandler = (evt) => {
   );
 };
 
-onMounted(async () => {
+const fetchConfigTypes = async () => {
+  const response = await getConfigsTypes();
+  if (Array.isArray(response)) {
+    store.setConfigTypes(response);
+  } else {
+    toast.open({
+      message: `Fetching config types error, status: ${response}`,
+      type: "error",
+    });
+  }
+};
+
+const fetchConfigs = async () => {
+  const response = await getConfigs();
+  if (Array.isArray(response)) {
+    configs.value = response.sort((a, b) => b.configId - a.configId);
+    filtredConfigs.value = configs.value;
+  } else {
+    toast.open({
+      message: `Fetching configs error, status: ${response}`,
+      type: "error",
+    });
+  }
+};
+
+onMounted(() => {
   isLoading.value = true;
-  await store.getConfigTypes();
-  const configsList = await getConfigs();
-  configs.value = configsList.sort((a, b) => b.configId - a.configId);
-  filtredConfigs.value = configs.value;
+  fetchConfigTypes();
+  fetchConfigs();
   store.setHeaderTitle(`Configs`);
   isLoading.value = false;
 });
