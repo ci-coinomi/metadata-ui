@@ -5,6 +5,7 @@ export default defineNuxtConfig({
       METADATA_URL: process.env.METADATA_URL,
     },
   },
+  css: ["vue-toast-notification/dist/theme-default.css"],
   app: {
     head: {
       // __dangerouslyDisableSanitizers: ['script'],
