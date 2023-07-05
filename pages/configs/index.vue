@@ -52,7 +52,7 @@ definePageMeta({
   layout: "signedin",
 });
 
-const { $toast } = useNuxtApp();
+// const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
 
@@ -87,7 +87,7 @@ const fetchConfigTypes = async () => {
   if (Array.isArray(response)) {
     store.setConfigTypes(response);
   } else {
-    $toast.error(`Fetching config types error, status: ${response}`);
+    // $toast.error(`Fetching config types error, status: ${response}`);
   }
 };
 
@@ -97,7 +97,7 @@ const fetchConfigs = async () => {
     configs.value = response.sort((a, b) => b.configId - a.configId);
     filtredConfigs.value = configs.value;
   } else {
-    $toast.error(`Fetching configs error, status: ${response}`);
+    // $toast.error(`Fetching configs error, status: ${response}`);
   }
 };
 
