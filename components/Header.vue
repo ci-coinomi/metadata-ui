@@ -43,7 +43,7 @@ import { useStore } from "~/store";
 // const { $toast } = useNuxtApp();
 const router = useRouter();
 const store = useStore();
-const { $toast } = useNuxtApp()
+const { $toast } = useNuxtApp();
 
 const headerTitle = computed(() => store.headerTitle);
 

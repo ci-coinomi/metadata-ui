@@ -61,7 +61,7 @@
 const emit = defineEmits(["updateUserData"]);
 const props = defineProps(["payload", "usersList"]);
 
-const { $toast } = useNuxtApp()
+const { $toast } = useNuxtApp();
 
 const username = ref(props.payload?.username || "");
 const password = ref("");

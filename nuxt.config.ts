@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  modules: ["@nuxtjs/eslint-module", "@nuxtjs/tailwindcss", "@pinia/nuxt", ],
+  modules: ["@nuxtjs/eslint-module", "@nuxtjs/tailwindcss", "@pinia/nuxt"],
   runtimeConfig: {
     public: {
       METADATA_URL: process.env.METADATA_URL,

@@ -11,7 +11,7 @@
 <script setup>
 import { signout } from "~/api/user";
 
-const { $toast } = useNuxtApp()
+const { $toast } = useNuxtApp();
 const router = useRouter();
 
 const onPreviousPageHandler = () => {
