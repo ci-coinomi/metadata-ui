@@ -22,6 +22,13 @@
         @update:value="(data) => (configNestedObject[key] = data)"
       />
       <UiInputField
+        v-else-if="Array.isArray(value)"
+        :value="configNestedObject[key]"
+        type="text"
+        :disabled="key === '@type' || key === 'eucId'"
+        @input="(data) => (configNestedObject[key] = data.target.value.split(','))"
+        />
+      <UiInputField
         v-else
         v-model="configNestedObject[key]"
         type="text"
