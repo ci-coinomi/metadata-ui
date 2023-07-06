@@ -69,9 +69,6 @@
 </template>
 
 <script setup>
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
-
 import {
   getConfigById,
   updateConfig,
@@ -87,7 +84,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
-const toast = useToast();
+const { $toast } = useNuxtApp()
 
 const config = ref({});
 const configFile = ref({});
@@ -167,20 +164,14 @@ const modalConfirmHandler = (isConfirmed, cloneName) => {
 const cloneConfigRequest = async () => {
   isLoading.value = true;
   const response = await cloneConfig(clonedConfigName.value, config.value);
-  if (response?.configId) {
-    toast.open({
-      message: "Config was successfully cloned",
-      type: "success",
-    });
+  if (response.configId) {
+    $toast.success(`Config was successfully cloned`);
     config.value = response;
     router.push(`/configs/${config.value.configId}`);
     configFile.value = JSON.parse(config.value.configFile);
     clonedConfigName.value = "";
   } else {
-    toast.open({
-      message: "Something went wrong :(",
-      type: "error",
-    });
+    $toast.error(`Creating clone error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -189,18 +180,12 @@ const deleteConfigRequest = async () => {
   isLoading.value = true;
   const response = await deleteConfig(config.value.configId);
   if (response === 204) {
-    toast.open({
-      message: "Config was successfully deleted",
-      type: "success",
-    });
+    $toast.success(`Config was successfully deleted`);
     router.push({
       name: "configs",
     });
   } else {
-    toast.open({
-      message: "Something went wrong :(",
-      type: "error",
-    });
+    $toast.error(`Deleting config error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -212,27 +197,46 @@ const updateConfigRequest = async () => {
   "value":0.0000010, but after JSON.parse(JSON.stringify(config.value.configFile)) (configFile-object we are working with)
   it will be converted to "value":0.000001. Before such reparcing they had the same value.
   */
-  if (updatedConfig === JSON.stringify(JSON.parse(config.value.configFile))) {
-    toast.open({
-      message: "You need to update some fields before update",
-      type: "warning",
-    });
+  if (
+    updatedConfig &&
+    updatedConfig === JSON.stringify(JSON.parse(config.value.configFile))
+  ) {
+    $toast.warning(`You need to update some fields before update`);
     return;
   }
 
   isLoading.value = true;
   const response = await updateConfig(config.value, updatedConfig);
 
-  if (JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig) {
-    toast.open({
-      message: "Config was successfully updated",
-      type: "success",
-    });
+  if (
+    response.configFile &&
+    JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig
+  ) {
+    $toast.success(`Config was successfully updated`);
   } else {
-    toast.open({
-      message: "Something went wrong :(",
-      type: "error",
-    });
+    $toast.error(`Updating config error, status: ${response}`);
+  }
+  isLoading.value = false;
+};
+
+const getConfig = async () => {
+  isLoading.value = true;
+
+  const response = await getConfigById(route.params.id);
+  if (response.configFile) {
+    config.value = response;
+    // Redirecting for collections and banners...
+    if (config.value.configType === "BANNER") {
+      router.push(`/configs/${route.params.id}/banner`);
+    }
+    if (config.value.configType === "NFT_COLLECTION") {
+      router.push(`/configs/${route.params.id}/nft-collection`);
+    }
+
+    configFile.value = JSON.parse(response.configFile);
+    store.setHeaderTitle(config.value.configName);
+  } else {
+    $toast.error(`Getting config error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -243,11 +247,7 @@ watch(isModalVisible, () => {
     : (document.body.style.overflow = "");
 });
 
-onMounted(async () => {
-  isLoading.value = true;
-  config.value = await getConfigById(route.params.id);
-  configFile.value = JSON.parse(config.value.configFile);
-  isLoading.value = false;
-  store.setHeaderTitle(config.value.configName);
+onMounted(() => {
+  getConfig();
 });
 </script>

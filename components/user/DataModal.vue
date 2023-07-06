@@ -58,13 +58,10 @@
 </template>
 
 <script setup>
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
-
 const emit = defineEmits(["updateUserData"]);
 const props = defineProps(["payload", "usersList"]);
 
-const toast = useToast();
+const { $toast } = useNuxtApp();
 
 const username = ref(props.payload?.username || "");
 const password = ref("");
@@ -93,20 +90,14 @@ const onConfirmHandler = () => {
     !props.payload &&
     (username.value.trim() === "" || password.value.trim() === "")
   ) {
-    toast.open({
-      message: "You need to enter username and password...",
-      type: "warning",
-    });
+    $toast.warning(`You need to enter username and password`);
     return;
   }
 
   const usernamesArr = props.usersList.map((user) => user.username);
 
-  if (usernamesArr.includes(username.value.trim())) {
-    toast.open({
-      message: "User with the same name already exists",
-      type: "warning",
-    });
+  if (!props.payload && usernamesArr.includes(username.value.trim())) {
+    $toast.warning(`User with the same name already exists`);
     return;
   }
 

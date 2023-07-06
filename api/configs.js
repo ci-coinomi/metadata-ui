@@ -15,43 +15,61 @@ const api = async (endpoint, method, payload) => {
 };
 
 export const getConfigs = async () => {
-  const { _data } = await api(`v1/admin/configs`, "GET");
-  return _data;
+  const response = await api(`v1/admin/configs`, "GET");
+  if (response._data) {
+    return response._data;
+  } else {
+    return response.status;
+  }
 };
 
 export const getConfigById = async (id) => {
-  const { _data } = await api(`v1/admin/configs/${id}`, "GET");
-  return _data;
+  const response = await api(`v1/admin/configs/${id}`, "GET");
+  if (response._data) {
+    return response._data;
+  } else {
+    return response.status;
+  }
 };
 
 export const getConfigsTypes = async () => {
-  const { _data } = await api(`v1/admin/configs/types`, "GET");
-  return _data;
+  const response = await api(`v1/admin/configs/types`, "GET");
+  if (response._data) {
+    return response._data;
+  } else {
+    return response.status;
+  }
 };
 
 export const updateConfig = async (previousConfig, updatedConfigFile) => {
   const { configId, configName, configType } = previousConfig;
-  const { _data } = await api(`v1/admin/configs/${configId}`, "PUT", {
+  const response = await api(`v1/admin/configs/${configId}`, "PUT", {
     configId,
     configName,
     configType,
     configFile: updatedConfigFile,
   });
-  return _data;
+  if (response._data) {
+    return response._data;
+  } else {
+    return response.status;
+  }
 };
 
 export const cloneConfig = async (newConfigName, parentConfig) => {
-  const { _data } = await api(`v1/admin/configs`, "POST", {
+  const response = await api(`v1/admin/configs`, "POST", {
     configName: newConfigName,
     configType: parentConfig.configType,
     configFile: parentConfig.configFile,
   });
-  return _data;
+  if (response._data) {
+    return response._data;
+  } else {
+    return response.status;
+  }
 };
 
 export const deleteConfig = async (configId) => {
   const response = await api(`v1/admin/configs/${configId}`, "DELETE");
-  // If successful - return response status, if error - status from error object.
-  if (response.status) return response.status;
-  return response.response.status;
+  return response.status;
 };

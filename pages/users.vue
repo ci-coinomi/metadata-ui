@@ -47,8 +47,6 @@
   </main>
 </template>
 <script setup>
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
 import { useStore } from "~/store";
 import { addUser, deleteUser, getUsers, updateUser } from "~/api/user";
 
@@ -56,9 +54,10 @@ definePageMeta({
   layout: "signedin",
 });
 
+// const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
-const toast = useToast();
+const { $toast } = useNuxtApp();
 
 const isLoading = ref(true);
 const usersList = ref([]);
@@ -124,16 +123,10 @@ const deleteUserByLogin = async (userName) => {
   isLoading.value = false;
 
   if (response === 204) {
-    toast.open({
-      message: "User was deleted",
-      type: "success",
-    });
+    $toast.success(`User was deleted`);
     getUsersList();
   } else {
-    toast.open({
-      message: "Something went wrong :(",
-      type: "error",
-    });
+    $toast.error(`Deleting user error, status: ${response}`);
   }
 };
 
@@ -143,16 +136,10 @@ const addNewUser = async ({ username, password, role, enabled }) => {
   isLoading.value = false;
 
   if (response === 201) {
-    toast.open({
-      message: "User was added",
-      type: "success",
-    });
+    $toast.success(`User was added`);
     getUsersList();
   } else {
-    toast.open({
-      message: "Something went wrong :(",
-      type: "error",
-    });
+    $toast.error(`Adding new user error, status: ${response}`);
   }
 };
 
@@ -162,16 +149,10 @@ const updateExistedUser = async (username, { role, enabled }) => {
   isLoading.value = false;
 
   if (response === 200) {
-    toast.open({
-      message: "User was updated",
-      type: "success",
-    });
+    $toast.success(`User was updated`);
     getUsersList();
   } else {
-    toast.open({
-      message: "Something went wrong :(",
-      type: "error",
-    });
+    $toast.error(`Updating user error, status: ${response}`);
   }
 };
 
@@ -181,10 +162,7 @@ const getUsersList = async () => {
   if (response && Array.isArray(response)) {
     usersList.value = response;
   } else {
-    toast.open({
-      message: "Fetching users error",
-      type: "error",
-    });
+    $toast.error(`Fetching user error, status: ${response}`);
   }
   isLoading.value = false;
 };
