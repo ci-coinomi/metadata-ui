@@ -40,7 +40,7 @@
       </header>
 
       <div class="grid gap-6 justify-items-center imagesPageLayout w-full">
-        <imagesCard
+        <ConfigImageCard
           v-for="image in imagesList"
           :key="image.imageId"
           :image="image"
@@ -53,8 +53,6 @@
   </main>
 </template>
 <script setup>
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
 import { useStore } from "~/store";
 import {
   getImagesByConfigId,
@@ -68,10 +66,12 @@ definePageMeta({
   layout: "signedin",
 });
 
+// const { $toast } = useNuxtApp();
+
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
-const toast = useToast();
+const { $toast } = useNuxtApp()
 
 const isLoading = ref(true);
 
@@ -151,16 +151,10 @@ const deleteImage = async ({ imageId }) => {
   const response = await deleteImageById(imageId, parentConfig.value.configId);
 
   if (response === 204) {
-    toast.open({
-      message: "Image was deleted",
-      type: "success",
-    });
+    $toast.success(`Image was deleted`);
     await getImages();
   } else {
-    toast.open({
-      message: "Something went wrong :(",
-      type: "error",
-    });
+    $toast.error(`Deleting image error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -169,16 +163,10 @@ const uploadNewImage = async (imageData) => {
   isLoading.value = true;
   const response = await addNewImage(imageData, parentConfig.value);
   if (response?.imageName === imageData.name) {
-    toast.open({
-      message: "Image was added",
-      type: "success",
-    });
+    $toast.success(`Image was added`);
     await getImages();
   } else {
-    toast.open({
-      message: "Something went wrong :(",
-      type: "error",
-    });
+    $toast.error(`Uploading image error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -190,24 +178,32 @@ const updateImage = async (newImageData, { imageId }) => {
     imageId,
     parentConfig.value
   );
-  if (response?.imageId === imageId) {
-    toast.open({
-      message: "Image was updated",
-      type: "success",
-    });
+  if (response.imageId === imageId) {
+    $toast.success(`Image was updated`);
     await getImages();
   } else {
-    toast.open({
-      message: "Something went wrong :(",
-      type: "error",
-    });
+    $toast.error(`Updating image error, status: ${response}`);
   }
   isLoading.value = false;
 };
 
 const getImages = async () => {
   const response = await getImagesByConfigId(route.params.id);
-  imagesList.value = response;
+  if (Array.isArray(response)) {
+    imagesList.value = response;
+  } else {
+    $toast.error(`Getting config images error, status: ${response}`);
+  }
+};
+
+const getConfig = async () => {
+  const response = await getConfigById(route.params.id);
+  if (response.configFile) {
+    return response;
+  } else {
+    $toast.error(`Getting config error, status: ${response}`);
+    return "Getting config error";
+  }
 };
 
 const getImagesAndParentName = async () => {
@@ -219,7 +215,7 @@ const getImagesAndParentName = async () => {
   } else if (imagesList.value.length > 0) {
     parentConfig.value = imagesList.value[0].parentConfig;
   } else {
-    const parentResponse = await getConfigById(route.params.id);
+    const parentResponse = await getConfig(route.params.id);
     parentConfig.value = parentResponse;
   }
   store.setImagesParentConfig(parentConfig.value);

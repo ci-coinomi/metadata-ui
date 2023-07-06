@@ -15,12 +15,16 @@ const api = async (endpoint, method, payload) => {
 };
 
 export const getImagesByConfigId = async (configId) => {
-  const { _data } = await api(`v1/admin/configs/${configId}/images`, "GET");
-  return _data;
+  const response = await api(`v1/admin/configs/${configId}/images`, "GET");
+  if (response._data) {
+    return response._data;
+  } else {
+    return response.status;
+  }
 };
 
 export const addNewImage = async (image, parentConfig) => {
-  const { _data } = await api(
+  const response = await api(
     `v1/admin/configs/${parentConfig.configId}/images`,
     "POST",
     {
@@ -30,11 +34,15 @@ export const addNewImage = async (image, parentConfig) => {
       parentConfig,
     }
   );
-  return _data;
+  if (response._data) {
+    return response._data;
+  } else {
+    return response.status;
+  }
 };
 
 export const updateImageById = async (image, imageId, parentConfig) => {
-  const { _data } = await api(
+  const response = await api(
     `v1/admin/configs/${parentConfig.configId}/images/${imageId}`,
     "PUT",
     {
@@ -45,7 +53,11 @@ export const updateImageById = async (image, imageId, parentConfig) => {
       parentConfig,
     }
   );
-  return _data;
+  if (response._data) {
+    return response._data;
+  } else {
+    return response.status;
+  }
 };
 
 export const deleteImageById = async (imageId, parentConfigId) => {
@@ -53,6 +65,5 @@ export const deleteImageById = async (imageId, parentConfigId) => {
     `v1/admin/configs/${parentConfigId}/images/${imageId}`,
     "DELETE"
   );
-  if (response.status) return response.status;
-  return response.response.status;
+  return response.status;
 };

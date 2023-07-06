@@ -4,14 +4,12 @@
     <p>The page you are looking for doesn't exist or has been moved.</p>
     <div class="flex gap-4">
       <UiButton @click="onPreviousPageHandler"> To previous page </UiButton>
-      <UiButton @click="onLoginPageHandler"> To login page </UiButton>
     </div>
   </main>
 </template>
 <script setup>
-import { signout } from "~/api/user";
-
 const router = useRouter();
+const { $toast } = useNuxtApp()
 
 const onPreviousPageHandler = () => {
   clearError();
@@ -19,7 +17,10 @@ const onPreviousPageHandler = () => {
 };
 
 const onLoginPageHandler = async () => {
-  await signout();
+  const response = await signout();
+  if (response !== 204) {
+    // $toast.error(`Logout request error, status: ${response}`);
+  }
   clearError({ redirect: "/" });
 };
 </script>

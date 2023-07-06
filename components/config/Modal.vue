@@ -23,9 +23,6 @@
 </template>
 
 <script setup>
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
-
 const props = defineProps({
   // UPDATE, SETCLONENAME, DELETE, CREATECLONE
   modalType: String,
@@ -33,7 +30,7 @@ const props = defineProps({
 
 const emit = defineEmits(["isModalConfirmed"]);
 
-const toast = useToast();
+const { $toast } = useNuxtApp()
 
 const modalText = ref("Are you sure?");
 const cloneConfigName = ref("");
@@ -47,10 +44,7 @@ const onConfirmHandler = () => {
     props.modalType === "SETCLONENAME" &&
     cloneConfigName.value.trim() === ""
   ) {
-    toast.open({
-      message: "You need to enter new config name",
-      type: "warning",
-    });
+    $toast.warning(`You need to enter new config name`);
   } else {
     emit("isModalConfirmed", true, cloneConfigName.value);
   }

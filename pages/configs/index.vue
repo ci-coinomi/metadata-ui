@@ -38,22 +38,24 @@
           :key="config.configId"
           :config="config"
           class="cursor-pointer hover:ring-gray-500 hover:ring-2 active:ring-gray-600"
-          @click="onConfigItemClickHandler(config.configId)"
+          @click="onConfigItemClickHandler(config)"
         />
       </div>
     </div>
   </main>
 </template>
 <script setup>
-import { getConfigs } from "~/api/configs";
+import { getConfigs, getConfigsTypes } from "~/api/configs";
 import { useStore } from "~/store";
 
 definePageMeta({
   layout: "signedin",
 });
 
+// const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
+const { $toast } = useNuxtApp()
 
 const configs = ref([]);
 const filtredConfigs = ref([]);
@@ -62,7 +64,21 @@ const isLoading = ref(true);
 
 const configTypes = computed(() => store.configTypes);
 
-const onConfigItemClickHandler = (configId) => {
+const onConfigItemClickHandler = ({ configId, configType }) => {
+  if (configType === "BANNER") {
+    router.push({
+      path: `/configs/${configId}/banner`,
+    });
+    return;
+  }
+
+  if (configType === "NFT_COLLECTION") {
+    router.push({
+      path: `/configs/${configId}/nft-collection`,
+    });
+    return;
+  }
+
   router.push({
     path: `/configs/${configId}`,
   });
@@ -81,12 +97,29 @@ const onTypesSelectHandler = (evt) => {
   );
 };
 
-onMounted(async () => {
+const fetchConfigTypes = async () => {
+  const response = await getConfigsTypes();
+  if (Array.isArray(response)) {
+    store.setConfigTypes(response);
+  } else {
+    $toast.error(`Fetching config types error, status: ${response}`);
+  }
+};
+
+const fetchConfigs = async () => {
+  const response = await getConfigs();
+  if (Array.isArray(response)) {
+    configs.value = response.sort((a, b) => b.configId - a.configId);
+    filtredConfigs.value = configs.value;
+  } else {
+    $toast.error(`Fetching configs error, status: ${response}`);
+  }
+};
+
+onMounted(() => {
   isLoading.value = true;
-  await store.getConfigTypes();
-  const configsList = await getConfigs();
-  configs.value = configsList.sort((a, b) => b.configId - a.configId);
-  filtredConfigs.value = configs.value;
+  fetchConfigTypes();
+  fetchConfigs();
   store.setHeaderTitle(`Configs`);
   isLoading.value = false;
 });

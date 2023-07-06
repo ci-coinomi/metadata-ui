@@ -41,12 +41,10 @@
 </template>
 
 <script setup>
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
-
 const emit = defineEmits(["modal-handler"]);
 const props = defineProps(["payload"]);
-const toast = useToast();
+
+const { $toast } = useNuxtApp()
 
 const fileInput = ref(null);
 
@@ -81,10 +79,7 @@ const removeBase64Prefix = (encodedImage) => {
 
 const onConfirmHandler = () => {
   if (imageUpdatedName.value?.trim() === "") {
-    toast.open({
-      message: "Image title cannot contain only spaces",
-      type: "warning",
-    });
+    $toast.warning(`Image title cannot contain only spaces`);
     imageUpdatedName.value = null;
     return;
   }
@@ -94,18 +89,12 @@ const onConfirmHandler = () => {
     props.payload.imageData === imageData.value &&
     props.payload.imageName === (imageUpdatedName.value || imageOldName.value)
   ) {
-    toast.open({
-      message: "You have not updated image data",
-      type: "warning",
-    });
+    $toast.warning(`You have not updated image data`);
     return;
   }
 
   if (!imageData.value) {
-    toast.open({
-      message: "You need to upload image",
-      type: "warning",
-    });
+    $toast.warning(`You need to upload image`);
     return;
   }
 
