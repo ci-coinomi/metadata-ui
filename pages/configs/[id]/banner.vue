@@ -124,6 +124,7 @@ definePageMeta({
   layout: "signedin",
 });
 
+const { $toast } = useNuxtApp();
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
@@ -272,16 +273,10 @@ const uploadNewImage = async (imageData) => {
   isLoading.value = true;
   const response = await addNewImage(imageData, config.value);
   if (response?.imageName === imageData.name) {
-    // toast.open({
-    //   message: "Image was added",
-    //   type: "success",
-    // });
+    $toast.success(`Image was added`);
     await getImages();
   } else {
-    // toast.open({
-    //   message: `Uploading image error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Uploading image error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -291,10 +286,7 @@ const getImages = async () => {
   if (Array.isArray(response)) {
     imagesList.value = response;
   } else {
-    // toast.open({
-    //   message: `Getting config images error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Getting config images error, status: ${response}`);
   }
 };
 
@@ -303,16 +295,10 @@ const deleteImage = async ({ imageId }) => {
   const response = await deleteImageById(imageId, config.value.configId);
 
   if (response === 204) {
-    // toast.open({
-    //   message: "Image was deleted",
-    //   type: "success",
-    // });
+    $toast.success(`Image was deleted`);
     await getImages();
   } else {
-    // toast.open({
-    //   message: `Deleting image error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Deleting image error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -321,16 +307,10 @@ const updateImage = async (newImageData, { imageId }) => {
   isLoading.value = true;
   const response = await updateImageById(newImageData, imageId, config.value);
   if (response.imageId === imageId) {
-    // toast.open({
-    //   message: "Image was updated",
-    //   type: "success",
-    // });
+    $toast.success(`Image was updated`);
     await getImages();
   } else {
-    // toast.open({
-    //   message: `Updating image error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Updating image error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -341,19 +321,13 @@ const cloneConfigRequest = async () => {
   isLoading.value = true;
   const response = await cloneConfig(clonedConfigName.value, config.value);
   if (response.configId) {
-    // toast.open({
-    //   message: "Config was successfully cloned",
-    //   type: "success",
-    // });
+    $toast.success(`Config was successfully cloned`);
     config.value = response;
     router.push(`/configs/${config.value.configId}/banner`);
     configFile.value = JSON.parse(config.value.configFile);
     clonedConfigName.value = "";
   } else {
-    // toast.open({
-    //   message: `Creating clone error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Creating clone error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -362,18 +336,12 @@ const deleteConfigRequest = async () => {
   isLoading.value = true;
   const response = await deleteConfig(config.value.configId);
   if (response === 204) {
-    // toast.open({
-    //   message: "Config was successfully deleted",
-    //   type: "success",
-    // });
+    $toast.success(`Config was successfully deleted`);
     router.push({
       name: "configs",
     });
   } else {
-    // toast.open({
-    //   message: `Deleting config error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Deleting config error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -389,10 +357,7 @@ const updateConfigRequest = async () => {
     updatedConfig &&
     updatedConfig === JSON.stringify(JSON.parse(config.value.configFile))
   ) {
-    // toast.open({
-    //   message: "You need to update some fields before update",
-    //   type: "warning",
-    // });
+    $toast.warning(`You need to update some fields before update`);
     return;
   }
 
@@ -403,15 +368,9 @@ const updateConfigRequest = async () => {
     response.configFile &&
     JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig
   ) {
-    // toast.open({
-    //   message: "Config was successfully updated",
-    //   type: "success",
-    // });
+    $toast.success(`Config was successfully updated`);
   } else {
-    // toast.open({
-    //   message: `Updating config error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Updating config error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -428,10 +387,7 @@ const getBannerWithImage = async () => {
     store.setHeaderTitle(`Banner ${config.value.configName}`);
   } else {
     store.setHeaderTitle(`Fetching data error`);
-    // toast.open({
-    //   message: `Getting config error, status: ${bannerResponse}`,
-    //   type: "error",
-    // });
+    $toast.error(`Getting config error, status: ${bannerResponse}`);
   }
 
   await getImages();
