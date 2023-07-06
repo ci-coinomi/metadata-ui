@@ -40,6 +40,7 @@
 import { signout } from "~/api/user";
 import { useStore } from "~/store";
 
+// const { $toast } = useNuxtApp();
 const router = useRouter();
 const store = useStore();
 const { $toast } = useNuxtApp()

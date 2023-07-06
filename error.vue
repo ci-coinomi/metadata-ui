@@ -15,4 +15,12 @@ const onPreviousPageHandler = () => {
   clearError();
   router.go(-1);
 };
+
+const onLoginPageHandler = async () => {
+  const response = await signout();
+  if (response !== 204) {
+    // $toast.error(`Logout request error, status: ${response}`);
+  }
+  clearError({ redirect: "/" });
+};
 </script>
