@@ -38,7 +38,7 @@
           :key="config.configId"
           :config="config"
           class="cursor-pointer hover:ring-gray-500 hover:ring-2 active:ring-gray-600"
-          @click="onConfigItemClickHandler(config.configId)"
+          @click="onConfigItemClickHandler(config)"
         />
       </div>
     </div>
@@ -55,6 +55,7 @@ definePageMeta({
 // const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
+const { $toast } = useNuxtApp()
 
 const configs = ref([]);
 const filtredConfigs = ref([]);
@@ -63,7 +64,21 @@ const isLoading = ref(true);
 
 const configTypes = computed(() => store.configTypes);
 
-const onConfigItemClickHandler = (configId) => {
+const onConfigItemClickHandler = ({ configId, configType }) => {
+  if (configType === "BANNER") {
+    router.push({
+      path: `/configs/${configId}/banner`,
+    });
+    return;
+  }
+
+  if (configType === "NFT_COLLECTION") {
+    router.push({
+      path: `/configs/${configId}/nft-collection`,
+    });
+    return;
+  }
+
   router.push({
     path: `/configs/${configId}`,
   });
@@ -87,7 +102,7 @@ const fetchConfigTypes = async () => {
   if (Array.isArray(response)) {
     store.setConfigTypes(response);
   } else {
-    // $toast.error(`Fetching config types error, status: ${response}`);
+    $toast.error(`Fetching config types error, status: ${response}`);
   }
 };
 
@@ -97,7 +112,7 @@ const fetchConfigs = async () => {
     configs.value = response.sort((a, b) => b.configId - a.configId);
     filtredConfigs.value = configs.value;
   } else {
-    // $toast.error(`Fetching configs error, status: ${response}`);
+    $toast.error(`Fetching configs error, status: ${response}`);
   }
 };
 

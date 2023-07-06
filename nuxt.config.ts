@@ -1,15 +1,13 @@
 export default defineNuxtConfig({
-  modules: ["@nuxtjs/eslint-module", "@nuxtjs/tailwindcss", "@pinia/nuxt"],
+  modules: ["@nuxtjs/eslint-module", "@nuxtjs/tailwindcss", "@pinia/nuxt", ],
   runtimeConfig: {
     public: {
       METADATA_URL: process.env.METADATA_URL,
     },
   },
-  // build:{
-  // vue-toastification - old commonjs module 
-    // transpile: ['vue-toast-notification'],
-  // },
-  css: ["vue-toast-notification/dist/theme-default.css"],
+  build: {
+    transpile: ["vue-toastification"],
+  },
   app: {
     head: {
       // __dangerouslyDisableSanitizers: ['script'],

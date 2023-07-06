@@ -45,7 +45,6 @@ const formSubmitHandler = async () => {
       
       Так что приходится в качестве временного решения всегда вызывать signout, пусть она и будет вызывать ошибку, если
       токена авторизации нет и мы пытаемся войти впервые.
-      await signout();
     */
 
     const res = await signin(loginData.value, passwordData.value);

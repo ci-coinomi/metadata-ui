@@ -11,7 +11,7 @@
 <script setup>
 import { signout } from "~/api/user";
 
-// const { $toast } = useNuxtApp();
+const { $toast } = useNuxtApp()
 const router = useRouter();
 
 const onPreviousPageHandler = () => {
@@ -22,7 +22,7 @@ const onPreviousPageHandler = () => {
 const onLoginPageHandler = async () => {
   const response = await signout();
   if (response !== 204) {
-    // $toast.error(`Logout request error, status: ${response}`);
+    $toast.error(`Logout request error, status: ${response}`);
   }
   clearError({ redirect: "/" });
 };

@@ -43,6 +43,7 @@ import { useStore } from "~/store";
 // const { $toast } = useNuxtApp();
 const router = useRouter();
 const store = useStore();
+const { $toast } = useNuxtApp()
 
 const headerTitle = computed(() => store.headerTitle);
 
@@ -61,7 +62,7 @@ const onFaqNavigateHandler = () => {
 const onLogoutHandler = async () => {
   const response = await signout();
   if (response !== 204) {
-    // $toast.error(`Logout request error, status: ${response}`);
+    $toast.error(`Logout request error, status: ${response}`);
   }
   router.push({
     path: `/`,

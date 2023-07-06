@@ -84,7 +84,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
-// const { $toast } = useNuxtApp();
+const { $toast } = useNuxtApp()
 
 const config = ref({});
 const configFile = ref({});
@@ -165,13 +165,13 @@ const cloneConfigRequest = async () => {
   isLoading.value = true;
   const response = await cloneConfig(clonedConfigName.value, config.value);
   if (response.configId) {
-    // $toast.success(`Config was successfully cloned`);
+    $toast.success(`Config was successfully cloned`);
     config.value = response;
     router.push(`/configs/${config.value.configId}`);
     configFile.value = JSON.parse(config.value.configFile);
     clonedConfigName.value = "";
   } else {
-    // $toast.error(`Creating clone error, status: ${response}`);
+    $toast.error(`Creating clone error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -180,12 +180,12 @@ const deleteConfigRequest = async () => {
   isLoading.value = true;
   const response = await deleteConfig(config.value.configId);
   if (response === 204) {
-    // $toast.success(`Config was successfully deleted`);
+    $toast.success(`Config was successfully deleted`);
     router.push({
       name: "configs",
     });
   } else {
-    // $toast.error(`Deleting config error, status: ${response}`);
+    $toast.error(`Deleting config error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -201,7 +201,7 @@ const updateConfigRequest = async () => {
     updatedConfig &&
     updatedConfig === JSON.stringify(JSON.parse(config.value.configFile))
   ) {
-    // $toast.warning(`You need to update some fields before update`);
+    $toast.warning(`You need to update some fields before update`);
     return;
   }
 
@@ -212,9 +212,9 @@ const updateConfigRequest = async () => {
     response.configFile &&
     JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig
   ) {
-    // $toast.success(`Config was successfully updated`);
+    $toast.success(`Config was successfully updated`);
   } else {
-    // $toast.error(`Updating config error, status: ${response}`);
+    $toast.error(`Updating config error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -225,9 +225,18 @@ const getConfig = async () => {
   const response = await getConfigById(route.params.id);
   if (response.configFile) {
     config.value = response;
+    // Redirecting for collections and banners...
+    if (config.value.configType === "BANNER") {
+      router.push(`/configs/${route.params.id}/banner`);
+    }
+    if (config.value.configType === "NFT_COLLECTION") {
+      router.push(`/configs/${route.params.id}/nft-collection`);
+    }
+
     configFile.value = JSON.parse(response.configFile);
+    store.setHeaderTitle(config.value.configName);
   } else {
-    // $toast.error(`Getting config error, status: ${response}`);
+    $toast.error(`Getting config error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -240,6 +249,5 @@ watch(isModalVisible, () => {
 
 onMounted(() => {
   getConfig();
-  store.setHeaderTitle(config.value.configName);
 });
 </script>
