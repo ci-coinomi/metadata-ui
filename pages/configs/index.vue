@@ -55,7 +55,7 @@ definePageMeta({
 // const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
-const { $toast } = useNuxtApp()
+const { $toast } = useNuxtApp();
 
 const configs = ref([]);
 const filtredConfigs = ref([]);

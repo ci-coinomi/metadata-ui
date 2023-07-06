@@ -71,7 +71,7 @@ definePageMeta({
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
-const { $toast } = useNuxtApp()
+const { $toast } = useNuxtApp();
 
 const isLoading = ref(true);
 

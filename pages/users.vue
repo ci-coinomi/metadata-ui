@@ -57,7 +57,7 @@ definePageMeta({
 // const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
-const { $toast } = useNuxtApp()
+const { $toast } = useNuxtApp();
 
 const isLoading = ref(true);
 const usersList = ref([]);
