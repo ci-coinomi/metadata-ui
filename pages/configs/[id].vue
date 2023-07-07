@@ -1,26 +1,24 @@
 <template>
-  <div class="pt-3 relative">
-    <div class="absolute top-[10px] bottom-0 right-[10px]">
-      <div
-        class="w-[130px] flex flex-col-reverse items-end gap-2 sticky top-[20px] ml-auto mr-5 right-0 z-30 bg-white p-2 shadow-md rounded"
+  <div class="pt-3">
+    <div
+      class="fixed top-[76px] right-[25px] flex flex-col items-end gap-2 bg-white p-4 shadow-md rounded"
+    >
+      <UiButton v class="w-full success" @click="onCloneConfigHandler">
+        <span v-if="clonedConfigName">Save clone</span>
+        <span v-else>Create clone</span>
+      </UiButton>
+      <UiButton class="w-full warning" @click="onUpdateConfigHandler">
+        <span v-if="clonedConfigName">Change clone name</span>
+        <span v-else>Save changes</span>
+      </UiButton>
+      <UiButton
+        class="w-full"
+        :class="clonedConfigName ? 'gray' : 'danger'"
+        @click="onDeleteConfigHandler"
       >
-        <UiButton
-          class="w-full"
-          :class="clonedConfigName ? 'gray' : 'danger'"
-          @click="onDeleteConfigHandler"
-        >
-          <span v-if="clonedConfigName">Return without saving</span>
-          <span v-else>Delete</span>
-        </UiButton>
-        <UiButton class="w-full warning" @click="onUpdateConfigHandler">
-          <span v-if="clonedConfigName">Change clone name</span>
-          <span v-else>Save changes</span>
-        </UiButton>
-        <UiButton v class="w-full success" @click="onCloneConfigHandler">
-          <span v-if="clonedConfigName">Save clone</span>
-          <span v-else>Create clone</span>
-        </UiButton>
-      </div>
+        <span v-if="clonedConfigName">Return without saving</span>
+        <span v-else>Delete</span>
+      </UiButton>
     </div>
     <main
       class="flex flex-col justify-center items-center gap-6 pb-10 relative w-3/4 m-auto bg-white p-4 shadow-md rounded"
@@ -324,12 +322,12 @@ const cloneConfigRequest = async () => {
   if (response.configId) {
     $toast.success(`Config was successfully cloned`);
     config.value = response;
-    router.push(`/configs/${config.value.configId}/nft-collection`);
+    router.push(`/configs/${config.value.configId}`);
     configFile.value = JSON.parse(config.value.configFile);
-    clonedConfigName.value = "";
   } else {
     $toast.error(`Creating clone error, status: ${response}`);
   }
+  clonedConfigName.value = "";
   isLoading.value = false;
 };
 
