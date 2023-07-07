@@ -1,6 +1,6 @@
 <template>
   <article
-    class="p-8 flex flex-col gap-4 border rounded-md shadow-md w-full justify-between"
+    class="p-4 flex flex-col gap-4 border rounded-md shadow-md w-full justify-between"
   >
     <div class="flex justify-center items-center h-[200px]">
       <img

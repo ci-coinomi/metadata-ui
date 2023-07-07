@@ -3,7 +3,7 @@
     v-for="(value, key) in props.configNestedObject"
     :key="key"
     :class="!isObject(value) ? 'items-center' : ''"
-    class="flex p-1 gap-4 rounded-sm"
+    class="flex py-1 gap-4 rounded-sm"
   >
     <p class="text-gray-400">{{ key }}:</p>
     <template v-if="isObject(value)">
@@ -26,8 +26,10 @@
         :value="configNestedObject[key]"
         type="text"
         :disabled="key === '@type' || key === 'eucId'"
-        @input="(data) => (configNestedObject[key] = data.target.value.split(','))"
-        />
+        @input="
+          (data) => (configNestedObject[key] = data.target.value.split(','))
+        "
+      />
       <UiInputField
         v-else
         v-model="configNestedObject[key]"

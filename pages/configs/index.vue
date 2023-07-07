@@ -52,7 +52,6 @@ definePageMeta({
   layout: "signedin",
 });
 
-// const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
 const { $toast } = useNuxtApp();
@@ -68,13 +67,6 @@ const onConfigItemClickHandler = ({ configId, configType }) => {
   if (configType === "BANNER") {
     router.push({
       path: `/configs/${configId}/banner`,
-    });
-    return;
-  }
-
-  if (configType === "NFT_COLLECTION") {
-    router.push({
-      path: `/configs/${configId}/nft-collection`,
     });
     return;
   }
