@@ -3,7 +3,7 @@
     <div
       class="fixed top-[76px] right-[25px] flex flex-col items-end gap-2 bg-white p-4 shadow-md rounded"
     >
-      <UiButton class="w-full" @click="toBannersNavigate">
+      <UiButton class="w-full warning" @click="toBannersNavigate">
         To banners
       </UiButton>
     </div>
