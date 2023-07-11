@@ -55,7 +55,7 @@ const onUpdateClickHandler = () => {
 
 const getImageSrc = (image) => {
   const extension = image.imageName.substring(
-    image.imageName.lastIndexOf(".") + 1
+    image.imageName.lastIndexOf(".") + 1,
   );
   const base64Prefix = "data:image/" + extension + ";base64,";
   return `${base64Prefix}${image.imageData}`;

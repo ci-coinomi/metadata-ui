@@ -1,23 +1,25 @@
 <template>
-  <imagesAddModal
+  <modalAddImage
     v-if="isAddImageModalVisibe"
     @modal-handler="addImageModalHandler"
   />
 
-  <ConfirmModal
+  <modalConfirm
     v-if="isConfirmModalVisible"
     @is-modal-confirmed="modalConfirmHandler"
-    >{{ confirmModalText }}</ConfirmModal
+    >{{ confirmModalText }}</modalConfirm
   >
 
   <article
-    :class="isConfigUpdated ? 'border-[#d38b32] border-2' : 'border'"
+    :class="isConfigUpdated ? 'ring-2 ring-[#d38b32]' : 'ring-1 ring-gray-400'"
     class="rounded-md shadow-md p-4 flex justify-center items-center"
   >
-    <h3 v-if="isLoading" class="h-[300px] flex justify-center items-center">Loading...</h3>
+    <h3 v-if="isLoading" class="h-[300px] flex justify-center items-center">
+      Banner image is loading...
+    </h3>
     <div v-else class="flex flex-col gap-4 justify-center items-center w-full">
       <div class="flex justify-center items-center w-full">
-        <h3 class="text-xl font-bold m-auto">{{ banner.configName }}</h3>
+        <h3 class="text-xl font-bold m-auto">{{ currentBanner.configName }}</h3>
         <UiButton class="danger" @click="onDeleteConfigHandler">
           <img
             src="~/assets/icons/icon-trash.svg"
@@ -27,17 +29,15 @@
         </UiButton>
       </div>
       <div class="flex gap-4 w-full items-center justify-between">
-        <div class="w-2/3">
+        <div class="w-full">
           <configNestedLine :configNestedObject="configFileObj" />
         </div>
         <div class="flex justify-center items-center">
-          <div 
-          v-if="bannerImage && bannerImage.length === 0"
-          class="flex justify-center items-center border rounded-md shadow-md w-[250px] h-[323px]">
-            <UiButton
-              class="success"
-              @click="onAddNewImageHandler"
-            >
+          <div
+            v-if="bannerImage && bannerImage.length === 0"
+            class="flex justify-center items-center border rounded-md shadow-md w-[250px] h-[323px]"
+          >
+            <UiButton class="success" @click="onAddNewImageHandler">
               <img
                 src="~/assets/icons/icon-add.svg"
                 class="w-6 h-6 icon-add"
@@ -65,9 +65,11 @@ import {
   updateImageById,
   addNewImage,
 } from "~/api/images";
-import { deleteConfig } from "~/api/configs";
+import { deleteConfig, updateConfig } from "~/api/configs";
+import { useStore } from "~/store";
 
 const { $toast } = useNuxtApp();
+const store = useStore();
 
 const props = defineProps({
   banner: Object,
@@ -75,6 +77,7 @@ const props = defineProps({
 
 const emit = defineEmits(["updateConfigItem", "deleteConfigItem"]);
 
+const currentBanner = ref(props.banner);
 const bannerImage = ref([]);
 const configFileObj = ref(null);
 const isLoading = ref(false);
@@ -151,12 +154,38 @@ const onDeleteConfigHandler = () => {
 
 // Requests
 
+const updateConfigRequest = async () => {
+  if (isConfigUpdated.value) {
+    const updatedConfigString = JSON.stringify(configFileObj.value);
+
+    const response = await updateConfig(
+      currentBanner.value,
+      updatedConfigString,
+    );
+
+    if (!response.configFile) {
+      $toast.error(
+        `Updating config ${currentBanner.value.configName} error, status: ${response}`,
+      );
+    } else if (response.configFile !== updatedConfigString) {
+      $toast.error(
+        `Updating config ${currentBanner.value.configName} error. The configuration has been changed incorrectly`,
+      );
+    } else {
+      $toast.success(`Config ${currentBanner.value.configName} was updated`);
+      currentBanner.value = response;
+      isConfigUpdated.value = false;
+    }
+    store.setUpdateAllBannersTrigger(false);
+  }
+};
+
 const updateImageRequest = async (newImageData) => {
   isLoading.value = true;
   const response = await updateImageById(
     newImageData,
     bannerImage.value[0].imageId,
-    props.banner
+    currentBanner.value,
   );
   if (response.imageId === bannerImage.value[0].imageId) {
     $toast.success(`Image was updated`);
@@ -172,7 +201,7 @@ const deleteImageRequest = async () => {
 
   const response = await deleteImageById(
     bannerImage.value[0].imageId,
-    props.banner.configId
+    currentBanner.value.configId,
   );
 
   if (response === 204) {
@@ -186,7 +215,7 @@ const deleteImageRequest = async () => {
 
 const uploadNewImageRequest = async (imageData) => {
   isLoading.value = true;
-  const response = await addNewImage(imageData, props.banner);
+  const response = await addNewImage(imageData, currentBanner.value);
   if (response?.imageName === imageData.name) {
     $toast.success(`Image was added`);
     await getConfigImageRequest();
@@ -198,12 +227,12 @@ const uploadNewImageRequest = async (imageData) => {
 
 const getConfigImageRequest = async () => {
   isLoading.value = true;
-  const response = await getImagesByConfigId(props.banner.configId);
+  const response = await getImagesByConfigId(currentBanner.value.configId);
   if (Array.isArray(response)) {
     bannerImage.value = response;
   } else {
     $toast.error(
-      `Getting banner ${props.banner.configId} images error, status: ${response}`
+      `Getting banner ${currentBanner.value.configId} images error, status: ${response}`,
     );
   }
   isLoading.value = false;
@@ -211,10 +240,10 @@ const getConfigImageRequest = async () => {
 
 const deleteConfigRequest = async () => {
   isLoading.value = true;
-  const response = await deleteConfig(props.banner.configId);
+  const response = await deleteConfig(currentBanner.value.configId);
   if (response === 204) {
     $toast.success(`Config was successfully deleted`);
-    emit("deleteConfigItem", props.banner.configId);
+    emit("deleteConfigItem", currentBanner.value.configId);
   } else {
     $toast.error(`Deleting config error, status: ${response}`);
   }
@@ -222,27 +251,29 @@ const deleteConfigRequest = async () => {
 };
 
 onMounted(() => {
-  configFileObj.value = JSON.parse(props.banner.configFile);
+  configFileObj.value = JSON.parse(currentBanner.value.configFile);
   getConfigImageRequest();
 });
 
 watch(
   () => configFileObj.value,
   () => {
-    if (props.banner.configFile !== JSON.stringify(configFileObj.value)) {
-      isConfigUpdated.value = true;
-      emit("updateConfigItem", {
-        id: props.banner.configId,
-        banner: props.banner,
-        newConfigFile: JSON.stringify(configFileObj.value),
-      });
-    } else {
-      isConfigUpdated.value = false;
-    }
+    currentBanner.value.configFile !== JSON.stringify(configFileObj.value)
+      ? (isConfigUpdated.value = true)
+      : (isConfigUpdated.value = false);
   },
   {
     deep: true,
-  }
+  },
+);
+
+watch(
+  () => store.updateAllBannersTrigger,
+  () => {
+    if (store.updateAllBannersTrigger) {
+      updateConfigRequest();
+    }
+  },
 );
 </script>
 

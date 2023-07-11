@@ -394,24 +394,6 @@ const getConfigWithImages = async () => {
   isLoading.value = false;
 };
 
-watch(isConfigModalVisible, () => {
-  isConfigModalVisible.value
-    ? (document.body.style.overflow = "hidden")
-    : (document.body.style.overflow = "");
-});
-
-watch(isAddImageModalVisibe, () => {
-  isAddImageModalVisibe.value
-    ? (document.body.style.overflow = "hidden")
-    : (document.body.style.overflow = "");
-});
-
-watch(isConfirmModalVisible, () => {
-  isConfirmModalVisible.value
-    ? (document.body.style.overflow = "hidden")
-    : (document.body.style.overflow = "");
-});
-
 onMounted(() => {
   getConfigWithImages();
 });

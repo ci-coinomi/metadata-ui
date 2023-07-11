@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-3">
+  <div>
     <div
       class="fixed top-[76px] right-[25px] flex flex-col items-end gap-2 bg-white p-4 shadow-md rounded"
     >
@@ -12,41 +12,36 @@
       </UiButton>
     </div>
     <main
-      class="flex flex-col justify-center items-center gap-6 pb-10 relative w-3/4 m-auto bg-white p-4 shadow-md rounded"
+      class="flex flex-col justify-center items-center gap-3 relative bg-white mt-3 p-4 shadow-md rounded"
     >
-      <configAddNameModal
-        v-if="isAddNameModalVisible"
+      <modalTextInput
+        v-if="isTextInputModalVisible"
         v-model="clonedConfigName"
         @is-modal-confirmed="addNameModalHandler"
       />
 
-      <ConfirmModal
+      <modalConfirm
         v-if="isConfirmModalVisible"
         @is-modal-confirmed="modalConfirmHandler"
-        >{{ confirmModalText }}</ConfirmModal
+        >{{ confirmModalText }}</modalConfirm
       >
 
-      <div class="flex justify-between w-full">
-        <div class="flex gap-2">
-          <UiButton @click="onConfigListNavigate">
-            <img
-              src="~/assets/icons/icon-return.svg"
-              class="w-4 h-4"
-              alt="return"
-            />
-          </UiButton>
-        </div>
-      </div>
+      <UiButton class="mr-auto" @click="onConfigListNavigate">
+        <img
+          src="~/assets/icons/icon-return.svg"
+          class="w-4 h-4"
+          alt="return"
+        />
+      </UiButton>
+
       <div class="flex flex-col gap-3 w-full">
-        <div v-if="isLoading" class="flex justify-center items-center">
-          <configItemSkeleton class="w-[90vw]" />
-        </div>
+        <configBannerSkeleton v-if="isLoading" />
+
         <div v-else class="flex gap-3 flex-col">
           <configBannerCard
             v-for="banner in bannersList"
             :key="banner.configId"
             :banner="banner"
-            @update-config-item="setUpdatedConfigItem"
             @delete-config-item="deleteConfigItem"
           />
         </div>
@@ -56,7 +51,7 @@
 </template>
 
 <script setup>
-import { updateConfig, getConfigs, cloneConfig } from "~/api/configs";
+import { getConfigs, cloneConfig } from "~/api/configs";
 
 import { useStore } from "~/store";
 
@@ -70,16 +65,14 @@ const store = useStore();
 
 const isLoading = ref(true);
 const bannersList = ref(null);
-const updatedBannersList = ref([]);
 
 // Config modal
-const isAddNameModalVisible = ref(false);
+const isTextInputModalVisible = ref(false);
 const clonedConfigName = ref(null);
 
 // Confirm modal
 const isConfirmModalVisible = ref(false);
 const confirmModalText = ref(null);
-const confirmModalPayload = ref(null);
 const confirmModalType = ref(null);
 
 const onConfigListNavigate = () => {
@@ -92,38 +85,26 @@ const modalConfirmHandler = (isConfirmed) => {
   isConfirmModalVisible.value = false;
 
   if (confirmModalType.value === "UPDATEALLCONFIGS" && isConfirmed) {
-    updateAllConfigs();
+    store.setUpdateAllBannersTrigger(true);
   }
 
   confirmModalText.value = null;
   confirmModalType.value = null;
-  confirmModalPayload.value = null;
-};
-
-const setUpdatedConfigItem = (payload) => {
-  const existingItemIndex = updatedBannersList.value.findIndex(
-    (item) => item.id === payload.id
-  );
-  if (existingItemIndex !== -1) {
-    updatedBannersList.value[existingItemIndex] = payload;
-  } else {
-    updatedBannersList.value.push(payload);
-  }
 };
 
 const deleteConfigItem = (payload) => {
   const deletedItemIndex = bannersList.value.findIndex(
-    (item) => item.configId === payload
+    (item) => item.configId === payload,
   );
   bannersList.value.splice(deletedItemIndex, 1);
 };
 
 const onCreateCloneHandler = () => {
-  isAddNameModalVisible.value = true;
+  isTextInputModalVisible.value = true;
 };
 
 const addNameModalHandler = (payload) => {
-  isAddNameModalVisible.value = false;
+  isTextInputModalVisible.value = false;
   if (payload) cloneConfigRequest(payload);
 };
 
@@ -133,34 +114,7 @@ const onUpdateAllHandler = () => {
   confirmModalType.value = "UPDATEALLCONFIGS";
 };
 
-const updateAllConfigs = () => {
-  isLoading.value = true;
-
-  updatedBannersList.value.map(async (updatedConfigData) => {
-    await updateConfigRequest(updatedConfigData);
-  });
-
-  isLoading.value = false;
-  getBannersRequest();
-};
-
 // Requests
-const updateConfigRequest = async ({ banner, newConfigFile }) => {
-  const response = await updateConfig(banner, newConfigFile);
-
-  if (!response.configFile) {
-    $toast.error(
-      `Updating config ${banner.configName} error, status: ${response}`
-    );
-  } else if (response.configFile !== newConfigFile) {
-    $toast.error(
-      `Updating config ${banner.configName} error. Perhaps the error is related to the parameter type.`
-    );
-  } else {
-    $toast.success(`Config ${banner.configName} was updated`);
-  }
-  return response;
-};
 
 const cloneConfigRequest = async (cloneName) => {
   isLoading.value = true;
@@ -173,8 +127,8 @@ const cloneConfigRequest = async (cloneName) => {
 
   const response = await cloneConfig(cloneName, parentObjectEmptyClone);
   if (response.configId) {
-    $toast.success(`Config was successfully cloned`);
-    await getBannersRequest();
+    $toast.success(`New banner was successfully created`);
+    // await getBannersRequest();
   } else {
     $toast.error(`Creating clone error, status: ${response}`);
   }

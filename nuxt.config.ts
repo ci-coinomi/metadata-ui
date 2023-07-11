@@ -29,5 +29,4 @@ export default defineNuxtConfig({
     emitError: false,
     exclude: ["**/.nuxt/**"],
   },
-  devtools: { enabled: true },
 });
