@@ -5,7 +5,7 @@ export const useStore = defineStore("app-store", {
     configTypes: [],
     headerTitle: "",
     currentUser: null,
-    imagesParentConfig: null,
+    updateAllBannersTrigger: false,
   }),
   actions: {
     setConfigTypes(payload) {
@@ -20,8 +20,8 @@ export const useStore = defineStore("app-store", {
       this.currentUser = payload;
     },
 
-    setImagesParentConfig(payload) {
-      this.imagesParentConfig = payload;
+    setUpdateAllBannersTrigger(payload) {
+      this.updateAllBannersTrigger = payload;
     },
   },
 });

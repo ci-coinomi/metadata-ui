@@ -48,7 +48,7 @@ const { $toast } = useNuxtApp();
 
 const headerTitle = computed(() => store.headerTitle);
 const isSuperAdmin = computed(() =>
-  store.currentUser?.roles?.includes("ROLE_SUPER_ADMIN")
+  store.currentUser?.roles?.includes("ROLE_SUPER_ADMIN"),
 );
 
 const onFaqNavigateHandler = () => {

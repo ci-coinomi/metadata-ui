@@ -1,20 +1,20 @@
 <template>
   <content-loader
-    viewBox="0 0 1024 600"
+    viewBox="0 0 900 600"
     :speed="2"
     primaryColor="#f3f3f3"
     secondaryColor="#ecebeb"
   >
-    <rect x="55" y="0" rx="6" ry="6" width="75" height="40" />
-    <rect x="400" y="0" rx="6" ry="6" width="250" height="40" />
-    <rect x="450" y="56" rx="6" ry="6" width="150" height="40" />
-    <rect x="55" y="112" rx="6" ry="6" width="924" height="40" />
-    <rect x="55" y="168" rx="6" ry="6" width="924" height="40" />
-    <rect x="55" y="224" rx="6" ry="6" width="924" height="40" />
-    <rect x="55" y="280" rx="6" ry="6" width="924" height="40" />
-    <rect x="55" y="336" rx="6" ry="6" width="924" height="40" />
-    <rect x="55" y="392" rx="6" ry="6" width="924" height="40" />
-    <rect x="55" y="448" rx="6" ry="6" width="924" height="40" />
+    <rect x="85" y="0" rx="6" ry="6" width="35" height="35" />
+    <rect x="750" y="0" rx="6" ry="6" width="70" height="35" />
+    <rect x="400" y="40" rx="6" ry="6" width="100" height="35" />
+    <rect x="85" y="90" rx="6" ry="6" width="730" height="45" />
+    <rect x="85" y="155" rx="6" ry="6" width="730" height="45" />
+    <rect x="85" y="220" rx="6" ry="6" width="730" height="45" />
+    <rect x="85" y="285" rx="6" ry="6" width="730" height="45" />
+    <rect x="85" y="350" rx="6" ry="6" width="730" height="45" />
+    <rect x="85" y="415" rx="6" ry="6" width="730" height="45" />
+    <rect x="85" y="480" rx="6" ry="6" width="730" height="45" />
   </content-loader>
 </template>
 

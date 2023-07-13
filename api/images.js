@@ -32,7 +32,7 @@ export const addNewImage = async (image, parentConfig) => {
       imageName: image.name,
       imageData: image.data,
       parentConfig,
-    }
+    },
   );
   if (response._data) {
     return response._data;
@@ -51,7 +51,7 @@ export const updateImageById = async (image, imageId, parentConfig) => {
       imageName: image.name,
       imageData: image.data,
       parentConfig,
-    }
+    },
   );
   if (response._data) {
     return response._data;
@@ -63,7 +63,7 @@ export const updateImageById = async (image, imageId, parentConfig) => {
 export const deleteImageById = async (imageId, parentConfigId) => {
   const response = await api(
     `v1/admin/configs/${parentConfigId}/images/${imageId}`,
-    "DELETE"
+    "DELETE",
   );
   return response.status;
 };

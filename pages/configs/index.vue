@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-3">
+  <div>
     <div
       class="fixed top-[76px] right-[25px] flex flex-col items-end gap-2 bg-white p-4 shadow-md rounded"
     >
@@ -8,9 +8,17 @@
       </UiButton>
     </div>
     <main
-      class="flex flex-col justify-center items-center gap-6 w-3/4 m-auto bg-white p-4 pb-10 shadow-md rounded"
+      class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
     >
-      <configIndexSkeleton v-if="isLoading" class="w-[75vw]" />
+      <configIndexSkeleton v-if="isLoading" />
+
+      <h2
+        v-else-if="!isLoading && (!configs || configs.length === 0)"
+        class="text-xl flex justify-center items-center"
+      >
+        Configs were not recieved
+      </h2>
+
       <div
         v-else
         class="flex flex-col justify-center items-center gap-6 w-full"
@@ -76,6 +84,8 @@ const isLoading = ref(true);
 
 const configTypes = computed(() => store.configTypes);
 
+// Navigation
+
 const onConfigItemClickHandler = (configId) => {
   router.push({
     path: `/configs/${configId}`,
@@ -88,6 +98,8 @@ const toBannersNavigate = () => {
   });
 };
 
+// Handlers
+
 const onTypesSelectHandler = (evt) => {
   selectedType.value = evt.target.value;
 
@@ -97,9 +109,11 @@ const onTypesSelectHandler = (evt) => {
   }
 
   filtredConfigs.value = configs.value.filter(
-    (item) => item.configType === evt.target.value
+    (item) => item.configType === evt.target.value,
   );
 };
+
+// Requests
 
 const fetchConfigTypes = async () => {
   const response = await getConfigsTypes();
@@ -111,6 +125,7 @@ const fetchConfigTypes = async () => {
 };
 
 const fetchConfigs = async () => {
+  isLoading.value = true;
   const response = await getConfigs();
   if (Array.isArray(response)) {
     configs.value = response.sort((a, b) => b.configId - a.configId);
@@ -118,13 +133,12 @@ const fetchConfigs = async () => {
   } else {
     $toast.error(`Fetching configs error, status: ${response}`);
   }
+  isLoading.value = false;
 };
 
 onMounted(() => {
-  isLoading.value = true;
+  store.setHeaderTitle(`Configs`);
   fetchConfigTypes();
   fetchConfigs();
-  store.setHeaderTitle(`Configs`);
-  isLoading.value = false;
 });
 </script>
