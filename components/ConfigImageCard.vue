@@ -10,7 +10,7 @@
       />
     </div>
     <div class="flex flex-col gap-4">
-      <h3 class="flex justify-center items-center">
+      <h3 class="flex justify-center items-center break-all">
         {{ props.image.imageName }}
       </h3>
       <div class="flex justify-evenly items-center gap-1">

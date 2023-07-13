@@ -14,12 +14,12 @@
     :class="isConfigUpdated ? 'ring-2 ring-[#d38b32]' : 'ring-1 ring-gray-400'"
     class="rounded-md shadow-md p-4 flex justify-center items-center"
   >
-    <h3 v-if="isLoading" class="h-[300px] flex justify-center items-center">
-      Banner image is loading...
-    </h3>
+    <configBannerSkeleton v-if="isLoading" />
     <div v-else class="flex flex-col gap-4 justify-center items-center w-full">
       <div class="flex justify-center items-center w-full">
-        <h3 class="text-xl font-bold m-auto">{{ currentBanner.configName }}</h3>
+        <h3 class="text-xl font-bold m-auto">
+          {{ currentBanner.configName }}
+        </h3>
         <UiButton class="danger" @click="onDeleteConfigHandler">
           <img
             src="~/assets/icons/icon-trash.svg"

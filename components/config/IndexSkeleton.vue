@@ -14,6 +14,9 @@
     <rect x="80" y="300" rx="6" ry="6" width="680" height="35" />
     <rect x="80" y="350" rx="6" ry="6" width="680" height="35" />
     <rect x="80" y="400" rx="6" ry="6" width="680" height="35" />
+    <rect x="80" y="450" rx="6" ry="6" width="680" height="35" />
+    <rect x="80" y="500" rx="6" ry="6" width="680" height="35" />
+    <rect x="80" y="550" rx="6" ry="6" width="680" height="35" />
   </content-loader>
 </template>
 

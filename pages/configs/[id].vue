@@ -23,23 +23,23 @@
     <main
       class="flex flex-col justify-center items-center gap-6 pb-10 relative w-3/4 m-auto bg-white p-4 shadow-md rounded"
     >
-      <configModal
+      <modalConfig
         v-if="isConfigModalVisible"
         v-model="clonedConfigName"
         :modalType="configModalType"
         @is-modal-confirmed="configModalConfirm"
       />
 
-      <imagesAddModal
+      <modalAddImage
         v-if="isAddImageModalVisibe"
         :payload="addImageModalPayload"
         @modal-handler="addImageModalHandler"
       />
 
-      <ConfirmModal
+      <modalConfirm
         v-if="isConfirmModalVisible"
         @is-modal-confirmed="modalConfirmHandler"
-        >{{ confirmModalText }}</ConfirmModal
+        >{{ confirmModalText }}</modalConfirm
       >
 
       <div class="flex flex-col gap-3 w-full">
@@ -367,6 +367,8 @@ const updateConfigRequest = async () => {
     response.configFile &&
     JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig
   ) {
+    config.value = response;
+    configFile.value = JSON.parse(response.configFile);
     $toast.success(`Config was successfully updated`);
   } else {
     $toast.error(`Updating config error, status: ${response}`);

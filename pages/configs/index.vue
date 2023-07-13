@@ -11,6 +11,14 @@
       class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
     >
       <configIndexSkeleton v-if="isLoading" />
+
+      <h2
+        v-else-if="!isLoading && (!configs || configs.length === 0)"
+        class="text-xl flex justify-center items-center"
+      >
+        Configs were not recieved
+      </h2>
+
       <div
         v-else
         class="flex flex-col justify-center items-center gap-6 w-full"
@@ -117,6 +125,7 @@ const fetchConfigTypes = async () => {
 };
 
 const fetchConfigs = async () => {
+  isLoading.value = true;
   const response = await getConfigs();
   if (Array.isArray(response)) {
     configs.value = response.sort((a, b) => b.configId - a.configId);
@@ -124,13 +133,12 @@ const fetchConfigs = async () => {
   } else {
     $toast.error(`Fetching configs error, status: ${response}`);
   }
+  isLoading.value = false;
 };
 
 onMounted(() => {
-  isLoading.value = true;
+  store.setHeaderTitle(`Configs`);
   fetchConfigTypes();
   fetchConfigs();
-  store.setHeaderTitle(`Configs`);
-  isLoading.value = false;
 });
 </script>

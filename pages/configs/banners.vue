@@ -3,11 +3,19 @@
     <div
       class="fixed top-[76px] right-[25px] flex flex-col items-end gap-2 bg-white p-4 shadow-md rounded"
     >
-      <UiButton class="w-full success" @click="onCreateCloneHandler">
+      <UiButton
+        class="w-full success"
+        :disabled="isLoading"
+        @click="onCreateCloneHandler"
+      >
         <span>Create new</span>
       </UiButton>
 
-      <UiButton class="w-full warning" @click="onUpdateAllHandler">
+      <UiButton
+        class="w-full warning"
+        :disabled="isLoading"
+        @click="onUpdateAllHandler"
+      >
         <span>Update all</span>
       </UiButton>
     </div>
@@ -35,9 +43,20 @@
       </UiButton>
 
       <div class="flex flex-col gap-3 w-full">
-        <configBannerSkeleton v-if="isLoading" />
+        <div v-if="isLoading">
+          <configBannerSkeleton />
+          <configBannerSkeleton />
+          <configBannerSkeleton />
+        </div>
 
-        <div v-else class="flex gap-3 flex-col">
+        <h2
+          v-if="!isLoading && (!bannersList || bannersList.length === 0)"
+          class="text-xl flex justify-center items-center"
+        >
+          Configs were not recieved
+        </h2>
+
+        <div class="flex gap-3 flex-col">
           <configBannerCard
             v-for="banner in bannersList"
             :key="banner.configId"
@@ -99,6 +118,8 @@ const deleteConfigItem = (payload) => {
   bannersList.value.splice(deletedItemIndex, 1);
 };
 
+// Handlers
+
 const onCreateCloneHandler = () => {
   isTextInputModalVisible.value = true;
 };
@@ -117,8 +138,6 @@ const onUpdateAllHandler = () => {
 // Requests
 
 const cloneConfigRequest = async (cloneName) => {
-  isLoading.value = true;
-
   const emptyConfigFile = createEmptyConfigFileClone();
   const parentObjectEmptyClone = {
     configFile: emptyConfigFile,
@@ -127,13 +146,12 @@ const cloneConfigRequest = async (cloneName) => {
 
   const response = await cloneConfig(cloneName, parentObjectEmptyClone);
   if (response.configId) {
+    bannersList.value.unshift(response);
     $toast.success(`New banner was successfully created`);
-    // await getBannersRequest();
   } else {
     $toast.error(`Creating clone error, status: ${response}`);
   }
   clonedConfigName.value = null;
-  isLoading.value = false;
 };
 
 const getBannersRequest = async () => {
