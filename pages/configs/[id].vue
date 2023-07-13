@@ -1,108 +1,107 @@
 <template>
-  <main
-    class="flex flex-col justify-center items-center gap-6 pb-10 relative w-3/4 m-auto bg-white p-4 shadow-md mt-3 rounded"
-  >
-    <configModal
-      v-if="isConfigModalVisible"
-      v-model="clonedConfigName"
-      :modalType="configModalType"
-      @is-modal-confirmed="configModalConfirm"
-    />
-
-    <imagesAddModal
-      v-if="isAddImageModalVisibe"
-      :payload="addImageModalPayload"
-      @modal-handler="addImageModalHandler"
-    />
-
-    <ConfirmModal
-      v-if="isConfirmModalVisible"
-      @is-modal-confirmed="modalConfirmHandler"
-      >{{ confirmModalText }}</ConfirmModal
+  <div class="pt-3">
+    <div
+      class="fixed top-[76px] right-[25px] flex flex-col items-end gap-2 bg-white p-4 shadow-md rounded"
     >
-
-    <div class="flex justify-between w-full">
-      <div class="flex gap-2">
-        <UiButton @click="onConfigListNavigate">
-          <img
-            src="~/assets/icons/icon-return.svg"
-            class="w-4 h-4"
-            alt="return"
-          />
-        </UiButton>
-      </div>
-      <div class="flex gap-2">
-        <UiButton
-          :class="clonedConfigName ? 'gray' : 'danger'"
-          @click="onDeleteConfigHandler"
-        >
-          <span v-if="clonedConfigName">Return without saving</span>
-          <span v-else>Delete</span>
-        </UiButton>
-        <UiButton class="warning" @click="onUpdateConfigHandler">
-          <span v-if="clonedConfigName">Change clone name</span>
-          <span v-else>Save changes</span>
-        </UiButton>
-        <UiButton v class="success" @click="onCloneConfigHandler">
-          <span v-if="clonedConfigName">Save clone</span>
-          <span v-else>Create clone</span>
-        </UiButton>
-      </div>
-    </div>
-    <div class="flex flex-col gap-3 w-full">
-      <div><strong>Type:</strong> {{ config.configType || "loading..." }}</div>
-      <div v-if="isLoading" class="flex justify-center items-center">
-        <configItemSkeleton class="w-[90vw]" />
-      </div>
-      <div v-else class="flex gap-3">
-        <div class="w-2/3">
-          <configNestedLine
-            :configNestedObject="configFile"
-            @nested-object-updated="handleNestedObjectUpdated"
-          />
-        </div>
-
-        <div class="w-1/3 flex justify-center items-center">
-          <UiButton
-            v-if="imagesList?.length === 0"
-            class="success"
-            @click="onAddNewImageHandler"
-          >
-            <img
-              src="~/assets/icons/icon-add.svg"
-              class="w-4 h-4 icon-add"
-              alt="add"
-            />
-          </UiButton>
-
-          <ConfigImageCard
-            v-else
-            :image="imagesList[0]"
-            class="max-w-[250px]"
-            @on-update-click="onUpdateImageHandler"
-            @on-delete-click="onDeleteImageHandler"
-          />
-        </div>
-      </div>
-    </div>
-    <div class="flex gap-2">
+      <UiButton v class="w-full success" @click="onCloneConfigHandler">
+        <span v-if="clonedConfigName">Save clone</span>
+        <span v-else>Create clone</span>
+      </UiButton>
+      <UiButton class="w-full warning" @click="onUpdateConfigHandler">
+        <span v-if="clonedConfigName">Change clone name</span>
+        <span v-else>Save changes</span>
+      </UiButton>
       <UiButton
+        class="w-full"
         :class="clonedConfigName ? 'gray' : 'danger'"
         @click="onDeleteConfigHandler"
       >
         <span v-if="clonedConfigName">Return without saving</span>
         <span v-else>Delete</span>
       </UiButton>
-      <UiButton class="warning" @click="onUpdateConfigHandler">
-        <span v-if="clonedConfigName">Change clone name</span>
-        <span v-else>Save changes</span>
-      </UiButton>
-      <UiButton class="success" @click="onCloneConfigHandler">
-        <span v-if="clonedConfigName">Save clone</span>
-        <span v-else>Create clone</span>
-      </UiButton>
     </div>
-  </main>
+    <main
+      class="flex flex-col justify-center items-center gap-6 pb-10 relative w-3/4 m-auto bg-white p-4 shadow-md rounded"
+    >
+      <modalConfig
+        v-if="isConfigModalVisible"
+        v-model="clonedConfigName"
+        :modalType="configModalType"
+        @is-modal-confirmed="configModalConfirm"
+      />
+
+      <modalAddImage
+        v-if="isAddImageModalVisibe"
+        :payload="addImageModalPayload"
+        @modal-handler="addImageModalHandler"
+      />
+
+      <modalConfirm
+        v-if="isConfirmModalVisible"
+        @is-modal-confirmed="modalConfirmHandler"
+        >{{ confirmModalText }}</modalConfirm
+      >
+
+      <div class="flex flex-col gap-3 w-full">
+        <div class="flex">
+          <UiButton @click="onConfigListNavigate">
+            <img
+              src="~/assets/icons/icon-return.svg"
+              class="w-4 h-4"
+              alt="return"
+            />
+          </UiButton>
+          <h2 class="m-auto">
+            <strong>Type:</strong> {{ config.configType || "loading..." }}
+          </h2>
+        </div>
+        <div v-if="isLoading" class="flex justify-center items-center">
+          <configItemSkeleton class="w-[90vw]" />
+        </div>
+        <div v-else class="flex gap-3 flex-col">
+          <section>
+            <configNestedLine
+              :configNestedObject="configFile"
+              @nested-object-updated="handleNestedObjectUpdated"
+            />
+          </section>
+
+          <section class="flex flex-col justify-center items-center gap-3">
+            <div class="flex justify-center items-center w-full">
+              <h2 class="mr-auto text-lg">Images:</h2>
+              <UiButton class="success" @click="onAddNewImageHandler">
+                <img
+                  src="~/assets/icons/icon-add.svg"
+                  class="w-4 h-4 icon-add"
+                  alt="add"
+                />
+              </UiButton>
+            </div>
+
+            <h2>
+              <span v-if="imagesList.length === 0"
+                >Current config has no images</span
+              >
+              <span v-else>Total count: {{ imagesList.length }}</span>
+            </h2>
+            <div
+              v-if="imagesList.length !== 0"
+              class="grid gap-6 justify-items-center imagesSectionLayout w-full"
+            >
+              <ConfigImageCard
+                v-for="image in imagesList"
+                :key="image.imageId"
+                :image="image"
+                class="max-w-[250px]"
+                @on-update-click="onUpdateImageHandler"
+                @on-delete-click="onDeleteImageHandler"
+              />
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
 </template>
 
 <script setup>
@@ -124,6 +123,7 @@ definePageMeta({
   layout: "signedin",
 });
 
+const { $toast } = useNuxtApp();
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
@@ -272,16 +272,10 @@ const uploadNewImage = async (imageData) => {
   isLoading.value = true;
   const response = await addNewImage(imageData, config.value);
   if (response?.imageName === imageData.name) {
-    // toast.open({
-    //   message: "Image was added",
-    //   type: "success",
-    // });
+    $toast.success(`Image was added`);
     await getImages();
   } else {
-    // toast.open({
-    //   message: `Uploading image error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Uploading image error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -291,10 +285,7 @@ const getImages = async () => {
   if (Array.isArray(response)) {
     imagesList.value = response;
   } else {
-    // toast.open({
-    //   message: `Getting config images error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Getting config images error, status: ${response}`);
   }
 };
 
@@ -303,16 +294,10 @@ const deleteImage = async ({ imageId }) => {
   const response = await deleteImageById(imageId, config.value.configId);
 
   if (response === 204) {
-    // toast.open({
-    //   message: "Image was deleted",
-    //   type: "success",
-    // });
+    $toast.success(`Image was deleted`);
     await getImages();
   } else {
-    // toast.open({
-    //   message: `Deleting image error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Deleting image error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -321,16 +306,10 @@ const updateImage = async (newImageData, { imageId }) => {
   isLoading.value = true;
   const response = await updateImageById(newImageData, imageId, config.value);
   if (response.imageId === imageId) {
-    // toast.open({
-    //   message: "Image was updated",
-    //   type: "success",
-    // });
+    $toast.success(`Image was updated`);
     await getImages();
   } else {
-    // toast.open({
-    //   message: `Updating image error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Updating image error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -341,20 +320,14 @@ const cloneConfigRequest = async () => {
   isLoading.value = true;
   const response = await cloneConfig(clonedConfigName.value, config.value);
   if (response.configId) {
-    // toast.open({
-    //   message: "Config was successfully cloned",
-    //   type: "success",
-    // });
+    $toast.success(`Config was successfully cloned`);
     config.value = response;
-    router.push(`/configs/${config.value.configId}/banner`);
+    router.push(`/configs/${config.value.configId}`);
     configFile.value = JSON.parse(config.value.configFile);
-    clonedConfigName.value = "";
   } else {
-    // toast.open({
-    //   message: `Creating clone error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Creating clone error, status: ${response}`);
   }
+  clonedConfigName.value = "";
   isLoading.value = false;
 };
 
@@ -362,18 +335,12 @@ const deleteConfigRequest = async () => {
   isLoading.value = true;
   const response = await deleteConfig(config.value.configId);
   if (response === 204) {
-    // toast.open({
-    //   message: "Config was successfully deleted",
-    //   type: "success",
-    // });
+    $toast.success(`Config was successfully deleted`);
     router.push({
       name: "configs",
     });
   } else {
-    // toast.open({
-    //   message: `Deleting config error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Deleting config error, status: ${response}`);
   }
   isLoading.value = false;
 };
@@ -389,10 +356,7 @@ const updateConfigRequest = async () => {
     updatedConfig &&
     updatedConfig === JSON.stringify(JSON.parse(config.value.configFile))
   ) {
-    // toast.open({
-    //   message: "You need to update some fields before update",
-    //   type: "warning",
-    // });
+    $toast.warning(`You need to update some fields before update`);
     return;
   }
 
@@ -403,35 +367,28 @@ const updateConfigRequest = async () => {
     response.configFile &&
     JSON.stringify(JSON.parse(response?.configFile)) === updatedConfig
   ) {
-    // toast.open({
-    //   message: "Config was successfully updated",
-    //   type: "success",
-    // });
+    config.value = response;
+    configFile.value = JSON.parse(response.configFile);
+    $toast.success(`Config was successfully updated`);
   } else {
-    // toast.open({
-    //   message: `Updating config error, status: ${response}`,
-    //   type: "error",
-    // });
+    $toast.error(`Updating config error, status: ${response}`);
   }
   isLoading.value = false;
 };
 
-const getBannerWithImage = async () => {
+const getConfigWithImages = async () => {
   store.setHeaderTitle(`Loading...`);
 
   isLoading.value = true;
-  const bannerResponse = await getConfigById(route.params.id);
+  const response = await getConfigById(route.params.id);
 
-  if (bannerResponse.configFile) {
-    config.value = bannerResponse;
-    configFile.value = JSON.parse(bannerResponse.configFile);
-    store.setHeaderTitle(`Banner ${config.value.configName}`);
+  if (response.configFile) {
+    config.value = response;
+    configFile.value = JSON.parse(response.configFile);
+    store.setHeaderTitle(config.value.configName);
   } else {
     store.setHeaderTitle(`Fetching data error`);
-    // toast.open({
-    //   message: `Getting config error, status: ${bannerResponse}`,
-    //   type: "error",
-    // });
+    $toast.error(`Getting config error, status: ${bannerResponse}`);
   }
 
   await getImages();
@@ -439,13 +396,19 @@ const getBannerWithImage = async () => {
   isLoading.value = false;
 };
 
-watch(isConfigModalVisible, () => {
-  isConfigModalVisible.value
-    ? (document.body.style.overflow = "hidden")
-    : (document.body.style.overflow = "");
-});
-
 onMounted(() => {
-  getBannerWithImage();
+  getConfigWithImages();
 });
 </script>
+
+<style scoped>
+.imagesSectionLayout {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.icon-add {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  mask: url(~/assets/icons/icon-add.svg) no-repeat center / contain;
+  background-color: white;
+}
+</style>

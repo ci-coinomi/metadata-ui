@@ -103,4 +103,12 @@ const onConfirmHandler = () => {
     data: removeBase64Prefix(imageData.value),
   });
 };
+
+onMounted(() => {
+  document.body.style.overflow = "hidden";
+});
+
+onUnmounted(() => {
+  document.body.style.overflow = "";
+});
 </script>

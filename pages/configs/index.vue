@@ -1,48 +1,69 @@
 <template>
-  <main
-    class="flex flex-col justify-center items-center gap-6 w-3/4 m-auto bg-white p-4 shadow-md mt-3 rounded"
-  >
-    <configIndexSkeleton v-if="isLoading" class="w-[75vw]" />
-    <div v-else class="flex flex-col justify-center items-center gap-6 w-full">
-      <div class="flex gap-4 items-center">
-        <h4>Current type:</h4>
-        <select
-          v-model="selectedType"
-          class="p-1 rounded-md"
-          @change="onTypesSelectHandler($event)"
-        >
-          <option disabled>Choose the type</option>
-          <option :value="'ALL'">ALL</option>
-          <option
-            v-for="typeItem in configTypes"
-            :key="typeItem"
-            :value="typeItem"
-          >
-            {{ typeItem }}
-          </option>
-        </select>
-      </div>
-      <div class="flex flex-col gap-4 w-4/5">
-        <div class="flex gap-4 w-full justify-center">
-          <p>
-            <span class="text-gray-500">Total count: </span>{{ configs.length }}
-          </p>
-          <p>
-            <span class="text-gray-500">Selected type count: </span
-            >{{ filtredConfigs.length }}
-          </p>
-        </div>
-
-        <configListItem
-          v-for="config in filtredConfigs"
-          :key="config.configId"
-          :config="config"
-          class="cursor-pointer hover:ring-gray-500 hover:ring-2 active:ring-gray-600"
-          @click="onConfigItemClickHandler(config)"
-        />
-      </div>
+  <div>
+    <div
+      class="fixed top-[76px] right-[25px] flex flex-col items-end gap-2 bg-white p-4 shadow-md rounded"
+    >
+      <UiButton class="w-full warning" @click="toBannersNavigate">
+        To banners
+      </UiButton>
     </div>
-  </main>
+    <main
+      class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
+    >
+      <configIndexSkeleton v-if="isLoading" />
+
+      <h2
+        v-else-if="!isLoading && (!configs || configs.length === 0)"
+        class="text-xl flex justify-center items-center"
+      >
+        Configs were not recieved
+      </h2>
+
+      <div
+        v-else
+        class="flex flex-col justify-center items-center gap-6 w-full"
+      >
+        <div class="flex gap-4 items-center">
+          <h4>Current type:</h4>
+          <select
+            v-model="selectedType"
+            class="p-1 rounded-md"
+            @change="onTypesSelectHandler($event)"
+          >
+            <option disabled>Choose the type</option>
+            <option :value="'ALL'">ALL</option>
+            <option
+              v-for="typeItem in configTypes"
+              :key="typeItem"
+              :value="typeItem"
+            >
+              {{ typeItem }}
+            </option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-4 w-4/5">
+          <div class="flex gap-4 w-full justify-center">
+            <p>
+              <span class="text-gray-500">Total count: </span
+              >{{ configs.length }}
+            </p>
+            <p>
+              <span class="text-gray-500">Selected type count: </span
+              >{{ filtredConfigs.length }}
+            </p>
+          </div>
+
+          <configListItem
+            v-for="config in filtredConfigs"
+            :key="config.configId"
+            :config="config"
+            class="cursor-pointer hover:ring-gray-500 hover:ring-2 active:ring-gray-600"
+            @click="onConfigItemClickHandler(config.configId)"
+          />
+        </div>
+      </div>
+    </main>
+  </div>
 </template>
 <script setup>
 import { getConfigs, getConfigsTypes } from "~/api/configs";
@@ -52,7 +73,6 @@ definePageMeta({
   layout: "signedin",
 });
 
-// const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
 const { $toast } = useNuxtApp();
@@ -64,25 +84,21 @@ const isLoading = ref(true);
 
 const configTypes = computed(() => store.configTypes);
 
-const onConfigItemClickHandler = ({ configId, configType }) => {
-  if (configType === "BANNER") {
-    router.push({
-      path: `/configs/${configId}/banner`,
-    });
-    return;
-  }
+// Navigation
 
-  if (configType === "NFT_COLLECTION") {
-    router.push({
-      path: `/configs/${configId}/nft-collection`,
-    });
-    return;
-  }
-
+const onConfigItemClickHandler = (configId) => {
   router.push({
     path: `/configs/${configId}`,
   });
 };
+
+const toBannersNavigate = () => {
+  router.push({
+    path: `/configs/banners`,
+  });
+};
+
+// Handlers
 
 const onTypesSelectHandler = (evt) => {
   selectedType.value = evt.target.value;
@@ -93,9 +109,11 @@ const onTypesSelectHandler = (evt) => {
   }
 
   filtredConfigs.value = configs.value.filter(
-    (item) => item.configType === evt.target.value
+    (item) => item.configType === evt.target.value,
   );
 };
+
+// Requests
 
 const fetchConfigTypes = async () => {
   const response = await getConfigsTypes();
@@ -107,6 +125,7 @@ const fetchConfigTypes = async () => {
 };
 
 const fetchConfigs = async () => {
+  isLoading.value = true;
   const response = await getConfigs();
   if (Array.isArray(response)) {
     configs.value = response.sort((a, b) => b.configId - a.configId);
@@ -114,13 +133,12 @@ const fetchConfigs = async () => {
   } else {
     $toast.error(`Fetching configs error, status: ${response}`);
   }
+  isLoading.value = false;
 };
 
 onMounted(() => {
-  isLoading.value = true;
+  store.setHeaderTitle(`Configs`);
   fetchConfigTypes();
   fetchConfigs();
-  store.setHeaderTitle(`Configs`);
-  isLoading.value = false;
 });
 </script>

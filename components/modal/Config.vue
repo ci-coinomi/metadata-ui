@@ -51,6 +51,8 @@ const onConfirmHandler = () => {
 };
 
 onMounted(() => {
+  document.body.style.overflow = "hidden";
+
   switch (props.modalType) {
     case "UPDATE":
       modalText.value = "Are you sure you want to update config?";
@@ -65,5 +67,9 @@ onMounted(() => {
       modalText.value = "Are you sure you want to delete config?";
       break;
   }
+});
+
+onUnmounted(() => {
+  document.body.style.overflow = "";
 });
 </script>
