@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 export const useStore = defineStore("app-store", {
   state: () => ({
     configTypes: [],
+    configsList: [],
     headerTitle: "",
     currentUser: null,
     updateAllBannersTrigger: false,
@@ -10,6 +11,10 @@ export const useStore = defineStore("app-store", {
   actions: {
     setConfigTypes(payload) {
       this.configTypes = payload;
+    },
+
+    setConfigsList(payload) {
+      this.configsList = payload;
     },
 
     setHeaderTitle(payload) {

@@ -2,7 +2,7 @@
   <main
     class="flex flex-col justify-center items-center gap-6 m-auto bg-white p-4 shadow-md mt-3 rounded"
   >
-    <section class="flex flex-col justify-center items-center gap-6 w-4/5">
+    <section class="flex flex-col justify-center items-center gap-6 w-11/12">
       <article
         class="flex flex-col gap-3 items-center ring-1 ring-inset ring-gray-400 rounded-md p-3 w-full"
       >

@@ -10,24 +10,11 @@
     >{{ confirmModalText }}</modalConfirm
   >
 
-  <article
-    :class="isConfigUpdated ? 'ring-2 ring-[#d38b32]' : 'ring-1 ring-gray-400'"
-    class="rounded-md shadow-md p-4 flex justify-center items-center"
-  >
+  <!-- :class="isConfigUpdated ? 'ring-2 ring-[#d38b32]' : 'ring-1 ring-gray-400'" -->
+  <div class="p-4 flex justify-center items-center border-t border-gray-400">
     <configBannerSkeleton v-if="isLoading" />
+
     <div v-else class="flex flex-col gap-4 justify-center items-center w-full">
-      <div class="flex justify-center items-center w-full">
-        <h3 class="text-xl font-bold m-auto">
-          {{ currentBanner.configName }}
-        </h3>
-        <UiButton class="danger" @click="onDeleteConfigHandler">
-          <img
-            src="~/assets/icons/icon-trash.svg"
-            class="w-6 h-6 icon-trash"
-            alt="delete user"
-          />
-        </UiButton>
-      </div>
       <div class="flex gap-4 w-full items-center justify-between">
         <div class="w-full">
           <configNestedLine :configNestedObject="configFileObj" />
@@ -55,9 +42,29 @@
           />
         </div>
       </div>
+
+      <div class="flex w-1/2 gap-4 justify-between">
+        <UiButton class="w-1/4 success" @click="onCloneConfigHandler">
+          <span v-if="clonedConfigName">Save clone</span>
+          <span v-else>Create clone</span>
+        </UiButton>
+        <UiButton class="w-1/4 warning" @click="onUpdateConfigHandler">
+          <span v-if="clonedConfigName">Change clone name</span>
+          <span v-else>Save changes</span>
+        </UiButton>
+        <UiButton
+          class="w-1/4"
+          :class="clonedConfigName ? 'gray' : 'danger'"
+          @click="onDeleteConfigHandler"
+        >
+          <span v-if="clonedConfigName">Return without saving</span>
+          <span v-else>Delete</span>
+        </UiButton>
+      </div>
     </div>
-  </article>
+  </div>
 </template>
+
 <script setup>
 import {
   getImagesByConfigId,
@@ -151,6 +158,8 @@ const onDeleteConfigHandler = () => {
   confirmModalType.value = "DELETECONFIG";
   confirmModalText.value = "Are you sure you want to delete this config?";
 };
+
+const onUpdateConfigHandler = () => {};
 
 // Requests
 
@@ -252,7 +261,8 @@ const deleteConfigRequest = async () => {
 
 onMounted(() => {
   configFileObj.value = JSON.parse(currentBanner.value.configFile);
-  getConfigImageRequest();
+  // getConfigImageRequest();
+  console.log("BANNER LOADED!");
 });
 
 watch(

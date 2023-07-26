@@ -57,7 +57,7 @@
         </h2>
 
         <div class="flex gap-3 flex-col">
-          <configBannerCard
+          <configDetailsCard
             v-for="banner in bannersList"
             :key="banner.configId"
             :banner="banner"

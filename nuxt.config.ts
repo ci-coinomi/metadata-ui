@@ -21,8 +21,16 @@ export default defineNuxtConfig({
           content: "Tools for updates",
         },
       ],
+      link: [
+        {
+          rel: "icon",
+          type: "image/png",
+          href: "/favicon.png",
+        },
+      ],
     },
   },
+
   eslint: {
     lintOnStart: false,
     emitWarning: false,
