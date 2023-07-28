@@ -1,37 +1,52 @@
 <template>
-  <modalTextInput
-    v-if="isTextInputModalVisible"
-    v-model="clonedConfigName"
-    @is-modal-confirmed="addNameModalHandler"
-  />
-  <main
-    class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
-  >
-    <configIndexSkeleton v-if="isLoading" />
-
-    <h2
-      v-else-if="!isLoading && (!configs || configs.length === 0)"
-      class="text-xl flex justify-center items-center"
+  <div>
+    <modalTextInput
+      v-if="isTextInputModalVisible"
+      v-model="clonedConfigName"
+      @is-modal-confirmed="addNameModalHandler"
+    />
+    <main
+      class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
     >
-      Configs were not recieved
-    </h2>
+      <configIndexSkeleton v-if="isLoading" />
 
-    <div v-else class="flex flex-col justify-center items-center gap-6 w-full">
-      <div
-        class="grid gap-4 grid-rows-2 grid-cols-4 w-11/12 shadow-md p-4 rounded-md"
+      <h2
+        v-else-if="!isLoading && (!configs || configs.length === 0)"
+        class="text-xl flex justify-center items-center"
       >
-        <uiButton
-          v-for="typeItem in configTypes"
-          :key="typeItem"
-          :value="typeItem"
-          :class="typeItem === selectedType ? 'warning' : ''"
-          @click="onTypesSelectHandler(typeItem)"
-          >{{ typeItem }}</uiButton
+        Configs were not recieved
+      </h2>
+
+      <div
+        v-else
+        class="flex flex-col justify-center items-center gap-6 w-full"
+      >
+        <div
+          class="grid gap-4 grid-rows-2 grid-cols-4 w-11/12 shadow-md p-4 rounded-md"
         >
-      </div>
-      <div class="flex flex-col gap-4 w-11/12">
-        <div class="flex gap-4 w-full justify-center items-center">
-          <div class="flex gap-4 m-auto">
+          <uiButton
+            v-for="typeItem in configTypes"
+            :key="typeItem"
+            :value="typeItem"
+            :class="typeItem === selectedType ? 'warning' : ''"
+            @click="onTypesSelectHandler(typeItem)"
+            >{{ typeItem }}</uiButton
+          >
+        </div>
+        <div class="flex flex-col gap-4 w-11/12 justify-center items-center">
+          <div class="flex gap-4">
+            <UiButton
+              v-for="chain in blockchains"
+              :key="chain"
+              :disabled="isLoading || filtredConfigs.length === 0"
+              :class="chain === selectedChain ? 'warning' : ''"
+              @click="onChainClickHandler(chain)"
+            >
+              {{ chain }}
+            </UiButton>
+          </div>
+
+          <div class="flex w-full gap-4 justify-center items-center">
             <p>
               <span class="text-gray-500">Total count: </span
               >{{ configs.length }}
@@ -40,26 +55,25 @@
               <span class="text-gray-500">Selected type count: </span
               >{{ filtredConfigs.length }}
             </p>
+            <UiButton
+              class="success ml-auto"
+              :disabled="isLoading || filtredConfigs.length === 0"
+              @click="onCreateEmptyCloneHandler"
+            >
+              Create empty clone
+            </UiButton>
           </div>
 
-          <UiButton
-            class="success"
-            :disabled="isLoading || filtredConfigs.length === 0"
-            @click="onCreateEmptyCloneHandler"
-          >
-            <span>Create empty clone</span>
-          </UiButton>
+          <configListItem
+            v-for="config in visibleConfigs"
+            :key="config.configId"
+            :config="config"
+            class="w-full"
+          />
         </div>
-
-        <configListItem
-          v-for="config in visibleConfigs"
-          :key="config.configId"
-          :config="config"
-          class="hover:ring-gray-500 hover:ring-2 active:ring-gray-600"
-        />
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 </template>
 
 <script setup>
@@ -78,6 +92,8 @@ const filtredConfigs = ref([]);
 const selectedType = ref(null);
 const isLoading = ref(true);
 const visibleItemsCount = ref(30);
+const blockchains = ref(["All", "KDA", "BTC", "ETH"]);
+const selectedChain = ref("All");
 
 // Config modal
 const isTextInputModalVisible = ref(false);
@@ -90,10 +106,16 @@ const visibleConfigs = computed(() =>
 
 // Handlers
 
+const onChainClickHandler = (chain) => {
+  selectedChain.value = chain;
+  $toast.success(`Selected chain is ${chain}`);
+};
+
 const onTypesSelectHandler = (type) => {
   selectedType.value = type;
   store.setHeaderTitle(type);
   visibleItemsCount.value = 30;
+  selectedChain.value = "All";
 
   filtredConfigs.value = configs.value.filter(
     (item) => item.configType === type,
@@ -101,6 +123,7 @@ const onTypesSelectHandler = (type) => {
 };
 
 const handleScroll = () => {
+  // Load more configs after scrolling to the bottom of the page
   const windowHeight = window.innerHeight;
   const documentHeight = document.documentElement.scrollHeight;
   const scrollTop = document.documentElement.scrollTop;
@@ -137,8 +160,7 @@ const cloneConfigRequest = async (cloneName) => {
     filtredConfigs.value.unshift(response);
     configs.value.unshift(response);
     store.setConfigsList(configs.value);
-
-    $toast.success(`New banner was successfully created`);
+    $toast.success(`New config was successfully created`);
   } else {
     $toast.error(`Creating clone error, status: ${response}`);
   }
@@ -182,6 +204,16 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
 });
+
+watch(
+  () => store.configsList,
+  () => {
+    configs.value = store.configsList;
+    filtredConfigs.value = configs.value.filter(
+      (item) => item.configType === selectedType.value,
+    );
+  },
+);
 
 const createEmptyConfigFileClone = (parentConfig) => {
   const obj = JSON.parse(parentConfig.configFile);

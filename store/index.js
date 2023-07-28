@@ -6,7 +6,6 @@ export const useStore = defineStore("app-store", {
     configsList: [],
     headerTitle: "",
     currentUser: null,
-    updateAllBannersTrigger: false,
   }),
   actions: {
     setConfigTypes(payload) {
@@ -23,10 +22,6 @@ export const useStore = defineStore("app-store", {
 
     setCurrentUser(payload) {
       this.currentUser = payload;
-    },
-
-    setUpdateAllBannersTrigger(payload) {
-      this.updateAllBannersTrigger = payload;
     },
   },
 });

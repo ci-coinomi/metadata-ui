@@ -1,5 +1,8 @@
 <template>
-  <article class="flex flex-col ring-1 ring-inset ring-gray-400 rounded-md">
+  <article
+    class="flex flex-col ring-1 ring-inset hover:ring-2 rounded-md"
+    :class="isConfigUpdated ? 'ring-[#d38b32]' : 'ring-gray-400'"
+  >
     <div
       class="cursor-pointer flex gap-3 items-center justify-between w-full p-2"
       @click="toggleListItem()"
@@ -21,8 +24,8 @@
     </div>
     <configDetailsCard
       v-if="isOpened"
-      :banner="config"
-      @delete-config-item="deleteConfigItem"
+      :config="config"
+      @config-update-emit="configUpdatedHandler"
     />
   </article>
 </template>
@@ -33,10 +36,14 @@ const props = defineProps({
 });
 
 const isOpened = ref(false);
-
-// Handlers
+const isConfigUpdated = ref(false);
 
 const toggleListItem = () => {
   isOpened.value = !isOpened.value;
+  isConfigUpdated.value = false;
+};
+
+const configUpdatedHandler = (isUpdated) => {
+  isConfigUpdated.value = isUpdated;
 };
 </script>

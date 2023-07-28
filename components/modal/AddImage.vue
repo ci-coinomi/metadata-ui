@@ -18,7 +18,7 @@
         @change="fileChangeHandler"
       />
 
-      <div v-if="imageOldName" class="flex flex-col gap-2">
+      <div v-if="imageOldName" class="flex flex-col gap-2 w-full">
         <p class="text-gray-500">Image old name:</p>
         <p>{{ imageOldName }}</p>
         <UiInputField
