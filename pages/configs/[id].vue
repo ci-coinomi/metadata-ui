@@ -61,6 +61,7 @@
         <div v-else class="flex gap-3 flex-col">
           <section>
             <configNestedLine
+              :isCloned="clonedConfigName !== ''"
               :configNestedObject="configFile"
               @nested-object-updated="handleNestedObjectUpdated"
             />
