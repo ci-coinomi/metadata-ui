@@ -18,13 +18,15 @@
             alt="users"
           />
         </UiButton>
-        <UiButton @click="onUsersNavigateHandler">
-          <img
-            src="~/assets/icons/icon-users.svg"
-            class="w-4 h-4"
-            alt="users"
-          />
-        </UiButton>
+        <ClientOnly>
+          <UiButton v-if="isSuperAdmin" @click="onUsersNavigateHandler">
+            <img
+              src="~/assets/icons/icon-users.svg"
+              class="w-4 h-4"
+              alt="users"
+            />
+          </UiButton>
+        </ClientOnly>
         <UiButton @click="onLogoutHandler">
           <img
             src="~/assets/icons/icon-logout.svg"
@@ -40,12 +42,14 @@
 import { signout } from "~/api/user";
 import { useStore } from "~/store";
 
-// const { $toast } = useNuxtApp();
 const router = useRouter();
 const store = useStore();
 const { $toast } = useNuxtApp();
 
 const headerTitle = computed(() => store.headerTitle);
+const isSuperAdmin = computed(() =>
+  store.currentUser?.roles?.includes("ROLE_SUPER_ADMIN"),
+);
 
 const onFaqNavigateHandler = () => {
   if (headerTitle.value === "FAQ") {

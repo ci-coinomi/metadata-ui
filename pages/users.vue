@@ -1,22 +1,22 @@
 <template>
   <main
-    class="flex flex-col justify-center items-center gap-6 w-3/4 m-auto bg-white p-4 shadow-md mt-3 rounded"
+    class="flex flex-col justify-center items-center gap-6 m-auto bg-white p-4 shadow-md mt-3 rounded"
   >
-    <ConfirmModal
+    <modalConfirm
       v-if="isConfirmModalVisible"
       :payload="confirmModalPayload"
       @is-modal-confirmed="modalConfirmHandler"
-      >{{ confirmModalText }}</ConfirmModal
+      >{{ confirmModalText }}</modalConfirm
     >
 
-    <userDataModal
+    <modalUserData
       v-if="isUserDataModalVisible"
       :payload="userDataModalPayload"
       :usersList="usersList"
       @update-user-data="updateUserDataHandler"
     />
 
-    <userSkeleton v-if="isLoading" class="w-[75vw]" />
+    <userSkeleton v-if="isLoading" />
     <div v-else class="flex flex-col justify-center items-center gap-6 w-4/5">
       <div class="flex justify-between w-full items-center">
         <UiButton @click="onConfigsNavigateHandler">
@@ -54,7 +54,6 @@ definePageMeta({
   layout: "signedin",
 });
 
-// const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
 const { $toast } = useNuxtApp();
@@ -76,6 +75,8 @@ const onConfigsNavigateHandler = () => {
     path: `/configs`,
   });
 };
+
+// Handlers
 
 const onDeleteClickHandler = (userName) => {
   isConfirmModalVisible.value = true;
@@ -116,7 +117,8 @@ const updateUserDataHandler = (data) => {
   userDataModalType.value = "";
 };
 
-// Fetching functions
+// Requests
+
 const deleteUserByLogin = async (userName) => {
   isLoading.value = true;
   const response = await deleteUser(userName);

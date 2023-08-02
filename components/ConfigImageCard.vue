@@ -1,6 +1,6 @@
 <template>
   <article
-    class="p-8 flex flex-col gap-4 border rounded-md shadow-md w-full justify-between"
+    class="p-4 flex flex-col gap-4 border rounded-md shadow-md w-full justify-between"
   >
     <div class="flex justify-center items-center h-[200px]">
       <img
@@ -10,7 +10,7 @@
       />
     </div>
     <div class="flex flex-col gap-4">
-      <h3 class="flex justify-center items-center">
+      <h3 class="flex justify-center items-center break-all">
         {{ props.image.imageName }}
       </h3>
       <div class="flex justify-evenly items-center gap-1">
@@ -55,7 +55,7 @@ const onUpdateClickHandler = () => {
 
 const getImageSrc = (image) => {
   const extension = image.imageName.substring(
-    image.imageName.lastIndexOf(".") + 1
+    image.imageName.lastIndexOf(".") + 1,
   );
   const base64Prefix = "data:image/" + extension + ";base64,";
   return `${base64Prefix}${image.imageData}`;

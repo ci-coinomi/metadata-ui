@@ -3,13 +3,14 @@
     v-for="(value, key) in props.configNestedObject"
     :key="key"
     :class="!isObject(value) ? 'items-center' : ''"
-    class="flex p-1 gap-4 rounded-sm"
+    class="flex py-1 gap-4 rounded-sm"
   >
     <p class="text-gray-400">{{ key }}:</p>
     <template v-if="isObject(value)">
       <div class="pl-1 flex flex-col gap-1 w-full">
         <p class="text-gray-400">Object</p>
         <configNestedLine
+          :isCloned="isCloned"
           :configNestedObject="value"
           @nested-object-updated="handleValueChange"
         />
@@ -25,14 +26,16 @@
         v-else-if="Array.isArray(value)"
         :value="configNestedObject[key]"
         type="text"
-        :disabled="key === '@type' || key === 'eucId'"
-        @input="(data) => (configNestedObject[key] = data.target.value.split(','))"
-        />
+        :disabled="key === '@type' || key === 'eucId'" 
+        @input="
+          (data) => (configNestedObject[key] = data.target.value.split(','))
+        "
+      />
       <UiInputField
         v-else
         v-model="configNestedObject[key]"
         type="text"
-        :disabled="key === '@type' || key === 'eucId'"
+        :disabled="!isCloned && (key === '@type' || key === 'eucId')"
       />
     </template>
   </div>
@@ -41,9 +44,17 @@
 <script setup>
 const props = defineProps({
   configNestedObject: Object,
+  isCloned: Boolean
 });
 
 const emit = defineEmits(["nested-object-updated"]);
+
+let isCloned = ref(false)
+
+watch(props, (newVal) => {
+  console.log(newVal.isCloned)
+  isCloned = newVal.isCloned
+}) 
 
 const isObject = (value) => {
   return typeof value === "object" && value !== null && !Array.isArray(value);
