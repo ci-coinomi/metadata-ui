@@ -28,7 +28,7 @@
             v-for="typeItem in configTypes"
             :key="typeItem"
             :value="typeItem"
-            :class="typeItem === selectedType ? 'warning' : ''"
+            :class="typeItem === selectedType ? 'primary' : ''"
             @click="onTypesSelectHandler(typeItem)"
             >{{ typeItem }}</uiButton
           >
@@ -39,7 +39,7 @@
               v-for="chain in blockchains"
               :key="chain"
               :disabled="isLoading || filtredConfigs.length === 0"
-              :class="chain === selectedChain ? 'warning' : ''"
+              :class="chain === selectedChain ? 'primary' : ''"
               @click="onChainClickHandler(chain)"
             >
               {{ chain }}
@@ -60,7 +60,7 @@
               :disabled="isLoading || filtredConfigs.length === 0"
               @click="onCreateEmptyCloneHandler"
             >
-              Create empty clone
+              Create config
             </UiButton>
           </div>
 

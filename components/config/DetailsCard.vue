@@ -61,7 +61,7 @@
 
       <div class="flex w-1/2 gap-4 justify-between">
         <UiButton class="w-1/4 success" @click="onCloneConfigHandler">
-          Create clone
+          Clone config
         </UiButton>
         <UiButton class="w-1/4 warning" @click="onUpdateConfigHandler">
           Save changes
