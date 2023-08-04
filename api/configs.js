@@ -56,12 +56,8 @@ export const updateConfig = async (previousConfig, updatedConfigFile) => {
   }
 };
 
-export const cloneConfig = async (newConfigName, parentConfig) => {
-  const response = await api(`v1/admin/configs`, "POST", {
-    configName: newConfigName,
-    configType: parentConfig.configType,
-    configFile: parentConfig.configFile,
-  });
+export const cloneConfig = async (configData) => {
+  const response = await api(`v1/admin/configs`, "POST", configData);
   if (response._data) {
     return response._data;
   } else {

@@ -10,8 +10,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      // __dangerouslyDisableSanitizers: ['script'],
-      title: "Eucalyptus Labs - Metadata UI",
+      title: "MAUI",
       meta: [
         {
           charset: "utf-8",
