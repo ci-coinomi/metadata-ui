@@ -10,6 +10,7 @@
       <div class="pl-1 flex flex-col gap-1 w-full">
         <p class="text-gray-400">Object</p>
         <configNestedLine
+          :isCloned="isCloned"
           :configNestedObject="value"
           @nested-object-updated="handleValueChange"
         />
@@ -34,7 +35,7 @@
         v-else
         v-model="configNestedObject[key]"
         type="text"
-        :disabled="key === '@type' || key === 'eucId'"
+        :disabled="isFieldDisabled(key)"
       />
     </template>
   </div>
@@ -43,9 +44,26 @@
 <script setup>
 const props = defineProps({
   configNestedObject: Object,
+  isCloned: Boolean,
 });
 
 const emit = defineEmits(["nested-object-updated"]);
+
+const isFieldDisabled = (key) => {
+  if (key === "@type") {
+    return true;
+  } else if (!props.isCloned && key === "eucId") {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+// let isCloned = ref(false);
+
+// watch(props, (newVal) => {
+//   isCloned = newVal.isCloned;
+// });
 
 const isObject = (value) => {
   return typeof value === "object" && value !== null && !Array.isArray(value);

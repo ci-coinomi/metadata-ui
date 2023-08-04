@@ -35,6 +35,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo("/forbidden");
   }
 
+  if (to.name === "create" && !rolesArr?.includes("ROLE_ADMIN")) {
+    return navigateTo("/forbidden");
+  }
+
   if (
     to.name === "users" &&
     rolesArr?.includes("ROLE_ADMIN") &&

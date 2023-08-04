@@ -28,7 +28,7 @@
             v-for="typeItem in configTypes"
             :key="typeItem"
             :value="typeItem"
-            :class="typeItem === selectedType ? 'warning' : ''"
+            :class="typeItem === selectedType ? 'primary' : ''"
             @click="onTypesSelectHandler(typeItem)"
             >{{ typeItem }}</uiButton
           >
@@ -39,7 +39,7 @@
               v-for="chain in blockchains"
               :key="chain"
               :disabled="isLoading || filtredConfigs.length === 0"
-              :class="chain === selectedChain ? 'warning' : ''"
+              :class="chain === selectedChain ? 'primary' : ''"
               @click="onChainClickHandler(chain)"
             >
               {{ chain }}
@@ -57,10 +57,10 @@
             </p>
             <UiButton
               class="success ml-auto"
-              :disabled="isLoading || filtredConfigs.length === 0"
+              :disabled="isCreateEmptyConfigDisabled"
               @click="onCreateEmptyCloneHandler"
             >
-              Create empty clone
+              Create config
             </UiButton>
           </div>
 
@@ -86,6 +86,7 @@ definePageMeta({
 
 const store = useStore();
 const { $toast } = useNuxtApp();
+const router = useRouter();
 
 const configs = ref([]);
 const filtredConfigs = ref([]);
@@ -102,6 +103,13 @@ const clonedConfigName = ref(null);
 const configTypes = computed(() => store.configTypes);
 const visibleConfigs = computed(() =>
   filtredConfigs.value.slice(0, visibleItemsCount.value),
+);
+const isCreateEmptyConfigDisabled = computed(
+  // Enabled only for config types without parentConfig
+  () =>
+    isLoading.value ||
+    filtredConfigs.value.length === 0 ||
+    visibleConfigs.value.some((el) => el.parentConfig),
 );
 
 // Handlers
@@ -141,31 +149,45 @@ const onCreateEmptyCloneHandler = () => {
 
 const addNameModalHandler = (payload) => {
   isTextInputModalVisible.value = false;
-  if (payload) cloneConfigRequest(payload);
+
+  if (payload) {
+    const firstConfigInList = visibleConfigs.value[0];
+    const emptyConfigFile = createEmptyConfigFileClone(firstConfigInList);
+
+    const cloneData = {
+      cloneName: payload,
+      parentConfig: visibleConfigs.value[0],
+      configFile: emptyConfigFile,
+      parentConfigImages: [],
+    };
+
+    store.setCloneConfigData(cloneData);
+    router.push("create");
+  }
 };
 
 // Requests
 
-const cloneConfigRequest = async (cloneName) => {
-  const firstConfigInList = visibleConfigs.value[0];
-  const emptyConfigFile = createEmptyConfigFileClone(firstConfigInList);
-  const parentObjectEmptyClone = {
-    configFile: emptyConfigFile,
-    configType: firstConfigInList.configType,
-  };
+// const cloneConfigRequest = async (cloneName) => {
+//   const firstConfigInList = visibleConfigs.value[0];
+//   const emptyConfigFile = createEmptyConfigFileClone(firstConfigInList);
+//   const parentObjectEmptyClone = {
+//     configFile: emptyConfigFile,
+//     configType: firstConfigInList.configType,
+//   };
 
-  const response = await cloneConfig(cloneName, parentObjectEmptyClone);
+//   const response = await cloneConfig(cloneName, parentObjectEmptyClone);
 
-  if (response.configId) {
-    filtredConfigs.value.unshift(response);
-    configs.value.unshift(response);
-    store.setConfigsList(configs.value);
-    $toast.success(`New config was successfully created`);
-  } else {
-    $toast.error(`Creating clone error, status: ${response}`);
-  }
-  clonedConfigName.value = null;
-};
+//   if (response.configId) {
+//     filtredConfigs.value.unshift(response);
+//     configs.value.unshift(response);
+//     store.setConfigsList(configs.value);
+//     $toast.success(`New config was successfully created`);
+//   } else {
+//     $toast.error(`Creating clone error, status: ${response}`);
+//   }
+//   clonedConfigName.value = null;
+// };
 
 const fetchConfigTypes = async () => {
   if (store.configsList.length === 0) {
@@ -218,19 +240,21 @@ watch(
 const createEmptyConfigFileClone = (parentConfig) => {
   const obj = JSON.parse(parentConfig.configFile);
 
-  const processValue = (value) => {
-    if (typeof value === "boolean") {
+  const processValue = (value, key) => {
+    if (key === "@type") {
+      return value;
+    } else if (typeof value === "boolean") {
       return false;
     } else if (typeof value === "number") {
       return 0;
-    } else if (typeof value === "string" && value !== "banner") {
+    } else if (typeof value === "string") {
       return "";
     } else if (Array.isArray(value)) {
       return [""];
     } else if (typeof value === "object" && value !== null) {
       /* eslint-disable-next-line prefer-const */
       for (let key in value) {
-        value[key] = processValue(value[key]);
+        value[key] = processValue(value[key], key);
       }
       return value;
     } else {
@@ -240,7 +264,6 @@ const createEmptyConfigFileClone = (parentConfig) => {
 
   const processedObj = processValue(obj);
   const processedJSONString = JSON.stringify(processedObj);
-
   return processedJSONString;
 };
 </script>

@@ -6,6 +6,7 @@ export const useStore = defineStore("app-store", {
     configsList: [],
     headerTitle: "",
     currentUser: null,
+    cloneConfigData: null,
   }),
   actions: {
     setConfigTypes(payload) {
@@ -22,6 +23,10 @@ export const useStore = defineStore("app-store", {
 
     setCurrentUser(payload) {
       this.currentUser = payload;
+    },
+
+    setCloneConfigData(payload) {
+      this.cloneConfigData = payload;
     },
   },
 });

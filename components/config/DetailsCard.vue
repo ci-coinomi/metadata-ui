@@ -24,7 +24,10 @@
     <div v-else class="flex flex-col gap-4 justify-center items-center w-full">
       <div class="flex gap-4 w-full items-start justify-between">
         <div class="w-full">
-          <configNestedLine :configNestedObject="configFileObj" />
+          <configNestedLine
+            :configNestedObject="configFileObj"
+            :is-cloned="false"
+          />
         </div>
         <div class="flex flex-col gap-4 justify-center items-center">
           <div
@@ -61,7 +64,7 @@
 
       <div class="flex w-1/2 gap-4 justify-between">
         <UiButton class="w-1/4 success" @click="onCloneConfigHandler">
-          Create clone
+          Clone config
         </UiButton>
         <UiButton class="w-1/4 warning" @click="onUpdateConfigHandler">
           Save changes
@@ -81,11 +84,12 @@ import {
   updateImageById,
   addNewImage,
 } from "~/api/images";
-import { deleteConfig, updateConfig, cloneConfig } from "~/api/configs";
+import { deleteConfig, updateConfig } from "~/api/configs";
 import { useStore } from "~/store";
 
 const { $toast } = useNuxtApp();
 const store = useStore();
+const router = useRouter();
 
 const props = defineProps({
   config: Object,
@@ -160,7 +164,17 @@ const addImageModalHandler = (imageData) => {
 
 const addNameModalHandler = (payload) => {
   isTextInputModalVisible.value = false;
-  if (payload) cloneConfigRequest(payload);
+  if (payload) {
+    const cloneData = {
+      cloneName: payload,
+      parentConfig: currentConfig.value,
+      configFile: currentConfig.value.configFile,
+      parentConfigImages: configImages.value,
+    };
+
+    store.setCloneConfigData(cloneData);
+    router.push("create");
+  }
 };
 
 // Button handlers
@@ -200,23 +214,24 @@ const onUpdateConfigHandler = () => {
 
 // Requests
 
-const cloneConfigRequest = async (cloneName) => {
-  const parentObject = {
-    configFile: currentConfig.value.configFile,
-    configType: currentConfig.value.configType,
-  };
+// const cloneConfigRequest = async (cloneName) => {
+// const parentObject = {
+//   configFile: currentConfig.value.configFile,
+//   configType: currentConfig.value.configType,
+// };
 
-  const response = await cloneConfig(cloneName, parentObject);
+// const response = await cloneConfig(cloneName, parentObject);
 
-  if (response.configId) {
-    const updatedConfigsList = [...storedConfigList.value];
-    updatedConfigsList.unshift(response);
-    store.setConfigsList(updatedConfigsList);
-    $toast.success(`Clone of ${currentConfig.value.configName} was created`);
-  } else {
-    $toast.error(`Creating clone error, status: ${response}`);
-  }
-};
+// if (response.configId) {
+//   const updatedConfigsList = [...storedConfigList.value];
+//   updatedConfigsList.unshift(response);
+//   store.setConfigsList(updatedConfigsList);
+//   $toast.success(`Clone of ${currentConfig.value.configName} was created`);
+// } else {
+//   $toast.error(`Creating clone error, status: ${response}`);
+// }
+
+// };
 
 const updateConfigRequest = async () => {
   if (isConfigUpdated.value) {
@@ -333,6 +348,7 @@ const deleteConfigRequest = async () => {
 
 onMounted(() => {
   configFileObj.value = JSON.parse(currentConfig.value.configFile);
+  console.log("Opened config: ", currentConfig.value);
   getConfigImageRequest();
 });
 
