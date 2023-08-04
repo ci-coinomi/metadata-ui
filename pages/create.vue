@@ -18,7 +18,20 @@
       @modal-handler="addImageModalHandler"
     />
 
-    <div class="p-4 flex justify-center items-center w-full">
+    <div
+      v-if="!cloneConfigData"
+      class="flex flex-col gap-4 justify-center items-center my-20"
+    >
+      <h1 class="text-3xl">Config data was passed incorrectly</h1>
+      <h2>
+        Probably you may have reloaded the page. Need to go back to the config
+        page
+      </h2>
+      <UiButton class="w-1/4 primary" @click="onReturnHandler">
+        Return
+      </UiButton>
+    </div>
+    <div v-else class="p-4 flex justify-center items-center w-full">
       <configBannerSkeleton v-if="isLoading" />
 
       <div
@@ -27,6 +40,10 @@
       >
         <div class="flex gap-4 w-full items-start justify-between">
           <div class="w-full">
+            <ConfigParentData
+              v-if="currentConfig && currentConfig.parentConfig"
+              :parent-data="currentConfig.parentConfig"
+            />
             <configNestedLine
               :configNestedObject="configFileObj"
               :is-cloned="true"
@@ -186,25 +203,49 @@ const onReturnHandler = () => {
 // Requests
 
 const cloneConfigRequest = async () => {
+  isLoading.value = true;
+
   const updatedConfigString = JSON.stringify(configFileObj.value);
 
   const cloneConfigPayload = {
     configName: currentConfig.value.configName,
     configFile: updatedConfigString,
     configType: currentConfig.value.configType,
-    parentConfig: currentConfig.value.parentConfig,
   };
-  const response = await cloneConfig(cloneConfigPayload);
-  console.log(response);
 
-  // if (response.configId) {
-  //   const updatedConfigsList = [...storedConfigList.value];
-  //   updatedConfigsList.unshift(response);
-  //   store.setConfigsList(updatedConfigsList);
-  //   $toast.success(`Clone of ${currentConfig.value.configName} was created`);
-  // } else {
-  //   $toast.error(`Creating clone error, status: ${response}`);
-  // }
+  if (currentConfig.value.parentConfig)
+    cloneConfigPayload.parentConfig = currentConfig.value.parentConfig;
+
+  const response = await cloneConfig(cloneConfigPayload);
+
+  if (!response.configId) {
+    $toast.error(`Creating clone error, status: ${response}`);
+    return;
+  }
+
+  currentConfig.value.configId = response.configId;
+
+  const updatedConfigsList = [...storedConfigList.value];
+  updatedConfigsList.unshift(currentConfig.value);
+  store.setConfigsList(updatedConfigsList);
+  $toast.success(`Clone of ${currentConfig.value.configName} was created`);
+
+  if (configImages.value.length > 0) {
+    for (const image of configImages.value) {
+      await uploadImageRequest(image);
+    }
+  }
+  router.push("configs");
+  isLoading.value = false;
+};
+
+const uploadImageRequest = async (image) => {
+  const response = await addNewImage(image, currentConfig.value);
+  if (response?.imageName === image.imageName) {
+    $toast.success(`Image ${image.imageName} was added`);
+  } else {
+    $toast.error(`Uploading image error, status: ${response}`);
+  }
 };
 
 onMounted(() => {
@@ -213,7 +254,7 @@ onMounted(() => {
       configName: cloneConfigData.value.cloneName,
       configType: cloneConfigData.value.parentConfig.configType,
       configFile: cloneConfigData.value.configFile,
-      // We need to pass parent of parentConfig
+      // We use parent of parentConfig
       parentConfig: cloneConfigData.value.parentConfig?.parentConfig,
     };
     currentConfig.value = newConfigObject;
