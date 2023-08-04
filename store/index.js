@@ -7,6 +7,7 @@ export const useStore = defineStore("app-store", {
     headerTitle: "",
     currentUser: null,
     cloneConfigData: null,
+    toParentNavigateData: null,
   }),
   actions: {
     setConfigTypes(payload) {
@@ -27,6 +28,15 @@ export const useStore = defineStore("app-store", {
 
     setCloneConfigData(payload) {
       this.cloneConfigData = payload;
+    },
+
+    setToParentNavigateData(payload) {
+      /*
+        For now we don't have query-params for navigation. 
+        In this case for navigating to parent config toParentNavigateData is used.
+        We use this param as highest filter on /configs.vue page and reseting by click on configType.
+      */
+      this.toParentNavigateData = payload;
     },
   },
 });

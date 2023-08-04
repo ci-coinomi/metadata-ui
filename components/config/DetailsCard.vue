@@ -24,6 +24,10 @@
     <div v-else class="flex flex-col gap-4 justify-center items-center w-full">
       <div class="flex gap-4 w-full items-start justify-between">
         <div class="w-full">
+          <ConfigParentData
+            v-if="currentConfig && currentConfig.parentConfig"
+            :parent-data="currentConfig.parentConfig"
+          />
           <configNestedLine
             :configNestedObject="configFileObj"
             :is-cloned="false"
@@ -150,7 +154,10 @@ const addImageModalHandler = (imageData) => {
   isAddImageModalVisibe.value = false;
 
   if (imageData && addImageModalType.value === "ADDNEWIMAGE") {
-    uploadNewImageRequest(imageData);
+    uploadNewImageRequest({
+      imageName: imageData.name,
+      imageData: imageData.data,
+    });
   }
 
   if (imageData && addImageModalType.value === "UPDATEIMAGE") {
@@ -184,8 +191,11 @@ const onCloneConfigHandler = () => {
 };
 
 const onUpdateImageHandler = () => {
-  addImageModalType.value = "UPDATEIMAGE";
-  isAddImageModalVisibe.value = true;
+  // addImageModalType.value = "UPDATEIMAGE";
+  // isAddImageModalVisibe.value = true;
+  $toast.error(
+    `Updating images temporarily unavailable, please delete image you want and upload new one`,
+  );
 };
 
 const onDeleteImageHandler = (image) => {
@@ -203,35 +213,16 @@ const onAddNewImageHandler = () => {
 const onDeleteConfigHandler = () => {
   isConfirmModalVisible.value = true;
   confirmModalType.value = "DELETECONFIG";
-  confirmModalText.value = "Are you sure you want to delete this config?";
+  confirmModalText.value = `Are you sure you want to delete ${currentConfig.value.configName}?`;
 };
 
 const onUpdateConfigHandler = () => {
   isConfirmModalVisible.value = true;
   confirmModalType.value = "UPDATECONFIG";
-  confirmModalText.value = "Are you sure you want to update this config?";
+  confirmModalText.value = `Are you sure you want to update ${currentConfig.value.configName}?`;
 };
 
 // Requests
-
-// const cloneConfigRequest = async (cloneName) => {
-// const parentObject = {
-//   configFile: currentConfig.value.configFile,
-//   configType: currentConfig.value.configType,
-// };
-
-// const response = await cloneConfig(cloneName, parentObject);
-
-// if (response.configId) {
-//   const updatedConfigsList = [...storedConfigList.value];
-//   updatedConfigsList.unshift(response);
-//   store.setConfigsList(updatedConfigsList);
-//   $toast.success(`Clone of ${currentConfig.value.configName} was created`);
-// } else {
-//   $toast.error(`Creating clone error, status: ${response}`);
-// }
-
-// };
 
 const updateConfigRequest = async () => {
   if (isConfigUpdated.value) {
@@ -252,11 +243,11 @@ const updateConfigRequest = async () => {
       );
     } else {
       $toast.success(`Config ${currentConfig.value.configName} was updated`);
-      currentConfig.value = response;
+      currentConfig.value.configFile = response.configFile;
 
       // Update store.configList by adding updated config...
       const updatedConfigsList = [...storedConfigList.value];
-      updatedConfigsList[currentItemInStoreIndex.value] = response;
+      updatedConfigsList[currentItemInStoreIndex.value] = currentConfig.value;
       store.setConfigsList(updatedConfigsList);
 
       isConfigUpdated.value = false;
@@ -301,10 +292,10 @@ const deleteImageRequest = async (image) => {
   isLoading.value = false;
 };
 
-const uploadNewImageRequest = async (imageData) => {
+const uploadNewImageRequest = async (image) => {
   isLoading.value = true;
-  const response = await addNewImage(imageData, currentConfig.value);
-  if (response?.imageName === imageData.name) {
+  const response = await addNewImage(image, currentConfig.value);
+  if (response?.imageName === image.imageName) {
     $toast.success(`Image was added`);
     await getConfigImageRequest();
   } else {
@@ -348,7 +339,6 @@ const deleteConfigRequest = async () => {
 
 onMounted(() => {
   configFileObj.value = JSON.parse(currentConfig.value.configFile);
-  console.log("Opened config: ", currentConfig.value);
   getConfigImageRequest();
 });
 
@@ -374,12 +364,6 @@ watch(
 </script>
 
 <style scoped>
-.icon-trash {
-  filter: invert(1) grayscale(100%) brightness(200%);
-  mask: url(~/assets/icons/icon-trash.svg) no-repeat center / contain;
-  background-color: white;
-}
-
 .icon-add {
   filter: invert(1) grayscale(100%) brightness(200%);
   mask: url(~/assets/icons/icon-add.svg) no-repeat center / contain;

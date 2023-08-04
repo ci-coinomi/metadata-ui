@@ -22,45 +22,52 @@
         class="flex flex-col justify-center items-center gap-6 w-full"
       >
         <div
-          class="grid gap-4 grid-rows-2 grid-cols-4 w-11/12 shadow-md p-4 rounded-md"
+          class="w-11/12 shadow-md p-4 rounded-md flex flex-col items-center gap-4"
         >
-          <uiButton
-            v-for="typeItem in configTypes"
-            :key="typeItem"
-            :value="typeItem"
-            :class="typeItem === selectedType ? 'primary' : ''"
-            @click="onTypesSelectHandler(typeItem)"
-            >{{ typeItem }}</uiButton
+          <div class="grid gap-4 grid-rows-2 grid-cols-4 w-full">
+            <uiButton
+              v-for="typeItem in configTypes"
+              :key="typeItem"
+              :value="typeItem"
+              :class="typeItem === selectedType ? 'primary' : ''"
+              @click="onTypesSelectHandler(typeItem)"
+              >{{ typeItem }}</uiButton
+            >
+          </div>
+          <div
+            v-if="!isBlockchainBlockHidden"
+            class="flex gap-4 w-full justify-center"
           >
-        </div>
-        <div class="flex flex-col gap-4 w-11/12 justify-center items-center">
-          <div class="flex gap-4">
             <UiButton
               v-for="chain in blockchains"
               :key="chain"
               :disabled="isLoading || filtredConfigs.length === 0"
               :class="chain === selectedChain ? 'primary' : ''"
+              class="my-auto"
               @click="onChainClickHandler(chain)"
             >
               {{ chain }}
             </UiButton>
           </div>
-
-          <div class="flex w-full gap-4 justify-center items-center">
-            <p>
-              <span class="text-gray-500">Total count: </span
-              >{{ configs.length }}
-            </p>
-            <p>
-              <span class="text-gray-500">Selected type count: </span
-              >{{ filtredConfigs.length }}
-            </p>
+        </div>
+        <div class="flex flex-col gap-4 w-11/12 justify-center items-center">
+          <div class="flex w-full justify-between items-center">
+            <div class="py-2 mr-aut flex gap-4">
+              <p>
+                <span class="text-gray-500">Total count: </span
+                >{{ configs.length }}
+              </p>
+              <p>
+                <span class="text-gray-500">Selected type count: </span
+                >{{ filtredConfigs.length }}
+              </p>
+            </div>
             <UiButton
-              class="success ml-auto"
-              :disabled="isCreateEmptyConfigDisabled"
+              v-if="!isCreateEmptyConfigHidden"
+              class="success"
               @click="onCreateEmptyCloneHandler"
             >
-              Create config
+              Create empty config
             </UiButton>
           </div>
 
@@ -77,7 +84,7 @@
 </template>
 
 <script setup>
-import { getConfigs, getConfigsTypes, cloneConfig } from "~/api/configs";
+import { getConfigs, getConfigsTypes } from "~/api/configs";
 import { useStore } from "~/store";
 
 definePageMeta({
@@ -93,8 +100,8 @@ const filtredConfigs = ref([]);
 const selectedType = ref(null);
 const isLoading = ref(true);
 const visibleItemsCount = ref(30);
-const blockchains = ref(["All", "KDA", "BTC", "ETH"]);
-const selectedChain = ref("All");
+const blockchains = ref([]);
+const selectedChain = ref(null);
 
 // Config modal
 const isTextInputModalVisible = ref(false);
@@ -104,30 +111,58 @@ const configTypes = computed(() => store.configTypes);
 const visibleConfigs = computed(() =>
   filtredConfigs.value.slice(0, visibleItemsCount.value),
 );
-const isCreateEmptyConfigDisabled = computed(
-  // Enabled only for config types without parentConfig
+const isCreateEmptyConfigHidden = computed(
+  // Shown only for config types without parentConfig
+  // Also hidden if parentConfig is only item in the filtredConfigList
   () =>
     isLoading.value ||
     filtredConfigs.value.length === 0 ||
-    visibleConfigs.value.some((el) => el.parentConfig),
+    visibleConfigs.value.some((el) => el.parentConfig) ||
+    store.toParentNavigateData,
+);
+
+const isBlockchainBlockHidden = computed(
+  () =>
+    /*
+  Visible if in all configFile elements exist eucId-field in configfile with '@',
+  this is our filter param
+  */
+    isLoading.value ||
+    filtredConfigs.value.length === 0 ||
+    blockchains.value.length === 0,
 );
 
 // Handlers
 
 const onChainClickHandler = (chain) => {
   selectedChain.value = chain;
-  $toast.success(`Selected chain is ${chain}`);
+
+  if (selectedChain.value === "All") {
+    filtredConfigs.value = configs.value.filter(
+      (item) => item.configType === selectedType.value,
+    );
+  } else {
+    filtredConfigs.value = configs.value.filter((item) => {
+      const configChainName = getChainNameFromConfigItem(item);
+      return (
+        item.configType === selectedType.value &&
+        configChainName === selectedChain.value
+      );
+    });
+  }
 };
 
 const onTypesSelectHandler = (type) => {
   selectedType.value = type;
   store.setHeaderTitle(type);
   visibleItemsCount.value = 30;
-  selectedChain.value = "All";
+  store.setToParentNavigateData(null);
 
   filtredConfigs.value = configs.value.filter(
     (item) => item.configType === type,
   );
+
+  getChainsFromFiltredConfigs(filtredConfigs.value);
 };
 
 const handleScroll = () => {
@@ -168,27 +203,6 @@ const addNameModalHandler = (payload) => {
 
 // Requests
 
-// const cloneConfigRequest = async (cloneName) => {
-//   const firstConfigInList = visibleConfigs.value[0];
-//   const emptyConfigFile = createEmptyConfigFileClone(firstConfigInList);
-//   const parentObjectEmptyClone = {
-//     configFile: emptyConfigFile,
-//     configType: firstConfigInList.configType,
-//   };
-
-//   const response = await cloneConfig(cloneName, parentObjectEmptyClone);
-
-//   if (response.configId) {
-//     filtredConfigs.value.unshift(response);
-//     configs.value.unshift(response);
-//     store.setConfigsList(configs.value);
-//     $toast.success(`New config was successfully created`);
-//   } else {
-//     $toast.error(`Creating clone error, status: ${response}`);
-//   }
-//   clonedConfigName.value = null;
-// };
-
 const fetchConfigTypes = async () => {
   if (store.configsList.length === 0) {
     const response = await getConfigsTypes();
@@ -221,6 +235,9 @@ onMounted(() => {
   store.setHeaderTitle("Select config type");
   fetchConfigTypes();
   fetchConfigs();
+  if (store.toParentNavigateData) {
+    displayOnlyParentConfig();
+  }
 });
 
 onUnmounted(() => {
@@ -236,6 +253,67 @@ watch(
     );
   },
 );
+
+watch(
+  () => store.toParentNavigateData,
+  () => {
+    if (store.toParentNavigateData) displayOnlyParentConfig();
+  },
+);
+
+const displayOnlyParentConfig = () => {
+  // If toParentNavigateData was set - hide chains block, show only parent config
+  // and set all filters as default. To hide parent config user will need to set selectedType again
+  configs.value = store.configsList;
+  selectedType.value = null;
+  selectedChain.value = null;
+  blockchains.value = [];
+  filtredConfigs.value = configs.value.filter(
+    (item) => item.configId === store.toParentNavigateData.configId,
+  );
+};
+
+const getChainsFromFiltredConfigs = (configs) => {
+  // Getting every unique chain name from config.configFile.eucId's in configs array
+  const chainsSet = new Set();
+  configs.forEach((item) => {
+    const chainItem = getChainNameFromConfigItem(item);
+    if (chainItem) chainsSet.add(chainItem);
+  });
+  const chainsArray = Array.from(chainsSet);
+
+  /*
+  If we have no chain names in eucId after '@' - hide chainsBlock
+  If we have only one chain type in filtredConfigs - show chainsBlock and select this chain
+  If there are more than 1 chain in filtredConfigs - add 'All' (selected by default) and show chains in chainsBlock
+  */
+  if (chainsArray.length === 0) {
+    selectedChain.value = null;
+    blockchains.value = [];
+  } else if (chainsArray.length === 1) {
+    selectedChain.value = chainsArray[0];
+    blockchains.value = chainsArray;
+  } else {
+    selectedChain.value = "All";
+    blockchains.value = ["All", ...chainsArray];
+  }
+};
+
+const getChainNameFromConfigItem = (config) => {
+  // Get chain name from config.configFile.eucId (value after '@')
+  try {
+    const configObj = JSON.parse(config.configFile);
+    const eucId = configObj.eucId;
+    if (eucId && eucId.includes("@")) {
+      const splitValues = eucId.split("@");
+      const chainName = splitValues[1];
+      if (chainName) return chainName;
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("JSON error:", config, error);
+  }
+};
 
 const createEmptyConfigFileClone = (parentConfig) => {
   const obj = JSON.parse(parentConfig.configFile);
