@@ -59,12 +59,6 @@ const isFieldDisabled = (key) => {
   }
 };
 
-// let isCloned = ref(false);
-
-// watch(props, (newVal) => {
-//   isCloned = newVal.isCloned;
-// });
-
 const isObject = (value) => {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 };

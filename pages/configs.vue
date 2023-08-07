@@ -24,15 +24,22 @@
         <div
           class="w-11/12 shadow-md p-4 rounded-md flex flex-col items-center gap-4"
         >
-          <div class="grid gap-4 grid-rows-2 grid-cols-4 w-full">
-            <uiButton
-              v-for="typeItem in configTypes"
-              :key="typeItem"
-              :value="typeItem"
-              :class="typeItem === selectedType ? 'primary' : ''"
-              @click="onTypesSelectHandler(typeItem)"
-              >{{ typeItem }}</uiButton
-            >
+          <div class="w-full">
+            <div v-if="configTypes.length === 0">
+              <h2 class="text-xl text-center">
+                Config types were not recieved
+              </h2>
+            </div>
+            <div v-else class="grid gap-4 grid-rows-2 grid-cols-4 w-full">
+              <uiButton
+                v-for="typeItem in configTypes"
+                :key="typeItem"
+                :value="typeItem"
+                :class="typeItem === selectedType ? 'primary' : ''"
+                @click="onTypesSelectHandler(typeItem)"
+                >{{ typeItem }}</uiButton
+              >
+            </div>
           </div>
           <div
             v-if="!isBlockchainBlockHidden"
