@@ -109,6 +109,7 @@ const isConfigUpdated = ref(false);
 
 const isAddImageModalVisibe = ref(false);
 const addImageModalType = ref(null);
+const imageModalPayload = ref(null);
 
 const isConfirmModalVisible = ref(false);
 const confirmModalText = ref(null);
@@ -138,7 +139,7 @@ const modalConfirmHandler = (isConfirmed) => {
   }
 
   if (confirmModalType.value === "UPDATEIMAGE" && isConfirmed) {
-    updateImageRequest(confirmModalPayload.value);
+    updateImageRequest(confirmModalPayload.value, imageModalPayload.value);
   }
 
   if (confirmModalType.value === "UPDATECONFIG" && isConfirmed) {
@@ -148,6 +149,7 @@ const modalConfirmHandler = (isConfirmed) => {
   confirmModalText.value = null;
   confirmModalType.value = null;
   confirmModalPayload.value = null;
+  imageModalPayload.value = null;
 };
 
 const addImageModalHandler = (imageData) => {
@@ -190,12 +192,10 @@ const onCloneConfigHandler = () => {
   isTextInputModalVisible.value = true;
 };
 
-const onUpdateImageHandler = () => {
-  // addImageModalType.value = "UPDATEIMAGE";
-  // isAddImageModalVisibe.value = true;
-  $toast.error(
-    `Updating images temporarily unavailable, please delete image you want and upload new one`,
-  );
+const onUpdateImageHandler = (image) => {
+  addImageModalType.value = "UPDATEIMAGE";
+  isAddImageModalVisibe.value = true;
+  imageModalPayload.value = image; // To track image we want to update
 };
 
 const onDeleteImageHandler = (image) => {
@@ -260,14 +260,15 @@ const updateConfigRequest = async () => {
   }
 };
 
-const updateImageRequest = async (newImageData) => {
+const updateImageRequest = async (newImageData, oldImage) => {
   isLoading.value = true;
+
   const response = await updateImageById(
     newImageData,
-    configImages.value[0].imageId,
+    oldImage.imageId,
     currentConfig.value,
   );
-  if (response.imageId === configImages.value[0].imageId) {
+  if (response.imageId === oldImage.imageId) {
     $toast.success(`Image was updated`);
     await getConfigImageRequest();
   } else {
