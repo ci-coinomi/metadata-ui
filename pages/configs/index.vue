@@ -91,6 +91,7 @@
 </template>
 
 <script setup>
+import { createEmptyConfigFileClone } from "~/utils/utilfunc";
 import { getConfigs, getConfigsTypes } from "~/api/configs";
 import { useStore } from "~/store";
 
@@ -101,6 +102,7 @@ definePageMeta({
 const store = useStore();
 const { $toast } = useNuxtApp();
 const router = useRouter();
+const route = useRoute();
 
 const configs = ref([]);
 const filtredConfigs = ref([]);
@@ -118,6 +120,7 @@ const configTypes = computed(() => store.configTypes);
 const visibleConfigs = computed(() =>
   filtredConfigs.value.slice(0, visibleItemsCount.value),
 );
+
 const isCreateEmptyConfigHidden = computed(
   // Shown only for config types without parentConfig
   // Also hidden if parentConfig is only item in the filtredConfigList
@@ -157,6 +160,7 @@ const onChainClickHandler = (chain) => {
       );
     });
   }
+  updateQueryParams();
 };
 
 const onTypesSelectHandler = (type) => {
@@ -164,12 +168,13 @@ const onTypesSelectHandler = (type) => {
   store.setHeaderTitle(type);
   visibleItemsCount.value = 30;
   store.setToParentNavigateData(null);
-
+  console.log(configs.value)
   filtredConfigs.value = configs.value.filter(
     (item) => item.configType === type,
   );
 
   getChainsFromFiltredConfigs(filtredConfigs.value);
+  updateQueryParams();
 };
 
 const handleScroll = () => {
@@ -194,8 +199,9 @@ const addNameModalHandler = (payload) => {
 
   if (payload) {
     const firstConfigInList = visibleConfigs.value[0];
-    const emptyConfigFile = createEmptyConfigFileClone(firstConfigInList);
-
+    const emptyConfigFile = createEmptyConfigFileClone(
+      firstConfigInList.configFile,
+    );
     const cloneData = {
       cloneName: payload,
       parentConfig: visibleConfigs.value[0],
@@ -204,14 +210,19 @@ const addNameModalHandler = (payload) => {
     };
 
     store.setCloneConfigData(cloneData);
-    router.push("create");
+    router.push({
+      path: "/configs/create",
+      query: {
+        type: selectedType.value,
+      },
+    });
   }
 };
 
 // Requests
 
 const fetchConfigTypes = async () => {
-  if (store.configsList.length === 0) {
+  if (store.configTypes.length === 0) {
     const response = await getConfigsTypes();
     if (Array.isArray(response)) {
       store.setConfigTypes(response);
@@ -227,6 +238,7 @@ const fetchConfigs = async () => {
     configs.value = store.configsList;
   } else {
     const response = await getConfigs();
+
     if (Array.isArray(response)) {
       configs.value = response.sort((a, b) => b.configId - a.configId);
       store.setConfigsList(configs.value);
@@ -234,6 +246,8 @@ const fetchConfigs = async () => {
       $toast.error(`Fetching configs error, status: ${response}`);
     }
   }
+
+  filterListByQuery();
   isLoading.value = false;
 };
 
@@ -267,6 +281,53 @@ watch(
     if (store.toParentNavigateData) displayOnlyParentConfig();
   },
 );
+
+const filterListByQuery = async () => {
+  const query = route.query;
+
+  if (!query.type) {
+    router.push({
+      name: route.name,
+      query: {},
+    });
+    return;
+  }
+
+  selectedType.value = query.type;
+  store.setHeaderTitle(query.type);
+  let configsToBeFiltred = configs.value.filter(
+    (item) => item.configType === query.type,
+  );
+  getChainsFromFiltredConfigs(configsToBeFiltred);
+  await nextTick();
+
+  if (query.chain) {
+    selectedChain.value = query.chain;
+    if (selectedChain.value !== "All") {
+      configsToBeFiltred = configsToBeFiltred.filter((item) => {
+        const configChainName = getChainNameFromConfigItem(item);
+        return (
+          item.configType === selectedType.value &&
+          configChainName === selectedChain.value
+        );
+      });
+    }
+  }
+  filtredConfigs.value = configsToBeFiltred;
+};
+
+const updateQueryParams = () => {
+  const query = {
+    type: selectedType.value,
+  };
+
+  if (selectedChain.value) query.chain = selectedChain.value;
+
+  router.push({
+    name: route.name,
+    query,
+  });
+};
 
 const displayOnlyParentConfig = () => {
   // If toParentNavigateData was set - hide chains block, show only parent config
@@ -320,35 +381,5 @@ const getChainNameFromConfigItem = (config) => {
     // eslint-disable-next-line no-console
     console.error("JSON error:", config, error);
   }
-};
-
-const createEmptyConfigFileClone = (parentConfig) => {
-  const obj = JSON.parse(parentConfig.configFile);
-
-  const processValue = (value, key) => {
-    if (key === "@type") {
-      return value;
-    } else if (typeof value === "boolean") {
-      return false;
-    } else if (typeof value === "number") {
-      return 0;
-    } else if (typeof value === "string") {
-      return "";
-    } else if (Array.isArray(value)) {
-      return [""];
-    } else if (typeof value === "object" && value !== null) {
-      /* eslint-disable-next-line prefer-const */
-      for (let key in value) {
-        value[key] = processValue(value[key], key);
-      }
-      return value;
-    } else {
-      return value;
-    }
-  };
-
-  const processedObj = processValue(obj);
-  const processedJSONString = JSON.stringify(processedObj);
-  return processedJSONString;
 };
 </script>

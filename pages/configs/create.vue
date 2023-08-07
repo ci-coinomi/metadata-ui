@@ -13,7 +13,7 @@
       @modal-handler="addImageModalHandler"
     />
 
-    <div
+    <!-- <div
       v-if="!cloneConfigData"
       class="flex flex-col gap-4 justify-center items-center my-20"
     >
@@ -25,8 +25,8 @@
       <UiButton class="w-1/4 primary" @click="onReturnHandler">
         Return
       </UiButton>
-    </div>
-    <div v-else class="p-4 flex justify-center items-center w-full">
+    </div> -->
+    <div class="p-4 flex justify-center items-center w-full">
       <configBannerSkeleton v-if="isLoading" />
 
       <div
@@ -98,8 +98,9 @@
 </template>
 
 <script setup>
-import { addNewImage } from "~/api/images";
-import { cloneConfig } from "~/api/configs";
+import { addNewImage, getImagesByConfigId } from "~/api/images";
+import { cloneConfig, getConfigs } from "~/api/configs";
+import { createEmptyConfigFileClone } from "~/utils/utilfunc";
 import { useStore } from "~/store";
 
 definePageMeta({
@@ -109,6 +110,7 @@ definePageMeta({
 const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
+const route = useRoute();
 
 const currentConfig = ref(null);
 const configFileObj = ref(null);
@@ -183,7 +185,7 @@ const onSaveCloneHandler = () => {
 
 const onReturnHandler = () => {
   store.setCloneConfigData(null);
-  router.push("configs");
+  router.push("/configs");
 };
 
 // Requests
@@ -206,7 +208,7 @@ const cloneConfigRequest = async () => {
 
   if (!response.configId) {
     $toast.error(`Creating clone error, status: ${response}`);
-    router.push("configs");
+    router.push("/configs");
     isLoading.value = false;
     return;
   }
@@ -224,7 +226,7 @@ const cloneConfigRequest = async () => {
       await uploadImageRequest(image);
     }
   }
-  router.push("configs");
+  router.push("/configs");
   isLoading.value = false;
 };
 
@@ -237,7 +239,79 @@ const uploadImageRequest = async (image) => {
   }
 };
 
+const getConfigImageRequest = async (id) => {
+  isLoading.value = true;
+  const response = await getImagesByConfigId(id);
+  if (Array.isArray(response)) {
+    configImages.value = response;
+  } else {
+    $toast.error(`Getting config ${id} images error, status: ${response}`);
+  }
+  isLoading.value = false;
+};
+
+const fetchConfigs = async () => {
+  isLoading.value = true;
+
+  const response = await getConfigs();
+
+  if (!Array.isArray(response)) {
+    $toast.error(`Fetching configs error, status: ${response}`);
+    store.setHeaderTitle(`Fetching configs error`);
+    isLoading.value = false;
+    return;
+  }
+
+  const configsList = response.sort((a, b) => b.configId - a.configId);
+  store.setConfigsList(configsList);
+
+  if (route.query.type) {
+    const firstOfType = configsList.filter(
+      (item) => item.configType === route.query.type,
+    )[0];
+    const emptyConfigFIle = createEmptyConfigFileClone(firstOfType.configFile);
+    const newConfigObject = {
+      configName: "",
+      configType: firstOfType.configType,
+      configFile: emptyConfigFIle,
+    };
+    currentConfig.value = newConfigObject;
+    configFileObj.value = JSON.parse(currentConfig.value.configFile);
+  }
+
+  if (route.query.parent) {
+    const parentConfig = configsList.filter(
+      (item) => item.configId === Number(route.query.parent),
+    );
+    const newConfigObject = {
+      configName: "",
+      configType: parentConfig[0].configType,
+      configFile: parentConfig[0].configFile,
+    };
+    currentConfig.value = newConfigObject;
+    configFileObj.value = JSON.parse(currentConfig.value.configFile);
+    getConfigImageRequest(parentConfig[0].configId);
+
+    // Put parentConfig on the first place in Store to be on the top of the configs list...
+    const parentIndexInStore = configsList.findIndex(
+      (item) => item.configId === parentConfig[0].configId,
+    );
+    console.log('Index is', parentIndexInStore)
+    const updatedConfigsList = [
+      ...storedConfigList.value.slice(0, parentIndexInStore),
+      ...storedConfigList.value.slice(parentIndexInStore + 1),
+    ];
+    updatedConfigsList[0] = parentConfig.value;
+    console.log(updatedConfigsList)
+    store.setConfigsList(updatedConfigsList);
+  }
+
+  isLoading.value = false;
+};
+
 onMounted(() => {
+  store.setHeaderTitle("Create clone");
+
   if (cloneConfigData.value) {
     const newConfigObject = {
       configName: cloneConfigData.value.cloneName,
@@ -250,9 +324,20 @@ onMounted(() => {
     configFileObj.value = JSON.parse(currentConfig.value.configFile);
     configImages.value = cloneConfigData.value.parentConfigImages;
 
-    store.setHeaderTitle("Create clone");
+    // Put parentConfig on the first place in Store to be on the top of the configs list...
+    // if (currentConfig.value.parentConfig) {
+    //   const parentIndexInStore = store.configsList.findIndex(
+    //     (item) => item.configId === currentConfig.value.parentConfig.configId,
+    //   );
+    //   const updatedConfigsList = [
+    //     ...storedConfigList.value.slice(0, parentIndexInStore),
+    //     ...storedConfigList.value.slice(parentIndexInStore + 1),
+    //   ];
+    //   updatedConfigsList.unshift(parentConfig.value);
+    //   store.setConfigsList(updatedConfigsList);
+    // }
   } else {
-    store.setHeaderTitle(`Parent data is not defined`);
+    fetchConfigs();
   }
 });
 </script>

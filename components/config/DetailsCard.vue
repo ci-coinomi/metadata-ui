@@ -182,7 +182,12 @@ const addNameModalHandler = (payload) => {
     };
 
     store.setCloneConfigData(cloneData);
-    router.push("create");
+    router.push({
+      path: "/configs/create",
+      query: {
+        parent: currentConfig.value.configId,
+      },
+    });
   }
 };
 
