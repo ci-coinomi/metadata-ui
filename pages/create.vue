@@ -8,11 +8,6 @@
       >{{ confirmModalText }}</modalConfirm
     >
 
-    <modalTextInput
-      v-if="isTextInputModalVisible"
-      @is-modal-confirmed="addNameModalHandler"
-    />
-
     <modalAddImage
       v-if="isAddImageModalVisibe"
       @modal-handler="addImageModalHandler"
@@ -44,6 +39,13 @@
               v-if="currentConfig && currentConfig.parentConfig"
               :parent-data="currentConfig.parentConfig"
             />
+            <div
+              v-if="currentConfig"
+              class="flex gap-4 justify-center items-center"
+            >
+              <p class="text-gray-400 flex-none">Clone name:</p>
+              <UiInputField v-model="currentConfig.configName" :type="'text'" />
+            </div>
             <configNestedLine
               :configNestedObject="configFileObj"
               :is-cloned="true"
@@ -82,14 +84,11 @@
           </div>
         </div>
 
-        <div class="flex w-1/2 gap-4 justify-between">
-          <UiButton class="w-1/4 success" @click="onSaveCloneHandler">
+        <div class="flex w-1/3 gap-4 justify-between">
+          <UiButton class="w-1/3 success" @click="onSaveCloneHandler">
             Save
           </UiButton>
-          <UiButton class="w-1/4 warning" @click="onChangeCloneNameHandler">
-            Change name
-          </UiButton>
-          <UiButton class="w-1/4 danger" @click="onReturnHandler">
+          <UiButton class="w-1/3 danger" @click="onReturnHandler">
             Cancel
           </UiButton>
         </div>
@@ -118,7 +117,6 @@ const isLoading = ref(false);
 
 const isConfirmModalVisible = ref(false);
 const confirmModalText = ref(null);
-const isTextInputModalVisible = ref(false);
 const isAddImageModalVisibe = ref(false);
 const addImageModalType = ref(null);
 const addImageModalPayload = ref(null);
@@ -132,14 +130,6 @@ const modalConfirmHandler = (isConfirmed) => {
 
   if (isConfirmed) {
     cloneConfigRequest();
-  }
-};
-
-const addNameModalHandler = (payload) => {
-  isTextInputModalVisible.value = false;
-  if (payload) {
-    currentConfig.value.configName = payload;
-    store.setHeaderTitle(`Clone name: ${currentConfig.value.configName}`);
   }
 };
 
@@ -191,10 +181,6 @@ const onSaveCloneHandler = () => {
   confirmModalText.value = `Are you sure you want to create clone ${currentConfig.value.configName}?`;
 };
 
-const onChangeCloneNameHandler = () => {
-  isTextInputModalVisible.value = true;
-};
-
 const onReturnHandler = () => {
   store.setCloneConfigData(null);
   router.push("configs");
@@ -220,15 +206,18 @@ const cloneConfigRequest = async () => {
 
   if (!response.configId) {
     $toast.error(`Creating clone error, status: ${response}`);
+    router.push("configs");
+    isLoading.value = false;
     return;
   }
 
   currentConfig.value.configId = response.configId;
+  currentConfig.value.configFile = updatedConfigString;
 
   const updatedConfigsList = [...storedConfigList.value];
   updatedConfigsList.unshift(currentConfig.value);
   store.setConfigsList(updatedConfigsList);
-  $toast.success(`Clone of ${currentConfig.value.configName} was created`);
+  $toast.success(`Clone ${currentConfig.value.configName} was created`);
 
   if (configImages.value.length > 0) {
     for (const image of configImages.value) {
@@ -261,7 +250,7 @@ onMounted(() => {
     configFileObj.value = JSON.parse(currentConfig.value.configFile);
     configImages.value = cloneConfigData.value.parentConfigImages;
 
-    store.setHeaderTitle(`Clone name: ${currentConfig.value.configName}`);
+    store.setHeaderTitle("Create clone");
   } else {
     store.setHeaderTitle(`Parent data is not defined`);
   }
