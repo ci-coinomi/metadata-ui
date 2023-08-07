@@ -23,14 +23,14 @@ export const getImagesByConfigId = async (configId) => {
   }
 };
 
-export const addNewImage = async (image, parentConfig) => {
+export const addNewImage = async ({ imageName, imageData }, parentConfig) => {
   const response = await api(
     `v1/admin/configs/${parentConfig.configId}/images`,
     "POST",
     {
       configId: parentConfig.configId,
-      imageName: image.name,
-      imageData: image.data,
+      imageName,
+      imageData,
       parentConfig,
     },
   );

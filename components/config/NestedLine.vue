@@ -26,7 +26,7 @@
         v-else-if="Array.isArray(value)"
         :value="configNestedObject[key]"
         type="text"
-        :disabled="key === '@type' || key === 'eucId'" 
+        :disabled="key === '@type' || key === 'eucId'"
         @input="
           (data) => (configNestedObject[key] = data.target.value.split(','))
         "
@@ -35,7 +35,7 @@
         v-else
         v-model="configNestedObject[key]"
         type="text"
-        :disabled="!isCloned && (key === '@type' || key === 'eucId')"
+        :disabled="isFieldDisabled(key)"
       />
     </template>
   </div>
@@ -44,17 +44,26 @@
 <script setup>
 const props = defineProps({
   configNestedObject: Object,
-  isCloned: Boolean
+  isCloned: Boolean,
 });
 
 const emit = defineEmits(["nested-object-updated"]);
 
-let isCloned = ref(false)
+const isFieldDisabled = (key) => {
+  if (key === "@type") {
+    return true;
+  } else if (!props.isCloned && key === "eucId") {
+    return true;
+  } else {
+    return false;
+  }
+};
 
-watch(props, (newVal) => {
-  console.log(newVal.isCloned)
-  isCloned = newVal.isCloned
-}) 
+// let isCloned = ref(false);
+
+// watch(props, (newVal) => {
+//   isCloned = newVal.isCloned;
+// });
 
 const isObject = (value) => {
   return typeof value === "object" && value !== null && !Array.isArray(value);
