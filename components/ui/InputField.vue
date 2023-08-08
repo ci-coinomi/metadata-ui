@@ -20,17 +20,17 @@ const updateInput = (event) => {
 
 <style scoped>
 .danger {
-  background-color: #f93e3e;
-  color: #fff;
+  background-color: #f93e3e40;
+  color: black;
 }
 
 .success {
-  background-color: #49cc90;
-  color: #fff;
+  background-color: #49cc9137;
+  color: black;
 }
 
 .warning {
-  background-color: #fca130;
-  color: #fff;
+  background-color: #fca0304b;
+  color: black;
 }
 </style>

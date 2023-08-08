@@ -34,7 +34,7 @@ const props = defineProps(["parentData"]);
 const toParentNavigateHandler = () => {
   store.setToParentNavigateData(props.parentData);
   if (route.path.name !== "configs") {
-    router.push("configs");
+    router.push("/configs");
   }
 };
 </script>

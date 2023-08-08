@@ -10,11 +10,6 @@
     >{{ confirmModalText }}</modalConfirm
   >
 
-  <modalTextInput
-    v-if="isTextInputModalVisible"
-    @is-modal-confirmed="addNameModalHandler"
-  />
-
   <div
     class="p-4 flex justify-center items-center border-t"
     :class="isConfigUpdated ? 'border-[#d38b32]' : 'border-gray-400'"
@@ -47,7 +42,7 @@
             </UiButton>
           </div>
           <div v-else class="flex justify-center gap-4 flex-col items-center">
-            <ConfigImageCard
+            <configImageCard
               v-for="image in configImages"
               :key="image.imageId"
               :image="image"
@@ -116,8 +111,6 @@ const confirmModalText = ref(null);
 const confirmModalType = ref(null);
 const confirmModalPayload = ref(null);
 
-const isTextInputModalVisible = ref(false);
-
 const storedConfigList = computed(() => store.configsList);
 const currentItemInStoreIndex = computed(() =>
   storedConfigList.value.findIndex(
@@ -171,25 +164,23 @@ const addImageModalHandler = (imageData) => {
   addImageModalType.value = null;
 };
 
-const addNameModalHandler = (payload) => {
-  isTextInputModalVisible.value = false;
-  if (payload) {
-    const cloneData = {
-      cloneName: payload,
-      parentConfig: currentConfig.value,
-      configFile: currentConfig.value.configFile,
-      parentConfigImages: configImages.value,
-    };
-
-    store.setCloneConfigData(cloneData);
-    router.push("create");
-  }
-};
-
 // Button handlers
 
 const onCloneConfigHandler = () => {
-  isTextInputModalVisible.value = true;
+  const cloneData = {
+    config: currentConfig.value,
+    configFile: currentConfig.value.configFile,
+    configImages: configImages.value,
+    parentConfig: currentConfig.value.parentConfig,
+  };
+
+  store.setCloneConfigData(cloneData);
+  router.push({
+    path: "/configs/create",
+    query: {
+      parent: currentConfig.value.configId,
+    },
+  });
 };
 
 const onUpdateImageHandler = (image) => {
