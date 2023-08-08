@@ -1,93 +1,81 @@
 <template>
-  <div>
-    <modalTextInput
-      v-if="isTextInputModalVisible"
-      v-model="clonedConfigName"
-      @is-modal-confirmed="addNameModalHandler"
-    />
-    <main
-      class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
+  <main
+    class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
+  >
+    <configIndexSkeleton v-if="isLoading" />
+
+    <h2
+      v-else-if="!isLoading && (!configs || configs.length === 0)"
+      class="text-xl flex justify-center items-center"
     >
-      <configIndexSkeleton v-if="isLoading" />
+      Configs were not recieved
+    </h2>
 
-      <h2
-        v-else-if="!isLoading && (!configs || configs.length === 0)"
-        class="text-xl flex justify-center items-center"
-      >
-        Configs were not recieved
-      </h2>
-
+    <div v-else class="flex flex-col justify-center items-center gap-6 w-full">
       <div
-        v-else
-        class="flex flex-col justify-center items-center gap-6 w-full"
+        class="w-11/12 shadow-md p-4 rounded-md flex flex-col items-center gap-4"
       >
-        <div
-          class="w-11/12 shadow-md p-4 rounded-md flex flex-col items-center gap-4"
-        >
-          <div class="w-full">
-            <div v-if="configTypes.length === 0">
-              <h2 class="text-xl text-center">
-                Config types were not recieved
-              </h2>
-            </div>
-            <div v-else class="grid gap-4 grid-rows-2 grid-cols-4 w-full">
-              <uiButton
-                v-for="typeItem in configTypes"
-                :key="typeItem"
-                :value="typeItem"
-                :class="typeItem === selectedType ? 'primary' : ''"
-                @click="onTypesSelectHandler(typeItem)"
-                >{{ typeItem }}</uiButton
-              >
-            </div>
+        <div class="w-full">
+          <div v-if="configTypes.length === 0">
+            <h2 class="text-xl text-center">Config types were not recieved</h2>
           </div>
-          <div
-            v-if="!isBlockchainBlockHidden"
-            class="flex gap-4 w-full justify-center"
-          >
-            <UiButton
-              v-for="chain in blockchains"
-              :key="chain"
-              :disabled="isLoading || filtredConfigs.length === 0"
-              :class="chain === selectedChain ? 'primary' : ''"
-              class="my-auto"
-              @click="onChainClickHandler(chain)"
+          <div v-else class="grid gap-4 grid-rows-2 grid-cols-4 w-full">
+            <uiButton
+              v-for="typeItem in configTypes"
+              :key="typeItem"
+              :value="typeItem"
+              :class="typeItem === selectedType ? 'primary' : ''"
+              @click="onTypesSelectHandler(typeItem)"
+              >{{ typeItem }}</uiButton
             >
-              {{ chain }}
-            </UiButton>
           </div>
         </div>
-        <div class="flex flex-col gap-4 w-11/12 justify-center items-center">
-          <div class="flex w-full justify-between items-center">
-            <div class="py-2 mr-aut flex gap-4">
-              <p>
-                <span class="text-gray-500">Total count: </span
-                >{{ configs.length }}
-              </p>
-              <p>
-                <span class="text-gray-500">Selected type count: </span
-                >{{ filtredConfigs.length }}
-              </p>
-            </div>
-            <UiButton
-              v-if="!isCreateEmptyConfigHidden"
-              class="success"
-              @click="onCreateEmptyCloneHandler"
-            >
-              Create empty config
-            </UiButton>
-          </div>
-
-          <configListItem
-            v-for="config in visibleConfigs"
-            :key="config.configId"
-            :config="config"
-            class="w-full"
-          />
+        <div
+          v-if="!isBlockchainBlockHidden"
+          class="flex gap-4 w-full justify-center"
+        >
+          <UiButton
+            v-for="chain in blockchains"
+            :key="chain"
+            :disabled="isLoading || filtredConfigs.length === 0"
+            :class="chain === selectedChain ? 'primary' : ''"
+            class="my-auto"
+            @click="onChainClickHandler(chain)"
+          >
+            {{ chain }}
+          </UiButton>
         </div>
       </div>
-    </main>
-  </div>
+      <div class="flex flex-col gap-4 w-11/12 justify-center items-center">
+        <div class="flex w-full justify-between items-center">
+          <div class="py-2 mr-aut flex gap-4">
+            <p>
+              <span class="text-gray-500">Total count: </span
+              >{{ configs.length }}
+            </p>
+            <p>
+              <span class="text-gray-500">Selected type count: </span
+              >{{ filtredConfigs.length }}
+            </p>
+          </div>
+          <UiButton
+            v-if="!isCreateEmptyConfigHidden"
+            class="success"
+            @click="onCreateEmptyCloneHandler"
+          >
+            Create empty config
+          </UiButton>
+        </div>
+
+        <configListItem
+          v-for="config in visibleConfigs"
+          :key="config.configId"
+          :config="config"
+          class="w-full"
+        />
+      </div>
+    </div>
+  </main>
 </template>
 
 <script setup>
@@ -111,10 +99,6 @@ const isLoading = ref(true);
 const visibleItemsCount = ref(30);
 const blockchains = ref([]);
 const selectedChain = ref(null);
-
-// Config modal
-const isTextInputModalVisible = ref(false);
-const clonedConfigName = ref(null);
 
 const configTypes = computed(() => store.configTypes);
 const visibleConfigs = computed(() =>
@@ -146,6 +130,7 @@ const isBlockchainBlockHidden = computed(
 
 const onChainClickHandler = (chain) => {
   selectedChain.value = chain;
+  visibleItemsCount.value = 30;
 
   if (selectedChain.value === "All") {
     filtredConfigs.value = configs.value.filter(
@@ -168,7 +153,6 @@ const onTypesSelectHandler = (type) => {
   store.setHeaderTitle(type);
   visibleItemsCount.value = 30;
   store.setToParentNavigateData(null);
-  console.log(configs.value)
   filtredConfigs.value = configs.value.filter(
     (item) => item.configType === type,
   );
@@ -191,32 +175,24 @@ const handleScroll = () => {
 };
 
 const onCreateEmptyCloneHandler = () => {
-  isTextInputModalVisible.value = true;
-};
+  const firstConfigInList = visibleConfigs.value[0];
+  const emptyConfigFile = createEmptyConfigFileClone(
+    firstConfigInList.configFile,
+  );
 
-const addNameModalHandler = (payload) => {
-  isTextInputModalVisible.value = false;
+  const cloneData = {
+    config: firstConfigInList,
+    configFile: emptyConfigFile,
+    configImages: [],
+  };
 
-  if (payload) {
-    const firstConfigInList = visibleConfigs.value[0];
-    const emptyConfigFile = createEmptyConfigFileClone(
-      firstConfigInList.configFile,
-    );
-    const cloneData = {
-      cloneName: payload,
-      parentConfig: visibleConfigs.value[0],
-      configFile: emptyConfigFile,
-      parentConfigImages: [],
-    };
-
-    store.setCloneConfigData(cloneData);
-    router.push({
-      path: "/configs/create",
-      query: {
-        type: selectedType.value,
-      },
-    });
-  }
+  store.setCloneConfigData(cloneData);
+  router.push({
+    path: "/configs/create",
+    query: {
+      type: selectedType.value,
+    },
+  });
 };
 
 // Requests
@@ -279,6 +255,29 @@ watch(
   () => store.toParentNavigateData,
   () => {
     if (store.toParentNavigateData) displayOnlyParentConfig();
+  },
+);
+
+watch(
+  // for 'go back' & 'go forward' browser buttons
+  () => route.query,
+  () => {
+    if (route.query.type && selectedType.value !== route.query.type) {
+      onTypesSelectHandler(route.query.type);
+    }
+
+    if (route.query.chain && selectedChain.value !== route.query.chain) {
+      onChainClickHandler(route.query.chain);
+    }
+
+    if (!route.query.type) {
+      // If there is no type (we returned to pure /config without query)
+      router.push("/configs");
+      filtredConfigs.value = [];
+      selectedType.value = null;
+      selectedChain.value = null;
+      visibleItemsCount.value = 30;
+    }
   },
 );
 
