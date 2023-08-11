@@ -25,6 +25,7 @@
             <ConfigParentData
               v-if="currentConfig && currentConfig.parentConfig"
               :parent-data="currentConfig.parentConfig"
+              :current-config-data="currentConfig"
             />
             <div
               v-if="currentConfig"
