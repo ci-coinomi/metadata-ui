@@ -111,8 +111,7 @@ const isCreateEmptyConfigHidden = computed(
   () =>
     isLoading.value ||
     filtredConfigs.value.length === 0 ||
-    visibleConfigs.value.some((el) => el.parentConfig) ||
-    store.toParentNavigateData,
+    visibleConfigs.value.some((el) => el.parentConfig),
 );
 
 const isBlockchainBlockHidden = computed(
@@ -152,7 +151,6 @@ const onTypesSelectHandler = (type) => {
   selectedType.value = type;
   store.setHeaderTitle(type);
   visibleItemsCount.value = 30;
-  store.setToParentNavigateData(null);
   filtredConfigs.value = configs.value.filter(
     (item) => item.configType === type,
   );
@@ -232,9 +230,6 @@ onMounted(() => {
   store.setHeaderTitle("Select config type");
   fetchConfigTypes();
   fetchConfigs();
-  if (store.toParentNavigateData) {
-    displayOnlyParentConfig();
-  }
 });
 
 onUnmounted(() => {
@@ -248,13 +243,6 @@ watch(
     filtredConfigs.value = configs.value.filter(
       (item) => item.configType === selectedType.value,
     );
-  },
-);
-
-watch(
-  () => store.toParentNavigateData,
-  () => {
-    if (store.toParentNavigateData) displayOnlyParentConfig();
   },
 );
 
@@ -326,18 +314,6 @@ const updateQueryParams = () => {
     name: route.name,
     query,
   });
-};
-
-const displayOnlyParentConfig = () => {
-  // If toParentNavigateData was set - hide chains block, show only parent config
-  // and set all filters as default. To hide parent config user will need to set selectedType again
-  configs.value = store.configsList;
-  selectedType.value = null;
-  selectedChain.value = null;
-  blockchains.value = [];
-  filtredConfigs.value = configs.value.filter(
-    (item) => item.configId === store.toParentNavigateData.configId,
-  );
 };
 
 const getChainsFromFiltredConfigs = (configs) => {

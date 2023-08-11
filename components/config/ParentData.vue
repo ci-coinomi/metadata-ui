@@ -2,7 +2,9 @@
   <ModalChildrenConfigs
     v-if="isChildrenConfigVisible"
     :childConfigs="children"
+    @close-modal="toggleChildrenModal(false)"
   />
+
   <section class="w-full mb-4 p-4 border border-gray-300 rounded-md">
     <div class="flex justify-between items-center gap-2">
       <div v-if="parentData">
@@ -29,9 +31,9 @@
           To parent
         </uiButton>
         <uiButton
-          v-if="children.length > 0"
+          v-if="children.length > 0 && route.name !== 'configs-create'"
           class="primary w-full"
-          @click="toggleChildrenModal"
+          @click="toggleChildrenModal(true)"
         >
           Show children ({{ children.length }})
         </uiButton>
@@ -45,7 +47,6 @@ import { useStore } from "~/store";
 
 const store = useStore();
 const route = useRoute();
-const router = useRouter();
 
 const props = defineProps(["parentData", "currentConfigData"]);
 
@@ -53,15 +54,13 @@ const children = ref([]);
 const isChildrenConfigVisible = ref(false);
 
 const toParentNavigateHandler = () => {
-  store.setToParentNavigateData(props.parentData);
-  if (route.path.name !== "configs") {
-    router.push("/configs");
+  if (process.client) {
+    window.open(`/configs/${props.parentData.configId}`, "_blank");
   }
 };
 
-const toggleChildrenModal = () => {
-  console.log(children.value);
-  isChildrenConfigVisible.value = true;
+const toggleChildrenModal = (value) => {
+  isChildrenConfigVisible.value = value;
 };
 
 const getChildConfigs = (configs, id) => {

@@ -117,7 +117,6 @@ const currentItemInStoreIndex = computed(() =>
 );
 
 // Modal handlers
-
 const modalConfirmHandler = (isConfirmed) => {
   isConfirmModalVisible.value = false;
 
