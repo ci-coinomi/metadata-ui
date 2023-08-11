@@ -5,6 +5,7 @@
   >
     <div
       class="cursor-pointer flex gap-3 items-center justify-between w-full p-2"
+      :class="borderClass"
       @click="toggleListItem()"
     >
       <p class="overflow-x-auto">
@@ -37,6 +38,15 @@ const props = defineProps({
 
 const isOpened = ref(false);
 const isConfigUpdated = ref(false);
+
+const borderClass = computed(() => {
+  if (!isOpened.value) return "";
+  let borderClassValue = "";
+  isConfigUpdated.value
+    ? (borderClassValue = "border-b border-[#d38b32]")
+    : (borderClassValue = "border-b border-gray-400");
+  return borderClassValue;
+});
 
 const toggleListItem = () => {
   isOpened.value = !isOpened.value;

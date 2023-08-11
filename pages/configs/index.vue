@@ -54,7 +54,7 @@
               >{{ configs.length }}
             </p>
             <p>
-              <span class="text-gray-500">Selected type count: </span
+              <span class="text-gray-500">Filtered count: </span
               >{{ filtredConfigs.length }}
             </p>
           </div>
@@ -63,7 +63,7 @@
             class="success"
             @click="onCreateEmptyCloneHandler"
           >
-            Create empty config
+            Create config
           </UiButton>
         </div>
 

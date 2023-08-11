@@ -10,18 +10,16 @@
     >{{ confirmModalText }}</modalConfirm
   >
 
-  <div
-    class="p-4 flex justify-center items-center border-t"
-    :class="isConfigUpdated ? 'border-[#d38b32]' : 'border-gray-400'"
-  >
+  <div class="p-4 flex justify-center items-center">
     <configBannerSkeleton v-if="isLoading" />
 
     <div v-else class="flex flex-col gap-4 justify-center items-center w-full">
       <div class="flex gap-4 w-full items-start justify-between">
         <div class="w-full">
           <ConfigParentData
-            v-if="currentConfig && currentConfig.parentConfig"
+            v-if="currentConfig"
             :parent-data="currentConfig.parentConfig"
+            :current-config-data="currentConfig"
           />
           <configNestedLine
             :configNestedObject="configFileObj"
