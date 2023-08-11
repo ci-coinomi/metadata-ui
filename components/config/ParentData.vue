@@ -21,18 +21,20 @@
           {{ props.parentData.configType }}
         </p>
       </div>
-      <div v-else class="text-gray-400">Config has no parent</div>
+      <div v-else class="text-gray-400 w-full text-center">
+        Config has no parent
+      </div>
       <div class="flex flex-col gap-2">
         <uiButton
           v-if="props.parentData"
-          class="primary w-full text-center"
+          class="primary w-full text-center whitespace-nowrap"
           @click="toParentNavigateHandler"
         >
           To parent
         </uiButton>
         <uiButton
           v-if="children.length > 0 && route.name !== 'configs-create'"
-          class="primary w-full"
+          class="info w-full whitespace-nowrap"
           @click="toggleChildrenModal(true)"
         >
           Show children ({{ children.length }})

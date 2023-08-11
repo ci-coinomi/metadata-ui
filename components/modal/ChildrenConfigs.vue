@@ -9,11 +9,12 @@
     >
       <h2 class="text-xl text-center font-bold mb-4">Child configs:</h2>
       <a
-        v-for="config in props.childConfigs"
+        v-for="(config, index) in props.childConfigs"
         :key="config.configId"
         :href="`/configs/${config.configId}`"
         target="_blank"
         class="border border-gray-400 rounded-md p-2 hover:border-gray-800 flex justify-between"
+        :class="index % 2 ? 'bg-white' : 'bg-gray-100'"
       >
         <p><span class="text-gray-400">Name: </span> {{ config.configName }}</p>
         <p><span class="text-gray-400">Type: </span> {{ config.configType }}</p>
@@ -32,4 +33,12 @@ const handleClickOutside = (evt) => {
     emit("close-modal", evt);
   }
 };
+
+onMounted(() => {
+  document.body.style.overflow = "hidden";
+});
+
+onUnmounted(() => {
+  document.body.style.overflow = "";
+});
 </script>

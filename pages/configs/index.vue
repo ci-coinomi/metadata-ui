@@ -46,21 +46,26 @@
           </UiButton>
         </div>
       </div>
-      <div class="flex flex-col gap-4 w-11/12 justify-center items-center">
-        <div class="flex w-full justify-between items-center">
+      <div class="flex flex-col gap-2 w-11/12 justify-center items-center">
+        <div class="flex w-full justify-between items-center gap-4">
           <div class="py-2 mr-aut flex gap-4">
-            <p>
+            <p class="w-[135px]">
               <span class="text-gray-500">Total count: </span
               >{{ configs.length }}
             </p>
-            <p>
+            <p class="w-[155px]">
               <span class="text-gray-500">Filtered count: </span
               >{{ filtredConfigs.length }}
             </p>
           </div>
+          <UiInputField
+            v-model="searchValue"
+            :placeholder="'Search by config name...'"
+            :type="'text'"
+          />
           <UiButton
             v-if="!isCreateEmptyConfigHidden"
-            class="success"
+            class="success whitespace-nowrap"
             @click="onCreateEmptyCloneHandler"
           >
             Create config
@@ -68,9 +73,10 @@
         </div>
 
         <configListItem
-          v-for="config in visibleConfigs"
+          v-for="(config, index) in visibleConfigs"
           :key="config.configId"
           :config="config"
+          :config-index="index"
           class="w-full"
         />
       </div>
@@ -99,6 +105,7 @@ const isLoading = ref(true);
 const visibleItemsCount = ref(30);
 const blockchains = ref([]);
 const selectedChain = ref(null);
+const searchValue = ref("");
 
 const configTypes = computed(() => store.configTypes);
 const visibleConfigs = computed(() =>
@@ -135,6 +142,7 @@ const onChainClickHandler = (chain) => {
     filtredConfigs.value = configs.value.filter(
       (item) => item.configType === selectedType.value,
     );
+    store.setHeaderTitle(`${selectedType.value}`);
   } else {
     filtredConfigs.value = configs.value.filter((item) => {
       const configChainName = getChainNameFromConfigItem(item);
@@ -143,14 +151,18 @@ const onChainClickHandler = (chain) => {
         configChainName === selectedChain.value
       );
     });
+    store.setHeaderTitle(`${selectedType.value}, chain ${selectedChain.value}`);
   }
+
   updateQueryParams();
 };
 
 const onTypesSelectHandler = (type) => {
-  selectedType.value = type;
-  store.setHeaderTitle(type);
+  searchValue.value = "";
   visibleItemsCount.value = 30;
+  store.setHeaderTitle(type);
+
+  selectedType.value = type;
   filtredConfigs.value = configs.value.filter(
     (item) => item.configType === type,
   );
@@ -252,16 +264,24 @@ watch(
   () => {
     if (route.query.type && selectedType.value !== route.query.type) {
       onTypesSelectHandler(route.query.type);
+      return;
     }
 
     if (route.query.chain && selectedChain.value !== route.query.chain) {
       onChainClickHandler(route.query.chain);
+      return;
     }
 
-    if (!route.query.type) {
-      // If there is no type (we returned to pure /config without query)
+    if (route.query.search) {
+      searchValue.value = route.query.search;
+      return;
+    }
+
+    if (!route.query.search && !route.query.type) {
+      // If there is no type and no search (we returned to pure /config without query)
       router.push("/configs");
       filtredConfigs.value = [];
+      searchValue.value = "";
       selectedType.value = null;
       selectedChain.value = null;
       visibleItemsCount.value = 30;
@@ -269,14 +289,47 @@ watch(
   },
 );
 
+watch(searchValue, () => {
+  if (searchValue.value !== "") {
+    selectedType.value = null;
+    selectedChain.value = null;
+    visibleItemsCount.value = 30;
+    blockchains.value = [];
+
+    router.push({
+      name: route.name,
+      query: {
+        search: searchValue.value,
+      },
+    });
+
+    filtredConfigs.value = configs.value.filter((config) =>
+      config.configName.includes(searchValue.value),
+    );
+  }
+
+  if (!selectedType.value && !searchValue.value) {
+    // If user cleaned searchInput
+    filtredConfigs.value = [];
+    router.push({
+      name: route.name,
+    });
+  }
+});
+
 const filterListByQuery = async () => {
   const query = route.query;
 
-  if (!query.type) {
+  if (!query.type && !query.search) {
     router.push({
       name: route.name,
       query: {},
     });
+    return;
+  }
+
+  if (query.search) {
+    searchValue.value = query.search;
     return;
   }
 

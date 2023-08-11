@@ -17,7 +17,7 @@
     />
 
     <userSkeleton v-if="isLoading" />
-    <div v-else class="flex flex-col justify-center items-center gap-6 w-11/12">
+    <div v-else class="flex flex-col justify-center items-center gap-2 w-11/12">
       <div class="flex justify-between w-full items-center">
         <p>
           <span class="text-gray-500">Total users: </span>
@@ -29,9 +29,10 @@
       </div>
 
       <userListItem
-        v-for="user in usersList"
+        v-for="(user, index) in usersList"
         :key="user.username"
         :user="user"
+        :class="index % 2 ? 'bg-white' : 'bg-gray-100'"
         @on-update-click="onUpdateClickHandler"
         @on-delete-click="onDeleteClickHandler"
       />

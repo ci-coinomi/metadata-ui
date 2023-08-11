@@ -1,11 +1,11 @@
 <template>
   <article
-    class="flex flex-col ring-1 ring-inset hover:ring-2 rounded-md"
-    :class="isConfigUpdated ? 'ring-[#d38b32]' : 'ring-gray-400'"
+    class="flex flex-col border rounded-md"
+    :class="isConfigUpdated ? 'border-[#d38b32]' : 'border-gray-400'"
   >
     <div
-      class="cursor-pointer flex gap-3 items-center justify-between w-full p-2"
-      :class="borderClass"
+      class="cursor-pointer flex gap-3 items-center justify-between w-full p-2 rounded-md"
+      :class="listItemClass"
       @click="toggleListItem()"
     >
       <p class="overflow-x-auto">
@@ -34,18 +34,20 @@
 <script setup>
 const props = defineProps({
   config: Object,
+  configIndex: Number,
 });
 
 const isOpened = ref(false);
 const isConfigUpdated = ref(false);
 
-const borderClass = computed(() => {
-  if (!isOpened.value) return "";
-  let borderClassValue = "";
+const listItemClass = computed(() => {
+  const zebra = props.configIndex % 2 ? "bg-white" : "bg-gray-100";
+  if (!isOpened.value) return zebra;
+  let listItemClassValue = "";
   isConfigUpdated.value
-    ? (borderClassValue = "border-b border-[#d38b32]")
-    : (borderClassValue = "border-b border-gray-400");
-  return borderClassValue;
+    ? (listItemClassValue = "border-b border-[#d38b32]")
+    : (listItemClassValue = "border-b border-gray-400");
+  return `${zebra} ${listItemClassValue}`;
 });
 
 const toggleListItem = () => {

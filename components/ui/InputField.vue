@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-const props = defineProps(["type", "modelValue"]);
+const props = defineProps(["type", "modelValue", "placeholder"]);
 
 const emit = defineEmits(["update:modelValue"]);
 
