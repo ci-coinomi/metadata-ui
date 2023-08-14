@@ -225,10 +225,6 @@ const updateConfigRequest = async () => {
       $toast.error(
         `Updating config ${currentConfig.value.configName} error, status: ${response}`,
       );
-    } else if (response.configFile !== updatedConfigString) {
-      $toast.error(
-        `Updating config ${currentConfig.value.configName} error. The configuration has been changed incorrectly`,
-      );
     } else {
       $toast.success(`Config ${currentConfig.value.configName} was updated`);
       currentConfig.value.configFile = response.configFile;
