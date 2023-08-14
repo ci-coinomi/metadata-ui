@@ -10,23 +10,16 @@
     >{{ confirmModalText }}</modalConfirm
   >
 
-  <modalTextInput
-    v-if="isTextInputModalVisible"
-    @is-modal-confirmed="addNameModalHandler"
-  />
-
-  <div
-    class="p-4 flex justify-center items-center border-t"
-    :class="isConfigUpdated ? 'border-[#d38b32]' : 'border-gray-400'"
-  >
+  <div class="p-4 flex justify-center items-center">
     <configBannerSkeleton v-if="isLoading" />
 
     <div v-else class="flex flex-col gap-4 justify-center items-center w-full">
       <div class="flex gap-4 w-full items-start justify-between">
         <div class="w-full">
           <ConfigParentData
-            v-if="currentConfig && currentConfig.parentConfig"
+            v-if="currentConfig"
             :parent-data="currentConfig.parentConfig"
+            :current-config-data="currentConfig"
           />
           <configNestedLine
             :configNestedObject="configFileObj"
@@ -47,7 +40,7 @@
             </UiButton>
           </div>
           <div v-else class="flex justify-center gap-4 flex-col items-center">
-            <ConfigImageCard
+            <configImageCard
               v-for="image in configImages"
               :key="image.imageId"
               :image="image"
@@ -116,8 +109,6 @@ const confirmModalText = ref(null);
 const confirmModalType = ref(null);
 const confirmModalPayload = ref(null);
 
-const isTextInputModalVisible = ref(false);
-
 const storedConfigList = computed(() => store.configsList);
 const currentItemInStoreIndex = computed(() =>
   storedConfigList.value.findIndex(
@@ -126,7 +117,6 @@ const currentItemInStoreIndex = computed(() =>
 );
 
 // Modal handlers
-
 const modalConfirmHandler = (isConfirmed) => {
   isConfirmModalVisible.value = false;
 
@@ -171,25 +161,23 @@ const addImageModalHandler = (imageData) => {
   addImageModalType.value = null;
 };
 
-const addNameModalHandler = (payload) => {
-  isTextInputModalVisible.value = false;
-  if (payload) {
-    const cloneData = {
-      cloneName: payload,
-      parentConfig: currentConfig.value,
-      configFile: currentConfig.value.configFile,
-      parentConfigImages: configImages.value,
-    };
-
-    store.setCloneConfigData(cloneData);
-    router.push("create");
-  }
-};
-
 // Button handlers
 
 const onCloneConfigHandler = () => {
-  isTextInputModalVisible.value = true;
+  const cloneData = {
+    config: currentConfig.value,
+    configFile: currentConfig.value.configFile,
+    configImages: configImages.value,
+    parentConfig: currentConfig.value.parentConfig,
+  };
+
+  store.setCloneConfigData(cloneData);
+  router.push({
+    path: "/configs/create",
+    query: {
+      parent: currentConfig.value.configId,
+    },
+  });
 };
 
 const onUpdateImageHandler = (image) => {

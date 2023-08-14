@@ -12,7 +12,8 @@
 .success,
 .danger,
 .gray,
-.primary {
+.primary,
+.info {
   color: #fff;
 }
 
@@ -38,5 +39,10 @@
 .primary {
   background-color: #0069d9;
   outline-color: #0062cc;
+}
+
+.info {
+  background-color: #0dcaf0;
+  outline-color: #14a4c1;
 }
 </style>

@@ -13,20 +13,7 @@
       @modal-handler="addImageModalHandler"
     />
 
-    <div
-      v-if="!cloneConfigData"
-      class="flex flex-col gap-4 justify-center items-center my-20"
-    >
-      <h1 class="text-3xl">Config data was passed incorrectly</h1>
-      <h2>
-        Probably you may have reloaded the page. Need to go back to the config
-        page
-      </h2>
-      <UiButton class="w-1/4 primary" @click="onReturnHandler">
-        Return
-      </UiButton>
-    </div>
-    <div v-else class="p-4 flex justify-center items-center w-full">
+    <div class="p-4 flex justify-center items-center w-full">
       <configBannerSkeleton v-if="isLoading" />
 
       <div
@@ -38,13 +25,18 @@
             <ConfigParentData
               v-if="currentConfig && currentConfig.parentConfig"
               :parent-data="currentConfig.parentConfig"
+              :current-config-data="currentConfig"
             />
             <div
               v-if="currentConfig"
               class="flex gap-4 justify-center items-center"
             >
               <p class="text-gray-400 flex-none">Clone name:</p>
-              <UiInputField v-model="currentConfig.configName" :type="'text'" />
+              <UiInputField
+                v-model="currentConfig.configName"
+                :type="'text'"
+                :class="nameInputClass"
+              />
             </div>
             <configNestedLine
               :configNestedObject="configFileObj"
@@ -65,7 +57,7 @@
               </UiButton>
             </div>
             <div v-else class="flex justify-center gap-4 flex-col items-center">
-              <ConfigImageCard
+              <configImageCard
                 v-for="image in configImages"
                 :key="image.imageId"
                 :image="image"
@@ -98,8 +90,9 @@
 </template>
 
 <script setup>
-import { addNewImage } from "~/api/images";
-import { cloneConfig } from "~/api/configs";
+import { addNewImage, getImagesByConfigId } from "~/api/images";
+import { cloneConfig, getConfigs } from "~/api/configs";
+import { createEmptyConfigFileClone } from "~/utils/utilfunc";
 import { useStore } from "~/store";
 
 definePageMeta({
@@ -109,11 +102,13 @@ definePageMeta({
 const { $toast } = useNuxtApp();
 const store = useStore();
 const router = useRouter();
+const route = useRoute();
 
 const currentConfig = ref(null);
 const configFileObj = ref(null);
 const configImages = ref([]);
-const isLoading = ref(false);
+const isLoading = ref(true);
+const isNameFieldUnderlined = ref(null);
 
 const isConfirmModalVisible = ref(false);
 const confirmModalText = ref(null);
@@ -123,14 +118,26 @@ const addImageModalPayload = ref(null);
 
 const storedConfigList = computed(() => store.configsList);
 const cloneConfigData = computed(() => store.cloneConfigData);
+const nameInputClass = computed(() =>
+  !currentConfig.value.configName && isNameFieldUnderlined.value
+    ? "warning"
+    : "",
+);
+
+// Modal handlers
 
 const modalConfirmHandler = (isConfirmed) => {
   isConfirmModalVisible.value = false;
   confirmModalText.value = null;
 
-  if (isConfirmed) {
-    cloneConfigRequest();
+  if (isConfirmed && !currentConfig.value.configName) {
+    $toast.warning(`Config name is required`);
+    isNameFieldUnderlined.value = true;
+    window.scrollTo(0, 0);
+    return null;
   }
+
+  if (isConfirmed && currentConfig.value.configName) cloneConfigRequest();
 };
 
 const addImageModalHandler = (newImage) => {
@@ -183,22 +190,21 @@ const onSaveCloneHandler = () => {
 
 const onReturnHandler = () => {
   store.setCloneConfigData(null);
-  router.push("configs");
+  router.push("/configs");
 };
 
 // Requests
 
 const cloneConfigRequest = async () => {
+  isNameFieldUnderlined.value = null;
   isLoading.value = true;
 
   const updatedConfigString = JSON.stringify(configFileObj.value);
-
   const cloneConfigPayload = {
     configName: currentConfig.value.configName,
     configFile: updatedConfigString,
     configType: currentConfig.value.configType,
   };
-
   if (currentConfig.value.parentConfig)
     cloneConfigPayload.parentConfig = currentConfig.value.parentConfig;
 
@@ -206,25 +212,27 @@ const cloneConfigRequest = async () => {
 
   if (!response.configId) {
     $toast.error(`Creating clone error, status: ${response}`);
-    router.push("configs");
+    router.push("/configs");
     isLoading.value = false;
-    return;
+    return null;
   }
 
+  // Adding new config to configList
   currentConfig.value.configId = response.configId;
   currentConfig.value.configFile = updatedConfigString;
-
   const updatedConfigsList = [...storedConfigList.value];
   updatedConfigsList.unshift(currentConfig.value);
   store.setConfigsList(updatedConfigsList);
-  $toast.success(`Clone ${currentConfig.value.configName} was created`);
 
+  $toast.success(`New config ${currentConfig.value.configName} was created`);
+
+  // Upload all images
   if (configImages.value.length > 0) {
     for (const image of configImages.value) {
       await uploadImageRequest(image);
     }
   }
-  router.push("configs");
+  router.push("/configs");
   isLoading.value = false;
 };
 
@@ -237,22 +245,113 @@ const uploadImageRequest = async (image) => {
   }
 };
 
-onMounted(() => {
-  if (cloneConfigData.value) {
-    const newConfigObject = {
-      configName: cloneConfigData.value.cloneName,
-      configType: cloneConfigData.value.parentConfig.configType,
-      configFile: cloneConfigData.value.configFile,
-      // We use parent of parentConfig
-      parentConfig: cloneConfigData.value.parentConfig?.parentConfig,
-    };
-    currentConfig.value = newConfigObject;
-    configFileObj.value = JSON.parse(currentConfig.value.configFile);
-    configImages.value = cloneConfigData.value.parentConfigImages;
-
-    store.setHeaderTitle("Create clone");
+const getConfigImageRequest = async (id) => {
+  isLoading.value = true;
+  const response = await getImagesByConfigId(id);
+  if (Array.isArray(response)) {
+    configImages.value = response;
   } else {
-    store.setHeaderTitle(`Parent data is not defined`);
+    $toast.error(`Getting config ${id} images error, status: ${response}`);
+  }
+  isLoading.value = false;
+};
+
+const fetchConfigs = async () => {
+  const response = await getConfigs();
+  if (!Array.isArray(response)) {
+    $toast.error(`Fetching configs error, status: ${response}`);
+    store.setHeaderTitle(`Fetching configs error`);
+    isLoading.value = false;
+    return null;
+  }
+  const configsList = response.sort((a, b) => b.configId - a.configId);
+  store.setConfigsList(configsList);
+  return null;
+};
+
+// Utils
+
+const getParentCategoryFromQuery = (queryType) => {
+  const firstOfType = storedConfigList.value.filter(
+    (item) => item.configType === queryType,
+  )[0];
+  const emptyConfigFIle = createEmptyConfigFileClone(firstOfType.configFile);
+  const newConfigObject = {
+    configName: "",
+    configType: firstOfType.configType,
+    configFile: emptyConfigFIle,
+    parentConfig: firstOfType.parentConfig,
+  };
+  currentConfig.value = newConfigObject;
+  configFileObj.value = JSON.parse(currentConfig.value.configFile);
+};
+
+const getParentConfigFormQuery = (queryParentId) => {
+  const parentConfig = storedConfigList.value.filter(
+    (item) => item.configId === Number(queryParentId),
+  )[0];
+  const newConfigObject = {
+    configName: "",
+    configType: parentConfig.configType,
+    configFile: parentConfig.configFile,
+    parentConfig: parentConfig.parentConfig,
+  };
+  currentConfig.value = newConfigObject;
+  configFileObj.value = JSON.parse(currentConfig.value.configFile);
+
+  moveParentOnTheFirstPlace(parentConfig, storedConfigList.value);
+  getConfigImageRequest(queryParentId);
+};
+
+const getParentConfigFromStore = (cloneData) => {
+  const newConfigObject = {
+    configName: "",
+    configType: cloneData.config.configType,
+    configFile: cloneData.configFile,
+    parentConfig: cloneData.parentConfig,
+  };
+  currentConfig.value = newConfigObject;
+  configFileObj.value = JSON.parse(currentConfig.value.configFile);
+  configImages.value = cloneData.configImages;
+
+  moveParentOnTheFirstPlace(cloneData.config, storedConfigList.value);
+  return null;
+};
+
+const moveParentOnTheFirstPlace = (parentConfig, configList) => {
+  const parentIndexInStore = configList.findIndex(
+    (item) => item.configId === parentConfig.configId,
+  );
+  const updatedConfigsList = [
+    ...configList.slice(0, parentIndexInStore),
+    ...configList.slice(parentIndexInStore + 1),
+  ];
+  updatedConfigsList[0] = parentConfig;
+  store.setConfigsList(updatedConfigsList);
+  return null;
+};
+
+onMounted(async () => {
+  store.setHeaderTitle("Create clone");
+  isLoading.value = true;
+
+  if (cloneConfigData.value) {
+    getParentConfigFromStore(cloneConfigData.value);
+    isLoading.value = false;
+    return;
+  }
+
+  if (store.configsList.length === 0) await fetchConfigs();
+
+  if (route.query.parent) {
+    getParentConfigFormQuery(route.query.parent);
+    isLoading.value = false;
+    return;
+  }
+
+  if (route.query.type) {
+    getParentCategoryFromQuery(route.query.type);
+    isLoading.value = false;
   }
 });
 </script>
