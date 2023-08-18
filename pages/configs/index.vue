@@ -37,7 +37,7 @@
           <UiButton
             v-for="chain in blockchains"
             :key="chain"
-            :disabled="isLoading || filtredConfigs.length === 0"
+            :disabled="isLoading"
             :class="chain === selectedChain ? 'primary' : ''"
             class="my-auto"
             @click="onChainClickHandler(chain)"
@@ -99,7 +99,6 @@ const router = useRouter();
 const route = useRoute();
 
 const configs = ref([]);
-const filtredConfigs = ref([]);
 const selectedType = ref(null);
 const isLoading = ref(true);
 const visibleItemsCount = ref(30);
@@ -108,13 +107,42 @@ const selectedChain = ref(null);
 const searchValue = ref("");
 
 const configTypes = computed(() => store.configTypes);
+
+/*
+Filtering configs by configType - by Chain - by Name and sorting by id.
+Filter depends on selectedType, selectedChain, searchValue and configs
+*/
+const filtredConfigs = computed(() =>
+  configs.value
+    .filter((item) =>
+      selectedType.value ? item.configType === selectedType.value : item,
+    )
+    .filter((item) => {
+      if (selectedChain.value && selectedChain.value !== "All") {
+        const configChainName = getChainNameFromConfigItem(item);
+        return configChainName === selectedChain.value;
+      } else {
+        return item;
+      }
+    })
+    .filter((item) =>
+      searchValue.value ? item.configName.includes(searchValue.value) : item,
+    )
+    .sort((a, b) => b.configId - a.configId),
+);
+
+/*
+Lazy-load, works with handleScroll().
+Depends on filtredConfigs and visibleItemsCount.
+*/
 const visibleConfigs = computed(() =>
   filtredConfigs.value.slice(0, visibleItemsCount.value),
 );
 
+/*
+Shown only for config types without parentConfig
+*/
 const isCreateEmptyConfigHidden = computed(
-  // Shown only for config types without parentConfig
-  // Also hidden if parentConfig is only item in the filtredConfigList
   () =>
     isLoading.value ||
     filtredConfigs.value.length === 0 ||
@@ -122,14 +150,7 @@ const isCreateEmptyConfigHidden = computed(
 );
 
 const isBlockchainBlockHidden = computed(
-  () =>
-    /*
-  Visible if in all configFile elements exist eucId-field in configfile with '@',
-  this is our filter param
-  */
-    isLoading.value ||
-    filtredConfigs.value.length === 0 ||
-    blockchains.value.length === 0,
+  () => isLoading.value || blockchains.value.length === 0,
 );
 
 // Handlers
@@ -137,42 +158,32 @@ const isBlockchainBlockHidden = computed(
 const onChainClickHandler = (chain) => {
   selectedChain.value = chain;
   visibleItemsCount.value = 30;
-
-  if (selectedChain.value === "All") {
-    filtredConfigs.value = configs.value.filter(
-      (item) => item.configType === selectedType.value,
-    );
-    store.setHeaderTitle(`${selectedType.value}`);
-  } else {
-    filtredConfigs.value = configs.value.filter((item) => {
-      const configChainName = getChainNameFromConfigItem(item);
-      return (
-        item.configType === selectedType.value &&
-        configChainName === selectedChain.value
+  selectedChain.value === "All"
+    ? store.setHeaderTitle(`${selectedType.value}`)
+    : store.setHeaderTitle(
+        `${selectedType.value}, chain ${selectedChain.value}`,
       );
-    });
-    store.setHeaderTitle(`${selectedType.value}, chain ${selectedChain.value}`);
-  }
-
   updateQueryParams();
 };
 
+/* 
+Set all values to default (accept selectedType) and get chains list as well.
+*/
 const onTypesSelectHandler = (type) => {
   searchValue.value = "";
+  selectedChain.value = null;
+  selectedType.value = type;
   visibleItemsCount.value = 30;
   store.setHeaderTitle(type);
-
-  selectedType.value = type;
-  filtredConfigs.value = configs.value.filter(
-    (item) => item.configType === type,
-  );
 
   getChainsFromFiltredConfigs(filtredConfigs.value);
   updateQueryParams();
 };
 
+/* 
+Print more configs (+30) after scrolling to the bottom of the page by increasing visibleItemsCount.
+*/
 const handleScroll = () => {
-  // Load more configs after scrolling to the bottom of the page
   const windowHeight = window.innerHeight;
   const documentHeight = document.documentElement.scrollHeight;
   const scrollTop = document.documentElement.scrollTop;
@@ -184,6 +195,10 @@ const handleScroll = () => {
   }
 };
 
+/* 
+Awailable for configTypes were configs have no parentConfig. 
+Setting all fields of visibleConfigs.value[0] as empty and redirect to /configs/create
+*/
 const onCreateEmptyCloneHandler = () => {
   const firstConfigInList = visibleConfigs.value[0];
   const emptyConfigFile = createEmptyConfigFileClone(
@@ -207,6 +222,9 @@ const onCreateEmptyCloneHandler = () => {
 
 // Requests
 
+/* 
+Fetch config types if store.configTypes is empty
+*/
 const fetchConfigTypes = async () => {
   if (store.configTypes.length === 0) {
     const response = await getConfigsTypes();
@@ -218,13 +236,15 @@ const fetchConfigTypes = async () => {
   }
 };
 
+/* 
+Fetch configs if store.configsList is empty.
+*/
 const fetchConfigs = async () => {
   isLoading.value = true;
   if (store.configsList.length > 0) {
     configs.value = store.configsList;
   } else {
     const response = await getConfigs();
-
     if (Array.isArray(response)) {
       configs.value = response.sort((a, b) => b.configId - a.configId);
       store.setConfigsList(configs.value);
@@ -232,8 +252,6 @@ const fetchConfigs = async () => {
       $toast.error(`Fetching configs error, status: ${response}`);
     }
   }
-
-  filterListByQuery();
   isLoading.value = false;
 };
 
@@ -242,82 +260,85 @@ onMounted(() => {
   store.setHeaderTitle("Select config type");
   fetchConfigTypes();
   fetchConfigs();
+  filterListByQuery();
 });
 
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
 });
 
+// Watchers
+
+/*
+Update configs if store.configsList was changed by creating new config or deleting one.
+All these functions (here and in /configs/[id] page as well) change precisely store.configsList.
+*/
 watch(
   () => store.configsList,
   () => {
     configs.value = store.configsList;
-    filtredConfigs.value = configs.value.filter(
-      (item) => item.configType === selectedType.value,
-    );
   },
 );
 
+/*
+Mostly for updating filtredConfigs by clicking on 'go back' & 'go forward' browser buttons
+*/
+
 watch(
-  // for 'go back' & 'go forward' browser buttons
   () => route.query,
   () => {
     if (route.query.type && selectedType.value !== route.query.type) {
-      onTypesSelectHandler(route.query.type);
-      return;
+      selectedType.value = route.query.type;
+      getChainsFromFiltredConfigs(filtredConfigs.value);
     }
 
     if (route.query.chain && selectedChain.value !== route.query.chain) {
-      onChainClickHandler(route.query.chain);
-      return;
+      selectedChain.value = route.query.chain;
     }
 
-    if (route.query.search) {
+    if (route.query.search && searchValue.value !== route.query.search) {
       searchValue.value = route.query.search;
-      return;
     }
+
+    if (!route.query.search) searchValue.value = "";
 
     if (!route.query.search && !route.query.type) {
       // If there is no type and no search (we returned to pure /config without query)
       router.push("/configs");
-      filtredConfigs.value = [];
       searchValue.value = "";
       selectedType.value = null;
       selectedChain.value = null;
       visibleItemsCount.value = 30;
+      blockchains.value = [];
     }
   },
 );
 
+/* 
+For updating query params after changing searchValue.
+*/
 watch(searchValue, () => {
   if (searchValue.value !== "") {
-    selectedType.value = null;
-    selectedChain.value = null;
-    visibleItemsCount.value = 30;
-    blockchains.value = [];
-
     router.push({
       name: route.name,
       query: {
+        ...route.query,
         search: searchValue.value,
       },
     });
-
-    filtredConfigs.value = configs.value.filter((config) =>
-      config.configName.includes(searchValue.value),
-    );
   }
 
-  if (!selectedType.value && !searchValue.value) {
-    // If user cleaned searchInput
-    filtredConfigs.value = [];
-    router.push({
-      name: route.name,
-    });
+  if (!searchValue.value) {
+    removeUnusedRouterQuery("search");
   }
 });
 
-const filterListByQuery = async () => {
+// Utils
+
+/*
+Setting searchValue, selectedType and selectedChain from the query on the first load of the page (onMount)
+*/
+const filterListByQuery = () => {
   const query = route.query;
 
   if (!query.type && !query.search) {
@@ -328,40 +349,31 @@ const filterListByQuery = async () => {
     return;
   }
 
-  if (query.search) {
-    searchValue.value = query.search;
-    return;
+  if (query.search) searchValue.value = query.search;
+
+  if (query.type) {
+    selectedType.value = query.type;
+    store.setHeaderTitle(query.type);
+    const configsToBeFiltred = configs.value.filter(
+      (item) => item.configType === query.type,
+    );
+    getChainsFromFiltredConfigs(configsToBeFiltred);
   }
 
-  selectedType.value = query.type;
-  store.setHeaderTitle(query.type);
-  let configsToBeFiltred = configs.value.filter(
-    (item) => item.configType === query.type,
-  );
-  getChainsFromFiltredConfigs(configsToBeFiltred);
-  await nextTick();
-
-  if (query.chain) {
-    selectedChain.value = query.chain;
-    if (selectedChain.value !== "All") {
-      configsToBeFiltred = configsToBeFiltred.filter((item) => {
-        const configChainName = getChainNameFromConfigItem(item);
-        return (
-          item.configType === selectedType.value &&
-          configChainName === selectedChain.value
-        );
-      });
-    }
-  }
-  filtredConfigs.value = configsToBeFiltred;
+  if (query.chain) selectedChain.value = query.chain;
 };
 
-const updateQueryParams = () => {
+/* 
+Push selectedChain and selectedType to query.
+*/
+const updateQueryParams = async () => {
   const query = {
     type: selectedType.value,
   };
 
   if (selectedChain.value) query.chain = selectedChain.value;
+
+  await nextTick();
 
   router.push({
     name: route.name,
@@ -369,8 +381,27 @@ const updateQueryParams = () => {
   });
 };
 
+/* 
+Remove the passed parameter from query
+*/
+const removeUnusedRouterQuery = (queryToRemove) => {
+  const updQuery = {
+    ...route.query,
+  };
+  delete updQuery[queryToRemove];
+  router.push({
+    name: route.name,
+    query: updQuery,
+  });
+};
+
+/* 
+Getting every unique chain name from config.configFile.eucId's in configs array.
+If we have no chain names in eucId after '@' - hide chainsBlock
+If we have only one chain type in filtredConfigs - show chainsBlock and select this chain
+If there are more than 1 chain in filtredConfigs - add 'All' (selected by default) and show chains in chainsBlock
+*/
 const getChainsFromFiltredConfigs = (configs) => {
-  // Getting every unique chain name from config.configFile.eucId's in configs array
   const chainsSet = new Set();
   configs.forEach((item) => {
     const chainItem = getChainNameFromConfigItem(item);
@@ -378,11 +409,6 @@ const getChainsFromFiltredConfigs = (configs) => {
   });
   const chainsArray = Array.from(chainsSet);
 
-  /*
-  If we have no chain names in eucId after '@' - hide chainsBlock
-  If we have only one chain type in filtredConfigs - show chainsBlock and select this chain
-  If there are more than 1 chain in filtredConfigs - add 'All' (selected by default) and show chains in chainsBlock
-  */
   if (chainsArray.length === 0) {
     selectedChain.value = null;
     blockchains.value = [];
@@ -395,8 +421,11 @@ const getChainsFromFiltredConfigs = (configs) => {
   }
 };
 
+/* 
+Get chain name from passed config.
+Specifically from config.configFile.eucId, (value after '@')
+*/
 const getChainNameFromConfigItem = (config) => {
-  // Get chain name from config.configFile.eucId (value after '@')
   try {
     const configObj = JSON.parse(config.configFile);
     const eucId = configObj.eucId;
