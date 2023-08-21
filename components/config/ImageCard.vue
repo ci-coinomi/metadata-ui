@@ -1,12 +1,12 @@
 <template>
   <article
-    class="p-4 flex flex-col gap-4 border rounded-md shadow-md w-full justify-between"
+    class="p-4 flex flex-col gap-4 border shadow-md justify-between bg-gray-100 rounded-sm"
   >
     <div class="flex justify-center items-center h-[200px]">
       <img
         :src="getImageSrc(props.image)"
-        class="max-w-full max-h-full h-auto self-center"
-        :alt="props.image.imageName"
+        class="max-w-[216px] max-h-[200px] h-auto self-center"
+        :title="props.image.imageName"
       />
     </div>
     <div class="flex flex-col gap-4">
@@ -54,6 +54,10 @@ const onUpdateClickHandler = () => {
 };
 
 const getImageSrc = (image) => {
+  if (image.imageName.includes("svg")) {
+    return `data:image/svg+xml;base64,${image.imageData}`;
+  }
+
   const extension = image.imageName.substring(
     image.imageName.lastIndexOf(".") + 1,
   );

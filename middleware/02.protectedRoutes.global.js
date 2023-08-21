@@ -12,26 +12,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo("/forbidden");
   }
 
-  if (to.name === "configs-id" && !rolesArr?.includes("ROLE_ADMIN")) {
-    return navigateTo("/forbidden");
-  }
-
-  if (to.name === "images-id" && !rolesArr?.includes("ROLE_ADMIN")) {
-    return navigateTo("/forbidden");
-  }
-
-  if (
-    to.name === "configs-id-nft-collection" &&
-    !rolesArr?.includes("ROLE_ADMIN")
-  ) {
-    return navigateTo("/forbidden");
-  }
-
-  if (to.name === "configs-id-banner" && !rolesArr?.includes("ROLE_ADMIN")) {
-    return navigateTo("/forbidden");
-  }
-
   if (to.name === "questions" && !rolesArr?.includes("ROLE_ADMIN")) {
+    return navigateTo("/forbidden");
+  }
+
+  if (to.name === "create" && !rolesArr?.includes("ROLE_ADMIN")) {
     return navigateTo("/forbidden");
   }
 

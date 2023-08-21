@@ -10,8 +10,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      // __dangerouslyDisableSanitizers: ['script'],
-      title: "Eucalyptus Labs - Metadata UI",
+      title: "MAUI",
       meta: [
         {
           charset: "utf-8",
@@ -21,8 +20,16 @@ export default defineNuxtConfig({
           content: "Tools for updates",
         },
       ],
+      link: [
+        {
+          rel: "icon",
+          type: "image/png",
+          href: "/favicon.png",
+        },
+      ],
     },
   },
+
   eslint: {
     lintOnStart: false,
     emitWarning: false,

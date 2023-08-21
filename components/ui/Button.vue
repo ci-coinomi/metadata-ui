@@ -11,7 +11,9 @@
 .warning,
 .success,
 .danger,
-.gray {
+.gray,
+.primary,
+.info {
   color: #fff;
 }
 
@@ -32,5 +34,15 @@
 .warning {
   background-color: #fca130;
   outline-color: #d38b32;
+}
+
+.primary {
+  background-color: #0069d9;
+  outline-color: #0062cc;
+}
+
+.info {
+  background-color: #0dcaf0;
+  outline-color: #14a4c1;
 }
 </style>

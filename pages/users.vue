@@ -17,29 +17,22 @@
     />
 
     <userSkeleton v-if="isLoading" />
-    <div v-else class="flex flex-col justify-center items-center gap-6 w-4/5">
+    <div v-else class="flex flex-col justify-center items-center gap-2 w-11/12">
       <div class="flex justify-between w-full items-center">
-        <UiButton @click="onConfigsNavigateHandler">
-          <img
-            src="~/assets/icons/icon-return.svg"
-            class="w-4 h-4"
-            alt="logout"
-          />
-        </UiButton>
-        <div>
-          <uiButton class="success" @click="onAddNewUserHandler"
-            >Add user</uiButton
-          >
-        </div>
+        <p>
+          <span class="text-gray-500">Total users: </span>
+          <span> {{ usersList.length }}</span>
+        </p>
+        <uiButton class="success" @click="onAddNewUserHandler"
+          >Add user</uiButton
+        >
       </div>
-      <p>
-        <span class="text-gray-500">Total users: </span>{{ usersList.length }}
-      </p>
 
       <userListItem
-        v-for="user in usersList"
+        v-for="(user, index) in usersList"
         :key="user.username"
         :user="user"
+        :class="index % 2 ? 'bg-white' : 'bg-gray-100'"
         @on-update-click="onUpdateClickHandler"
         @on-delete-click="onDeleteClickHandler"
       />
@@ -55,7 +48,6 @@ definePageMeta({
 });
 
 const store = useStore();
-const router = useRouter();
 const { $toast } = useNuxtApp();
 
 const isLoading = ref(true);
@@ -69,12 +61,6 @@ const confirmModalType = ref("");
 const isUserDataModalVisible = ref(false);
 const userDataModalType = ref("");
 const userDataModalPayload = ref(null);
-
-const onConfigsNavigateHandler = () => {
-  router.push({
-    path: `/configs`,
-  });
-};
 
 // Handlers
 
