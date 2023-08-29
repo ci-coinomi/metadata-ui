@@ -126,7 +126,11 @@ const filtredConfigs = computed(() =>
       }
     })
     .filter((item) =>
-      searchValue.value ? item.configName.toLowerCase().includes(searchValue.value.toLowerCase()) : item,
+      searchValue.value
+        ? item.configName
+            .toLowerCase()
+            .includes(searchValue.value.toLowerCase())
+        : item,
     )
     .sort((a, b) => b.configId - a.configId),
 );

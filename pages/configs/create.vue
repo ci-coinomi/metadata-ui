@@ -13,6 +13,12 @@
       @modal-handler="addImageModalHandler"
     />
 
+    <ModalTextInput
+      v-if="isTextModalVisible"
+      :configs="storedConfigList"
+      @is-modal-confirmed="modalTextHandler"
+    />
+
     <div class="p-4 flex justify-center items-center w-full">
       <configBannerSkeleton v-if="isLoading" />
 
@@ -76,7 +82,14 @@
           </div>
         </div>
 
-        <div class="flex w-1/3 gap-4 justify-between">
+        <div class="flex w-2/5 gap-4 justify-between">
+          <uiButton
+            v-if="currentConfig.configType === 'PARTNER'"
+            class="w-1/3 primary"
+            @click="changeParentHandler"
+          >
+            Change parent
+          </uiButton>
           <UiButton class="w-1/3 success" @click="onSaveCloneHandler">
             Save
           </UiButton>
@@ -115,6 +128,7 @@ const confirmModalText = ref(null);
 const isAddImageModalVisibe = ref(false);
 const addImageModalType = ref(null);
 const addImageModalPayload = ref(null);
+const isTextModalVisible = ref(null);
 
 const storedConfigList = computed(() => store.configsList);
 const cloneConfigData = computed(() => store.cloneConfigData);
@@ -125,6 +139,14 @@ const nameInputClass = computed(() =>
 );
 
 // Modal handlers
+const modalTextHandler = (value) => {
+  isTextModalVisible.value = null;
+  if (value) {
+    currentConfig.value.parentConfig.configId = value.configId;
+    currentConfig.value.parentConfig.configType = value.configType;
+    currentConfig.value.parentConfig.configName = value.configName;
+  }
+};
 
 const modalConfirmHandler = (isConfirmed) => {
   isConfirmModalVisible.value = false;
@@ -166,6 +188,10 @@ const addImageModalHandler = (newImage) => {
 };
 
 // Button handlers
+
+const changeParentHandler = () => {
+  isTextModalVisible.value = true;
+};
 
 const onUpdateImageHandler = (image) => {
   addImageModalType.value = "UPDATEIMAGE";
