@@ -18,8 +18,10 @@ export const getImagesByConfigId = async (configId) => {
   const response = await api(`v1/admin/configs/${configId}/images`, "GET");
   if (response._data) {
     return response._data;
-  } else {
+  } else if (response.status) {
     return response.status;
+  } else {
+    return "Cors Error";
   }
 };
 
@@ -36,8 +38,10 @@ export const addNewImage = async ({ imageName, imageData }, parentConfig) => {
   );
   if (response._data) {
     return response._data;
-  } else {
+  } else if (response.status) {
     return response.status;
+  } else {
+    return "Cors Error";
   }
 };
 
@@ -55,8 +59,10 @@ export const updateImageById = async (image, imageId, parentConfig) => {
   );
   if (response._data) {
     return response._data;
-  } else {
+  } else if (response.status) {
     return response.status;
+  } else {
+    return "Cors Error";
   }
 };
 
@@ -65,5 +71,9 @@ export const deleteImageById = async (imageId, parentConfigId) => {
     `v1/admin/configs/${parentConfigId}/images/${imageId}`,
     "DELETE",
   );
-  return response.status;
+  if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
 };

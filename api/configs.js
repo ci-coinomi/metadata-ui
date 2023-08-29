@@ -18,8 +18,10 @@ export const getConfigs = async () => {
   const response = await api(`v1/admin/configs`, "GET");
   if (response._data) {
     return response._data;
-  } else {
+  } else if (response.status) {
     return response.status;
+  } else {
+    return "Cors Error";
   }
 };
 
@@ -27,8 +29,10 @@ export const getConfigById = async (id) => {
   const response = await api(`v1/admin/configs/${id}`, "GET");
   if (response._data) {
     return response._data;
-  } else {
+  } else if (response.status) {
     return response.status;
+  } else {
+    return "Cors Error";
   }
 };
 
@@ -36,8 +40,10 @@ export const getConfigsTypes = async () => {
   const response = await api(`v1/admin/configs/types`, "GET");
   if (response._data) {
     return response._data;
-  } else {
+  } else if (response.status) {
     return response.status;
+  } else {
+    return "Cors Error";
   }
 };
 
@@ -51,8 +57,10 @@ export const updateConfig = async (previousConfig, updatedConfigFile) => {
   });
   if (response._data) {
     return response._data;
-  } else {
+  } else if (response.status) {
     return response.status;
+  } else {
+    return "Cors Error";
   }
 };
 
@@ -60,12 +68,18 @@ export const cloneConfig = async (configData) => {
   const response = await api(`v1/admin/configs`, "POST", configData);
   if (response._data) {
     return response._data;
-  } else {
+  } else if (response.status) {
     return response.status;
+  } else {
+    return "Cors Error";
   }
 };
 
 export const deleteConfig = async (configId) => {
   const response = await api(`v1/admin/configs/${configId}`, "DELETE");
-  return response.status;
+  if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
 };

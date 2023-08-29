@@ -27,3 +27,7 @@ export const createEmptyConfigFileClone = (configFile) => {
   const processedJSONString = JSON.stringify(processedObj);
   return processedJSONString;
 };
+
+export const cleared = (data) => {
+  return JSON.parse(JSON.stringify(data));
+};
