@@ -32,8 +32,10 @@ const fetchConfigs = async () => {
     const configsList = response.sort((a, b) => b.configId - a.configId);
     store.setConfigsList(configsList);
   }
-  config.value = store.configsList.find(
-    (config) => config.configId === Number(route.params.id),
+  config.value = cleared(
+    store.configsList.find(
+      (config) => config.configId === Number(route.params.id),
+    ),
   );
   store.setHeaderTitle(`Config ${config.value.configName}`);
   return null;
