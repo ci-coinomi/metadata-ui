@@ -19,7 +19,11 @@ export const signin = async (username, password) => {
     username,
     password,
   });
-  return response.status;
+  if (response.status) {
+    return response.status;
+  } else {
+    console.log("crs: ", response);
+  }
 };
 
 export const signout = async () => {
