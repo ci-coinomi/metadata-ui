@@ -13,9 +13,10 @@
       @modal-handler="addImageModalHandler"
     />
 
-    <ModalTextInput
+    <modalSetParent
       v-if="isTextModalVisible"
       :configs="storedConfigList"
+      :current-config="currentConfig"
       @is-modal-confirmed="modalTextHandler"
     />
 
@@ -362,7 +363,7 @@ onMounted(async () => {
   isLoading.value = true;
 
   if (cloneConfigData.value) {
-    getParentConfigFromStore(cloneConfigData.value);
+    getParentConfigFromStore(cleared(cloneConfigData.value));
     isLoading.value = false;
     return;
   }
