@@ -19,12 +19,20 @@ export const signin = async (username, password) => {
     username,
     password,
   });
-  return response.status;
+  if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
 };
 
 export const signout = async () => {
   const response = await api("admin/auth/logout", "POST");
-  return response.status;
+  if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
 };
 
 export const addUser = async (username, password, roles, enabled) => {
@@ -34,7 +42,11 @@ export const addUser = async (username, password, roles, enabled) => {
     roles,
     enabled,
   });
-  return response.status;
+  if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
 };
 
 export const updateUser = async (username, roles, enabled) => {
@@ -43,20 +55,30 @@ export const updateUser = async (username, roles, enabled) => {
     roles,
     enabled,
   });
-  return response.status;
+  if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
 };
 
 export const deleteUser = async (login) => {
   const response = await api(`admin/users/${login}`, "DELETE");
-  return response.status;
+  if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
 };
 
 export const getUsers = async () => {
   const response = await api(`admin/users`, "GET");
   if (response._data) {
     return response._data;
-  } else {
+  } else if (response.status) {
     return response.status;
+  } else {
+    return "Cors Error";
   }
 };
 

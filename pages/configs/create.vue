@@ -13,6 +13,13 @@
       @modal-handler="addImageModalHandler"
     />
 
+    <modalSetParent
+      v-if="isTextModalVisible"
+      :configs="storedConfigList"
+      :current-config="currentConfig"
+      @is-modal-confirmed="modalTextHandler"
+    />
+
     <div class="p-4 flex justify-center items-center w-full">
       <configBannerSkeleton v-if="isLoading" />
 
@@ -76,7 +83,14 @@
           </div>
         </div>
 
-        <div class="flex w-1/3 gap-4 justify-between">
+        <div class="flex w-2/5 gap-4 justify-between">
+          <uiButton
+            v-if="currentConfig.configType === 'PARTNER'"
+            class="w-1/3 primary"
+            @click="changeParentHandler"
+          >
+            Change parent
+          </uiButton>
           <UiButton class="w-1/3 success" @click="onSaveCloneHandler">
             Save
           </UiButton>
@@ -115,6 +129,7 @@ const confirmModalText = ref(null);
 const isAddImageModalVisibe = ref(false);
 const addImageModalType = ref(null);
 const addImageModalPayload = ref(null);
+const isTextModalVisible = ref(null);
 
 const storedConfigList = computed(() => store.configsList);
 const cloneConfigData = computed(() => store.cloneConfigData);
@@ -125,6 +140,14 @@ const nameInputClass = computed(() =>
 );
 
 // Modal handlers
+const modalTextHandler = (value) => {
+  isTextModalVisible.value = null;
+  if (value) {
+    currentConfig.value.parentConfig.configId = value.configId;
+    currentConfig.value.parentConfig.configType = value.configType;
+    currentConfig.value.parentConfig.configName = value.configName;
+  }
+};
 
 const modalConfirmHandler = (isConfirmed) => {
   isConfirmModalVisible.value = false;
@@ -166,6 +189,10 @@ const addImageModalHandler = (newImage) => {
 };
 
 // Button handlers
+
+const changeParentHandler = () => {
+  isTextModalVisible.value = true;
+};
 
 const onUpdateImageHandler = (image) => {
   addImageModalType.value = "UPDATEIMAGE";
@@ -323,10 +350,10 @@ const moveParentOnTheFirstPlace = (parentConfig, configList) => {
     (item) => item.configId === parentConfig.configId,
   );
   const updatedConfigsList = [
+    parentConfig,
     ...configList.slice(0, parentIndexInStore),
     ...configList.slice(parentIndexInStore + 1),
   ];
-  updatedConfigsList[0] = parentConfig;
   store.setConfigsList(updatedConfigsList);
   return null;
 };
@@ -336,12 +363,12 @@ onMounted(async () => {
   isLoading.value = true;
 
   if (cloneConfigData.value) {
-    getParentConfigFromStore(cloneConfigData.value);
+    getParentConfigFromStore(cleared(cloneConfigData.value));
     isLoading.value = false;
     return;
   }
 
-  if (store.configsList.length === 0) await fetchConfigs();
+  if (storedConfigList.value.length === 0) await fetchConfigs();
 
   if (route.query.parent) {
     getParentConfigFormQuery(route.query.parent);

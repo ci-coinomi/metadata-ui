@@ -5,7 +5,9 @@
     <configIndexSkeleton v-if="isLoading" />
 
     <h2
-      v-else-if="!isLoading && (!configs || configs.length === 0)"
+      v-else-if="
+        !isLoading && (!storedConfigList || storedConfigList.length === 0)
+      "
       class="text-xl flex justify-center items-center"
     >
       Configs were not recieved
@@ -51,7 +53,7 @@
           <div class="py-2 mr-aut flex gap-4">
             <p class="w-[135px]">
               <span class="text-gray-500">Total count: </span
-              >{{ configs.length }}
+              >{{ storedConfigList.length }}
             </p>
             <p class="w-[155px]">
               <span class="text-gray-500">Filtered count: </span
@@ -98,7 +100,6 @@ const { $toast } = useNuxtApp();
 const router = useRouter();
 const route = useRoute();
 
-const configs = ref([]);
 const selectedType = ref(null);
 const isLoading = ref(true);
 const visibleItemsCount = ref(30);
@@ -107,13 +108,14 @@ const selectedChain = ref(null);
 const searchValue = ref("");
 
 const configTypes = computed(() => store.configTypes);
+const storedConfigList = computed(() => store.configsList);
 
 /*
 Filtering configs by configType - by Chain - by Name and sorting by id.
 Filter depends on selectedType, selectedChain, searchValue and configs
 */
 const filtredConfigs = computed(() =>
-  configs.value
+  storedConfigList.value
     .filter((item) =>
       selectedType.value ? item.configType === selectedType.value : item,
     )
@@ -126,7 +128,11 @@ const filtredConfigs = computed(() =>
       }
     })
     .filter((item) =>
-      searchValue.value ? item.configName.toLowerCase().includes(searchValue.value.toLowerCase()) : item,
+      searchValue.value
+        ? item.configName
+            .toLowerCase()
+            .includes(searchValue.value.toLowerCase())
+        : item,
     )
     .sort((a, b) => b.configId - a.configId),
 );
@@ -241,13 +247,11 @@ Fetch configs if store.configsList is empty.
 */
 const fetchConfigs = async () => {
   isLoading.value = true;
-  if (store.configsList.length > 0) {
-    configs.value = store.configsList;
-  } else {
+  if (store.configsList.length === 0) {
     const response = await getConfigs();
     if (Array.isArray(response)) {
-      configs.value = response.sort((a, b) => b.configId - a.configId);
-      store.setConfigsList(configs.value);
+      const configs = response.sort((a, b) => b.configId - a.configId);
+      store.setConfigsList(configs);
     } else {
       $toast.error(`Fetching configs error, status: ${response}`);
     }
@@ -268,17 +272,6 @@ onUnmounted(() => {
 });
 
 // Watchers
-
-/*
-Update configs if store.configsList was changed by creating new config or deleting one.
-All these functions (here and in /configs/[id] page as well) change precisely store.configsList.
-*/
-watch(
-  () => store.configsList,
-  () => {
-    configs.value = store.configsList;
-  },
-);
 
 /*
 Mostly for updating filtredConfigs by clicking on 'go back' & 'go forward' browser buttons
@@ -354,7 +347,7 @@ const filterListByQuery = () => {
   if (query.type) {
     selectedType.value = query.type;
     store.setHeaderTitle(query.type);
-    const configsToBeFiltred = configs.value.filter(
+    const configsToBeFiltred = storedConfigList.value.filter(
       (item) => item.configType === query.type,
     );
     getChainsFromFiltredConfigs(configsToBeFiltred);
