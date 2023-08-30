@@ -46,7 +46,6 @@ const onConfirmHandler = () => {
     (item) =>
       item.configName === textInputValue.value && item.configType === "ASSET",
   );
-
   if (!newParentConfig) {
     $toast.warning(
       `Asset with the name "${textInputValue.value}" was not found`,
