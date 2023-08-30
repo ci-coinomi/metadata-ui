@@ -350,10 +350,10 @@ const moveParentOnTheFirstPlace = (parentConfig, configList) => {
     (item) => item.configId === parentConfig.configId,
   );
   const updatedConfigsList = [
+    parentConfig,
     ...configList.slice(0, parentIndexInStore),
     ...configList.slice(parentIndexInStore + 1),
   ];
-  updatedConfigsList[0] = parentConfig;
   store.setConfigsList(updatedConfigsList);
   return null;
 };
@@ -368,7 +368,7 @@ onMounted(async () => {
     return;
   }
 
-  if (store.configsList.length === 0) await fetchConfigs();
+  if (storedConfigList.value.length === 0) await fetchConfigs();
 
   if (route.query.parent) {
     getParentConfigFormQuery(route.query.parent);
