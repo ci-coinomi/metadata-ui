@@ -11,7 +11,6 @@
       (empty)
     </span>
   </p>
-  {{ props.isFirstLevel }}
   <div
     v-for="(value, key) in props.configNestedObject"
     :key="key"
@@ -34,7 +33,11 @@
       <div
         class="p-2 flex flex-col gap-2 w-full border border-gray-500 rounded-sm"
       >
-        <configNestedLine :isCloned="isCloned" :configNestedObject="value" />
+        <configNestedLine
+          :isCloned="isCloned"
+          :configNestedObject="value"
+          :configUpdateTrigger="props.configUpdateTrigger"
+        />
       </div>
     </template>
 
@@ -48,7 +51,11 @@
       <div
         class="p-2 flex flex-col gap-2 w-full border border-gray-500 rounded-sm"
       >
-        <configNestedArray :isCloned="isCloned" :configNestedObject="value" />
+        <configNestedArray
+          :isCloned="isCloned"
+          :configNestedObject="value"
+          :configUpdateTrigger="props.configUpdateTrigger"
+        />
       </div>
     </template>
 
@@ -65,6 +72,7 @@
 const props = defineProps({
   configNestedObject: Object,
   isCloned: Boolean,
+  configUpdateTrigger: Number,
 });
 
 const isFieldDisabled = (key) => {

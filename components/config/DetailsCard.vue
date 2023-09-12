@@ -24,6 +24,7 @@
           <configNestedLine
             :configNestedObject="configFileObj"
             :is-cloned="false"
+            :configUpdateTrigger="configUpdateTrigger"
           />
         </div>
         <div class="flex flex-col gap-4 justify-center items-center">
@@ -93,6 +94,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["configUpdateEmit"]);
+
+const configUpdateTrigger = ref(1);
 
 const currentConfig = ref(props.config);
 const configImages = ref([]);
@@ -233,6 +236,8 @@ const updateConfigRequest = async () => {
       const updatedConfigsList = [...storedConfigList.value];
       updatedConfigsList[currentItemInStoreIndex.value] = currentConfig.value;
       store.setConfigsList(updatedConfigsList);
+
+      configUpdateTrigger.value += 1;
 
       isConfigUpdated.value = false;
       emit("configUpdateEmit", isConfigUpdated.value);

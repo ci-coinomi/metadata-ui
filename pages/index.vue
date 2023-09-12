@@ -60,6 +60,10 @@ const formSubmitHandler = async () => {
       });
       return;
     }
+    if (res === "Cors Error") {
+      isAuthMessage.value = "CORS Error";
+      return;
+    }
 
     loginData.value = "";
     passwordData.value = "";

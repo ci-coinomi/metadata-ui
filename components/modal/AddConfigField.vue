@@ -72,7 +72,7 @@
               <img
                 src="~/assets/icons/icon-trash.svg"
                 class="w-6 h-6 icon-trash"
-                alt="delete user"
+                alt="delete field"
               />
             </uiButton>
           </div>
