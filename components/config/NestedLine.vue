@@ -44,6 +44,8 @@
       <UiSwitcher
         v-else-if="typeof value === 'boolean'"
         :value="configNestedObject[key]"
+        :update-memo="configUpdateTrigger"
+        :is-memo="true"
         @update:value="(data) => (configNestedObject[key] = data)"
       />
 
@@ -56,8 +58,10 @@
         />
         <UiInputField
           v-else
-          :value="configNestedObject[key]"
+          :model-value="configNestedObject[key]"
           type="text"
+          :update-memo="configUpdateTrigger"
+          :is-memo="true"
           @input="
             (data) => (configNestedObject[key] = data.target.value.split(','))
           "
@@ -68,6 +72,8 @@
         v-else
         v-model="configNestedObject[key]"
         type="text"
+        :update-memo="configUpdateTrigger"
+        :is-memo="true"
         :disabled="isFieldDisabled(key)"
       />
     </div>
@@ -87,9 +93,7 @@ const isConfigUpdated = ref(false);
 
 const configBorderStyle = computed(() => {
   if (props.configNestedObject?.["@type"]) return "";
-  return isConfigUpdated.value
-    ? "border border-[#d38b32]"
-    : "border border-gray-400";
+  return "border border-gray-400";
 });
 
 const isFieldDisabled = (key) => {
