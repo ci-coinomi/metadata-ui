@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="p-2 flex flex-col gap-2 w-full border rounded-sm"
-    :class="isConfigUpdated ? 'border-[#d38b32]' : 'border-gray-500'"
-  >
+  <div class="p-2 flex flex-col gap-2 w-full border rounded-sm border-gray-400">
     <UiButton class="success ml-auto" @click="onAddProviderHandler"
       >Add provider</UiButton
     >
@@ -27,6 +24,8 @@
             :isCloned="isCloned"
             :configNestedObject="value"
             :configUpdateTrigger="configUpdateTrigger"
+            :update-memo="configUpdateTrigger"
+            :is-memo="true"
           />
         </div>
       </div>

@@ -6,7 +6,7 @@
       :disabled="props.disabled"
       @change="onSwitchHandler"
     />
-    <span class="slider"></span>
+    <span class="slider before:bg-blue-500" :class="switcherColor" />
   </label>
 </template>
 
@@ -21,15 +21,46 @@ const props = defineProps({
     required: false,
     default: false,
   },
+  isMemo: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  updateMemo: {
+    type: Number,
+    required: false,
+    default: 1,
+  },
 });
 const emit = defineEmits(["update:value"]);
 
 const isChecked = ref(props.value);
+const memoSwitcher = ref(null);
+
+const switcherColor = computed(() => {
+  if (!props.isMemo) return "before:bg-white";
+  return isChecked.value === memoSwitcher.value
+    ? "before:bg-white"
+    : "before:bg-[#f2dcb8]";
+});
 
 const onSwitchHandler = () => {
   isChecked.value = !isChecked.value;
   emit("update:value", isChecked.value);
 };
+
+onMounted(() => {
+  if (props.isMemo) memoSwitcher.value = props.value;
+});
+
+watch(
+  () => props.updateMemo,
+  () => {
+    if (props.updateMemo) {
+      memoSwitcher.value = isChecked.value;
+    }
+  },
+);
 </script>
 
 <style scoped>
@@ -67,7 +98,6 @@ const onSwitchHandler = () => {
   width: 18px;
   left: 1px;
   bottom: 1px;
-  background-color: white;
   -webkit-transition: 0.4s;
   transition: 0.4s;
   border-radius: 50%;
