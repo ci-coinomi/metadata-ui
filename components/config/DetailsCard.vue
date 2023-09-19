@@ -24,6 +24,7 @@
           <configNestedLine
             :configNestedObject="configFileObj"
             :is-cloned="false"
+            :configUpdateTrigger="configUpdateTrigger"
           />
         </div>
         <div class="flex flex-col gap-4 justify-center items-center">
@@ -93,6 +94,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["configUpdateEmit"]);
+
+const configUpdateTrigger = ref(1);
 
 const currentConfig = ref(props.config);
 const configImages = ref([]);
@@ -234,6 +237,8 @@ const updateConfigRequest = async () => {
       updatedConfigsList[currentItemInStoreIndex.value] = currentConfig.value;
       store.setConfigsList(updatedConfigsList);
 
+      configUpdateTrigger.value += 1;
+
       isConfigUpdated.value = false;
       emit("configUpdateEmit", isConfigUpdated.value);
     }
@@ -323,7 +328,10 @@ const deleteConfigRequest = async () => {
 };
 
 onMounted(() => {
-  configFileObj.value = JSON.parse(currentConfig.value.configFile);
+  // deleting top-level apiVersion field
+  const objectToBePrinted = JSON.parse(currentConfig.value.configFile);
+  if (objectToBePrinted.apiVersion) delete objectToBePrinted.apiVersion;
+  configFileObj.value = objectToBePrinted;
   getConfigImageRequest();
 });
 
@@ -334,10 +342,12 @@ watch(
     We need extra-reparsing for cases when in original config price === 0.010, but after
     JSON.stringify it turns to 0.01
     */
-    const stringifiedConfigFile = JSON.stringify(
-      JSON.parse(currentConfig.value.configFile),
-    );
-    stringifiedConfigFile !== JSON.stringify(configFileObj.value)
+
+    // Deleting apiVersion...
+    const defaultConfigFile = JSON.parse(currentConfig.value.configFile);
+    if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
+
+    !areObjectsEqual(cleared(defaultConfigFile), cleared(configFileObj.value))
       ? (isConfigUpdated.value = true)
       : (isConfigUpdated.value = false);
     emit("configUpdateEmit", isConfigUpdated.value);
