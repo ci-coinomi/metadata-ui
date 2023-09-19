@@ -6,7 +6,7 @@
       :disabled="props.disabled"
       @change="onSwitchHandler"
     />
-    <span class="slider before:bg-blue-500" :class="switcherColor" />
+    <span class="slider" :class="switcherColor" />
   </label>
 </template>
 
