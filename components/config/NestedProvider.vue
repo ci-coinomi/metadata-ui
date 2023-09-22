@@ -50,7 +50,7 @@ const onAddProviderHandler = () => {
     url: "",
     visible: false,
     priority: "",
-    supportedMethods: "",
+    supportedMethods: [],
   });
 };
 
