@@ -218,7 +218,6 @@ const onUpdateConfigHandler = () => {
 const updateConfigRequest = async () => {
   if (isConfigUpdated.value) {
     const updatedConfigString = JSON.stringify(configFileObj.value);
-
     const response = await updateConfig(
       currentConfig.value,
       updatedConfigString,
@@ -342,7 +341,6 @@ watch(
     We need extra-reparsing for cases when in original config price === 0.010, but after
     JSON.stringify it turns to 0.01
     */
-
     // Deleting apiVersion...
     const defaultConfigFile = JSON.parse(currentConfig.value.configFile);
     if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
