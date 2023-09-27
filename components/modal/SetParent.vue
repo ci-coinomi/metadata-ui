@@ -5,7 +5,7 @@
     <div class="bg-white p-10 rounded-md flex flex-col gap-6">
       <h2 class="text-lg text-center font-bold">Provide new parent name.</h2>
       <p class="text-center opacity-50">
-        Only config with Asset type can be passed
+        Only config with Asset or Blockchain type can be passed
       </p>
       <UiInputField
         v-model="textInputValue"
@@ -44,39 +44,46 @@ const onConfirmHandler = () => {
 
   const newParentConfig = props.configs.find(
     (item) =>
-      item.configName === textInputValue.value && item.configType === "ASSET",
+      item.configName === textInputValue.value &&
+      (item.configType === "ASSET" || item.configType === "BLOCKCHAIN"),
   );
   if (!newParentConfig) {
     $toast.warning(
-      `Asset with the name "${textInputValue.value}" was not found`,
+      `Asset or Blockchain with the name "${textInputValue.value}" was not found.`,
     );
     return;
   }
 
-  const oldParentChainConfig = getClosestChain(
-    props.currentConfig.parentConfig,
-  );
+  if (newParentConfig.configType === "ASSET") {
+    /**
+     * We can set another asset but it needs to have the same BLOCKCHAIN as it was in previous parent.
+     */
 
-  if (typeof oldParentChainConfig === "string") {
-    $toast.warning(oldParentChainConfig);
-    return;
+    const oldParentChainConfig = getClosestChain(
+      props.currentConfig.parentConfig,
+    );
+    if (typeof oldParentChainConfig === "string") {
+      $toast.warning(oldParentChainConfig);
+      return;
+    }
+
+    const oldParentChainConfigChildren = getChildConfigs(
+      props.configs,
+      oldParentChainConfig.configId,
+    );
+
+    const isNewParentHasSameChain = oldParentChainConfigChildren.find(
+      (item) => item.configId === newParentConfig.configId,
+    );
+
+    if (!isNewParentHasSameChain) {
+      $toast.warning("New asset parent has invalid chain");
+      return;
+    }
   }
 
-  const oldParentChainConfigChildren = getChildConfigs(
-    props.configs,
-    oldParentChainConfig.configId,
-  );
-
-  const isNewParentHasSameChain = oldParentChainConfigChildren.find(
-    (item) => item.configId === newParentConfig.configId,
-  );
-
-  if (isNewParentHasSameChain) {
-    $toast.success("Parent was changed");
-    emit("isModalConfirmed", newParentConfig);
-  } else {
-    $toast.warning("New parent has invalid chain");
-  }
+  $toast.success("Parent was changed");
+  emit("isModalConfirmed", newParentConfig);
 };
 
 const getChildConfigs = (configs, id) => {
