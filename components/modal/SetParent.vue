@@ -5,7 +5,12 @@
     <div class="bg-white p-10 rounded-md flex flex-col gap-6">
       <h2 class="text-lg text-center font-bold">Provide new parent name.</h2>
       <p class="text-center opacity-50">
-        Only config with Asset or Blockchain type can be passed
+        <span v-if="currentConfig.configType === 'PROVIDERS'">
+          Only config with Blockchain type can be passed
+        </span>
+        <span v-else>
+          Only config with Asset or Blockchain type can be passed
+        </span>
       </p>
       <UiInputField
         v-model="textInputValue"
@@ -42,20 +47,43 @@ const onConfirmHandler = () => {
     return;
   }
 
-  const newParentConfig = props.configs.find(
-    (item) =>
-      item.configName === textInputValue.value &&
-      (item.configType === "ASSET" || item.configType === "BLOCKCHAIN"),
-  );
-  if (!newParentConfig) {
-    $toast.warning(
-      `Asset or Blockchain with the name "${textInputValue.value}" was not found.`,
+  let newParentConfig;
+
+  if (props.currentConfig.configType === "PROVIDERS") {
+    /**
+     * Searching for BLOCKCHAIN. For Providers clones.
+     */
+    newParentConfig = props.configs.find(
+      (item) =>
+        item.configName === textInputValue.value &&
+        item.configType === "BLOCKCHAIN",
     );
-    return;
+    if (!newParentConfig) {
+      $toast.warning(
+        `Blockchain with the name "${textInputValue.value}" was not found.`,
+      );
+      return;
+    }
+  } else {
+    /**
+     * Searching for BLOCKCHAIN and ASSET. For Partners clones.
+     */
+    newParentConfig = props.configs.find(
+      (item) =>
+        item.configName === textInputValue.value &&
+        (item.configType === "ASSET" || item.configType === "BLOCKCHAIN"),
+    );
+    if (!newParentConfig) {
+      $toast.warning(
+        `Asset or Blockchain with the name "${textInputValue.value}" was not found.`,
+      );
+      return;
+    }
   }
 
   if (newParentConfig.configType === "ASSET") {
     /**
+     * For Partners clones.
      * We can set another asset but it needs to have the same BLOCKCHAIN as it was in previous parent.
      */
 

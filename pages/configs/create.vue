@@ -85,7 +85,10 @@
 
         <div class="flex w-2/5 gap-4 justify-between">
           <uiButton
-            v-if="currentConfig.configType === 'PARTNER'"
+            v-if="
+              currentConfig.configType === 'PARTNER' ||
+              currentConfig.configType === 'PROVIDERS'
+            "
             class="w-1/3 primary"
             @click="changeParentHandler"
           >
