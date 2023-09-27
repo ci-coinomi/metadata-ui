@@ -85,7 +85,10 @@
 
         <div class="flex w-2/5 gap-4 justify-between">
           <uiButton
-            v-if="currentConfig.configType === 'PARTNER'"
+            v-if="
+              currentConfig.configType === 'PARTNER' ||
+              currentConfig.configType === 'PROVIDERS'
+            "
             class="w-1/3 primary"
             @click="changeParentHandler"
           >
@@ -317,10 +320,16 @@ const getParentConfigFormQuery = (queryParentId) => {
   const parentConfig = storedConfigList.value.filter(
     (item) => item.configId === Number(queryParentId),
   )[0];
+
+  // Deleting apiVersion...
+  const defaultConfigFile = JSON.parse(parentConfig.configFile);
+  if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
+  const updatedConfigFile = JSON.stringify(defaultConfigFile);
+
   const newConfigObject = {
     configName: "",
     configType: parentConfig.configType,
-    configFile: parentConfig.configFile,
+    configFile: updatedConfigFile,
     parentConfig: parentConfig.parentConfig,
   };
   currentConfig.value = newConfigObject;
@@ -331,10 +340,15 @@ const getParentConfigFormQuery = (queryParentId) => {
 };
 
 const getParentConfigFromStore = (cloneData) => {
+  // Deleting apiVersion...
+  const defaultConfigFile = JSON.parse(cloneData.configFile);
+  if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
+  const updatedConfigFile = JSON.stringify(defaultConfigFile);
+
   const newConfigObject = {
     configName: "",
     configType: cloneData.config.configType,
-    configFile: cloneData.configFile,
+    configFile: updatedConfigFile,
     parentConfig: cloneData.parentConfig,
   };
   currentConfig.value = newConfigObject;
