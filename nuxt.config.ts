@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       METADATA_URL: process.env.METADATA_URL,
+      METADATA_URL_2: process.env.METADATA_URL_2,
     },
   },
   build: {
