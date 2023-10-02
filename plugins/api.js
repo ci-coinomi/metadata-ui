@@ -41,6 +41,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   });
 
+  const wss_api = config.public.METADATA_URL_3;
+
   nuxtApp.provide("api", api);
   nuxtApp.provide("api2", api2);
+  nuxtApp.provide("wss_api", wss_api);
 });
