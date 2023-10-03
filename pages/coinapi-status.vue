@@ -40,21 +40,7 @@ const activateWSConnection = () => {
     heartbeatIncoming: 1000,
     heartbeatOutgoing: 1000,
     onConnect: function () {
-      // const subscription = client.value.subscribe(
-      //   "/topic/blockchain/height",
-      //   function (message) {
-      //     const payload = JSON.parse(message.body);
-      //   },
-      // );
-
-      // client.value.subscribe("/coinapi/polygon/topic/blockchain/height", function (message) {
-      //   console.log('CONNECT')
-      //   const payload = JSON.parse(message.body);
-      //   recentBlocks.value.unshift(payload);
-      //   recentBlocks.value.pop(payload);
-      // });
-
-      client.value.subscribe("/kadena", function (message) {
+      client.value.subscribe("/topic/blockchain/height", function (message) {
         const payload = JSON.parse(message.body);
         console.log(payload);
       });

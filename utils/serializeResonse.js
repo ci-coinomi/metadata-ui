@@ -4,17 +4,16 @@ export const serializeCoinApi = (blockchains, providers) => {
     const serializedItem = {
       eucId: chain.eucId,
       name: chain.name,
-      providersList: [],
+      nodeProviders: [],
+      apiProviders: [],
     };
 
     providers.map((provider) => {
-      console.log(provider);
       if (provider.blockchain === chain.eucId && provider.nodeProviders) {
-        const value = [...provider.nodeProviders];
-        serializedItem.providersList.push(value);
+        serializedItem.nodeProviders.push(...provider.nodeProviders);
       }
       if (provider.blockchain === chain.eucId && provider.apiProviders) {
-        serializedItem.providersList.push(...provider.apiProviders);
+        serializedItem.apiProviders.push(...provider.apiProviders);
       }
     });
 
