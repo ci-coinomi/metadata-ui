@@ -54,15 +54,17 @@ const onConfirmHandler = () => {
     return;
   }
 
+  /**
+   * We can set another asset but it needs to have the same BLOCKCHAIN as it was in previous parent.
+   */
+  /*
   if (newParentConfig.configType === "ASSET") {
-    /**
-     * We can set another asset but it needs to have the same BLOCKCHAIN as it was in previous parent.
-     */
 
     const oldParentChainConfig = getClosestChain(
       props.currentConfig.parentConfig,
     );
     if (typeof oldParentChainConfig === "string") {
+      ?? 
       $toast.warning(oldParentChainConfig);
       return;
     }
@@ -81,17 +83,20 @@ const onConfirmHandler = () => {
       return;
     }
   }
+  */
 
   $toast.success("Parent was changed");
   emit("isModalConfirmed", newParentConfig);
 };
 
+/*
 const getChildConfigs = (configs, id) => {
   return configs.filter(
     (configItem) => configItem.parentConfig?.configId === id,
   );
 };
-
+*/
+/*
 const getClosestChain = (config, depth = 0) => {
   if (depth > 100) {
     return "Previous parent has chain of more than 100 parents and chain was not found";
@@ -111,6 +116,7 @@ const getClosestChain = (config, depth = 0) => {
     return "Previous parent chain was not found";
   }
 };
+*/
 
 onMounted(() => {
   document.body.style.overflow = "hidden";
