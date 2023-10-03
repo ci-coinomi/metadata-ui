@@ -1,29 +1,45 @@
 <template>
-  <div>Page</div>
+  <main
+    class="flex flex-col justify-center items-center gap-6 m-auto bg-white p-4 shadow-md mt-3 rounded"
+  >
+    <section class="flex flex-col justify-center items-center gap-6 w-11/12">
+      <article>Article</article>
+    </section>
+  </main>
 </template>
 <script setup>
-import { getBlockchains, getProviders, getHeight } from "~/api/coinapi";
 import { Client } from "@stomp/stompjs";
+import { getBlockchains, getProviders } from "~/api/coinapi";
+import { useStore } from "~/store";
+
+definePageMeta({
+  layout: "signedin",
+});
+
+const app = useNuxtApp();
+const store = useStore();
 
 const client = ref(null);
-const app = useNuxtApp();
 
+const getCoinApiData = async () => {
+  const blockchainsResponse = await getBlockchains();
+  const providersResponse = await getProviders();
 
-onMounted(async () => {
-  const data = await getBlockchains();
-  console.log(data);
-  const data2 = await getProviders();
-  console.log("Providers", data2);
-  const data3 = await getHeight();
-  console.log("Height", data3);
+  const chainsList = serializeCoinApi(
+    blockchainsResponse?.blockchains,
+    providersResponse?.settings,
+  );
 
+  console.log(chainsList);
+};
+
+const activateWSConnection = () => {
   client.value = new Client({
     brokerURL: app.$wss_api,
     reconnectDelay: 1000,
     heartbeatIncoming: 1000,
     heartbeatOutgoing: 1000,
     onConnect: function () {
-      // The return object has a method called `unsubscribe`
       // const subscription = client.value.subscribe(
       //   "/topic/blockchain/height",
       //   function (message) {
@@ -38,18 +54,22 @@ onMounted(async () => {
       //   recentBlocks.value.pop(payload);
       // });
 
-      client.value.subscribe("/topic/blockchain/height", function (message) {
+      client.value.subscribe("/kadena", function (message) {
         const payload = JSON.parse(message.body);
-        recentTxs.value.unshift(payload);
-        recentTxs.value.pop(payload);
+        console.log(payload);
       });
     },
   });
   client.value.activate();
+};
+
+onMounted(async () => {
+  store.setHeaderTitle(`CoinApi Status`);
+  await getCoinApiData();
+  activateWSConnection();
 });
 
 onBeforeUnmount(() => {
   client?.value?.deactivate();
 });
 </script>
-<style scoped></style>

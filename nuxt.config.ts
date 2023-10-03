@@ -4,8 +4,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       METADATA_URL: process.env.METADATA_URL,
-      METADATA_URL_2: process.env.METADATA_URL_2,
-      METADATA_URL_3: process.env.METADATA_URL_3,
+      COINAPI_WSS: process.env.COINAPI_WSS,
     },
   },
   build: {
