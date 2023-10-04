@@ -28,6 +28,7 @@
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.7.2",
     "@pinia/nuxt": "^0.4.11",
+    "@stomp/stompjs": "^7.0.0",
     "pinia": "^2.1.4",
     "vue-content-loader": "^2.0.1",
     "vue-toastification": "^2.0.0-rc.5"

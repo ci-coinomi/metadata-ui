@@ -21,5 +21,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   });
 
+  const wss_api = config.public.COINAPI_WSS;
+
   nuxtApp.provide("api", api);
+  nuxtApp.provide("wss_api", wss_api);
 });
