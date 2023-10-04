@@ -21,6 +21,12 @@
           Configs
         </UiButton>
         <UiButton
+          v-if="route.name !== 'coinapi-status'"
+          @click="onCoinApiStatusNavigateHandler"
+        >
+          Coinapi Status
+        </UiButton>
+        <UiButton
           v-if="route.name !== 'questions'"
           @click="onFaqNavigateHandler"
         >
@@ -72,6 +78,12 @@ const onConfigsNavigateHandler = () => {
 const onFaqNavigateHandler = () => {
   router.push({
     path: `/questions`,
+  });
+};
+
+const onCoinApiStatusNavigateHandler = () => {
+  router.push({
+    path: `/coinapi-status`,
   });
 };
 

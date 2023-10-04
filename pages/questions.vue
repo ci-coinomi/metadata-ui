@@ -142,4 +142,3 @@ onMounted(() => {
   store.setHeaderTitle(`FAQ`);
 });
 </script>
-<style scoped></style>

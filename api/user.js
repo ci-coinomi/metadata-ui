@@ -9,7 +9,7 @@ const api = async (endpoint, method, payload) => {
     });
     return response;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return err;
   }
 };
