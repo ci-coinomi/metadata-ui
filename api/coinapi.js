@@ -8,7 +8,7 @@ const api = async (endpoint, method, payload) => {
     });
     return response;
   } catch (err) {
-    console.log("postApi error", err);
+    console.error("postApi error", err);
     return err;
   }
 };

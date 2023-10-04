@@ -7,17 +7,9 @@ export const serializeCoinApi = (blockchains, providers) => {
       (provider) => provider.blockchain === eucId,
     );
 
-    // const nodeProviders = blockchainProviders.flatMap((provider) =>
-    //   provider.nodeProviders.map((nestedProvider) => nestedProvider.name)
-    // );
-    const nodeProviders = [
-      "nodeProviders",
-      "nodeProviders",
-      "nodeProviders",
-      "nodeProviders",
-      "nodeProviders",
-      "nodeProviders",
-    ];
+    const nodeProviders = blockchainProviders.flatMap((provider) =>
+      provider.nodeProviders.map((nestedProvider) => nestedProvider.name),
+    );
 
     const apiProviders = blockchainProviders.flatMap((provider) =>
       provider.apiProviders.map((nestedProvider) => nestedProvider.name),
