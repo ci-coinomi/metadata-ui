@@ -10,6 +10,13 @@
     >{{ confirmModalText }}</modalConfirm
   >
 
+  <modalSetParent
+    v-if="isParentModalVisible"
+    :configs="storedConfigList"
+    :current-config="currentConfig"
+    @is-modal-confirmed="modalParentHandler"
+  />
+
   <div class="p-4 flex justify-center items-center">
     <configBannerSkeleton v-if="isLoading" />
 
@@ -60,14 +67,17 @@
         </div>
       </div>
 
-      <div class="flex w-1/2 gap-4 justify-between">
-        <UiButton class="w-1/4 success" @click="onCloneConfigHandler">
+      <div class="flex w-[70%] gap-4 justify-between">
+        <UiButton class="w-1/5 success" @click="onCloneConfigHandler">
           Clone config
         </UiButton>
-        <UiButton class="w-1/4 warning" @click="onUpdateConfigHandler">
+        <UiButton class="w-1/5 primary" @click="changeParentHandler">
+          Change parent
+        </UiButton>
+        <UiButton class="w-1/5 warning" @click="onUpdateConfigHandler">
           Save changes
         </UiButton>
-        <UiButton class="w-1/4 danger" @click="onDeleteConfigHandler">
+        <UiButton class="w-1/5 danger" @click="onDeleteConfigHandler">
           Delete
         </UiButton>
       </div>
@@ -112,6 +122,8 @@ const confirmModalText = ref(null);
 const confirmModalType = ref(null);
 const confirmModalPayload = ref(null);
 
+const isParentModalVisible = ref(null);
+
 const storedConfigList = computed(() => store.configsList);
 const currentItemInStoreIndex = computed(() =>
   storedConfigList.value.findIndex(
@@ -120,6 +132,25 @@ const currentItemInStoreIndex = computed(() =>
 );
 
 // Modal handlers
+const modalParentHandler = (value) => {
+  isParentModalVisible.value = null;
+
+  if (value && value === "SET_NULL") {
+    currentConfig.value.parentConfig = null;
+    return;
+  }
+
+  if (value) {
+    const { configId, configType, configName } = value;
+    const newParentConfig = {
+      configId,
+      configType,
+      configName,
+    };
+    currentConfig.value.parentConfig = newParentConfig;
+  }
+};
+
 const modalConfirmHandler = (isConfirmed) => {
   isConfirmModalVisible.value = false;
 
@@ -165,6 +196,10 @@ const addImageModalHandler = (imageData) => {
 };
 
 // Button handlers
+
+const changeParentHandler = () => {
+  isParentModalVisible.value = true;
+};
 
 const onCloneConfigHandler = () => {
   const cloneData = {

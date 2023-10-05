@@ -12,11 +12,14 @@
           Only config with Asset or Blockchain type can be passed
         </span>
       </p>
-      <UiInputField
-        v-model="textInputValue"
-        type="text"
-        :placeholder="'New parent name...'"
-      />
+      <div class="flex gap-1">
+        <UiInputField
+          v-model="textInputValue"
+          type="text"
+          :placeholder="'New parent name...'"
+        />
+        <UiButton class="warning" @click="onNullClickHandler">Null</UiButton>
+      </div>
       <div class="flex gap-4 justify-between">
         <UiButton class="danger w-2/5" @click="onCanselHandler"
           >Cancel</UiButton
@@ -64,9 +67,28 @@ const onConfirmHandler = () => {
       );
       return;
     }
-  } else {
+  }
+
+  if (props.currentConfig.configType === "PARTNER") {
     /**
-     * Searching for BLOCKCHAIN and ASSET. For Partners clones.
+     * Searching for BLOCKCHAIN and ASSET.
+     */
+    newParentConfig = props.configs.find(
+      (item) =>
+        item.configName === textInputValue.value &&
+        (item.configType === "ASSET" || item.configType === "BLOCKCHAIN"),
+    );
+    if (!newParentConfig) {
+      $toast.warning(
+        `Asset or Blockchain with the name "${textInputValue.value}" was not found.`,
+      );
+      return;
+    }
+  }
+
+  if (props.currentConfig.configType === "BANNER") {
+    /**
+     * Searching for BLOCKCHAIN and ASSET.
      */
     newParentConfig = props.configs.find(
       (item) =>
@@ -111,9 +133,13 @@ const onConfirmHandler = () => {
     }
   }
   */
-
   $toast.success("Parent was changed");
   emit("isModalConfirmed", newParentConfig);
+};
+
+const onNullClickHandler = () => {
+  $toast.success("Parent was set as null");
+  emit("isModalConfirmed", "SET_NULL");
 };
 
 /*
