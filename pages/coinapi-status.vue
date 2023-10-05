@@ -18,7 +18,7 @@
           <div class="flex flex-1 flex-col">
             <div class="flex flex-wrap gap-1">
               <h3 class="text-gray-400">Node Providers:</h3>
-              <p v-if="chain.apiProviders.length === 0" class="text-gray-400">
+              <p v-if="chain.nodeProviders.length === 0" class="text-gray-400">
                 Does not exist
               </p>
               <template v-else>
