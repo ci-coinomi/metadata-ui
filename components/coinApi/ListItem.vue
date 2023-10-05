@@ -40,14 +40,18 @@
     </div>
 
     <div class="flex flex-1">
-      <div v-if="chainsHeight && chainsHeight.length > 0">
+      <div v-if="chainsHeight && chainsHeight.length > 0" class="w-full">
         <div
           v-for="chainItem in chainsHeight"
           :key="chainItem.chainId"
-          class="flex gap-1"
+          class="flex gap-1 w-full"
         >
-          <span class="text-gray-400">ChainId:</span>{{ chainItem.chainId }},
-          <span class="text-gray-400">Height:</span>{{ chainItem.height }}
+          <p class="w-2/5 flex gap-1">
+            <span class="text-gray-400">ChainId:</span>{{ chainItem.chainId }},
+          </p>
+          <p class="w-3/5 flex gap-1">
+            <span class="text-gray-400">Height:</span>{{ chainItem.height }}
+          </p>
         </div>
       </div>
       <div v-else class="text-gray-400">Chain IDs were not recieved</div>
