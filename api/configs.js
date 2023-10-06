@@ -86,7 +86,9 @@ export const deleteConfig = async (configId) => {
 
 export const getProviderGroup = async () => {
   const response = await api(`/v2/provider/groups`, "GET");
-  if (response.status) {
+  if (response._data) {
+    return response._data;
+  } else if (response.status) {
     return response.status;
   } else {
     return "Cors Error";
@@ -95,7 +97,9 @@ export const getProviderGroup = async () => {
 
 export const getProviderNetworks = async () => {
   const response = await api(`/v2/provider/networks`, "GET");
-  if (response.status) {
+  if (response._data) {
+    return response._data;
+  } else if (response.status) {
     return response.status;
   } else {
     return "Cors Error";

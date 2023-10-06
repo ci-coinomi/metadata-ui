@@ -122,7 +122,7 @@ Filter depends on selectedType, selectedChain, searchValue and configs
 const filtredConfigs = computed(() =>
   storedConfigList.value
     .filter((item) =>
-      selectedType.value ? item.configType === selectedType.value : item
+      selectedType.value ? item.configType === selectedType.value : item,
     )
     .filter((item) => {
       if (selectedChain.value && selectedChain.value !== "All") {
@@ -137,9 +137,9 @@ const filtredConfigs = computed(() =>
         ? item.configName
             .toLowerCase()
             .includes(searchValue.value.toLowerCase())
-        : item
+        : item,
     )
-    .sort((a, b) => b.configId - a.configId)
+    .sort((a, b) => b.configId - a.configId),
 );
 
 /*
@@ -147,7 +147,7 @@ Lazy-load, works with handleScroll().
 Depends on filtredConfigs and visibleItemsCount.
 */
 const visibleConfigs = computed(() =>
-  filtredConfigs.value.slice(0, visibleItemsCount.value)
+  filtredConfigs.value.slice(0, visibleItemsCount.value),
 );
 
 /*
@@ -157,11 +157,11 @@ const isCreateEmptyConfigHidden = computed(
   () =>
     isLoading.value ||
     filtredConfigs.value.length === 0 ||
-    visibleConfigs.value.some((el) => el.parentConfig)
+    visibleConfigs.value.some((el) => el.parentConfig),
 );
 
 const isBlockchainBlockHidden = computed(
-  () => isLoading.value || blockchains.value.length === 0
+  () => isLoading.value || blockchains.value.length === 0,
 );
 
 // Handlers
@@ -172,7 +172,7 @@ const onChainClickHandler = (chain) => {
   selectedChain.value === "All"
     ? store.setHeaderTitle(`${selectedType.value}`)
     : store.setHeaderTitle(
-        `${selectedType.value}, chain ${selectedChain.value}`
+        `${selectedType.value}, chain ${selectedChain.value}`,
       );
   updateQueryParams();
 };
@@ -213,7 +213,7 @@ Setting all fields of visibleConfigs.value[0] as empty and redirect to /configs/
 const onCreateEmptyCloneHandler = () => {
   const firstConfigInList = visibleConfigs.value[0];
   const emptyConfigFile = createEmptyConfigFileClone(
-    firstConfigInList.configFile
+    firstConfigInList.configFile,
   );
 
   const cloneData = {
@@ -267,7 +267,8 @@ const fetchConfigs = async () => {
 const getProvidersData = async () => {
   const groupResponse = await getProviderGroup();
   const netwResponse = await getProviderNetworks();
-  console.log(groupResponse, netwResponse);
+  console.log("groupResponse", groupResponse);
+  console.log("netwResponse", netwResponse);
 };
 
 onMounted(() => {
@@ -316,7 +317,7 @@ watch(
       visibleItemsCount.value = 30;
       blockchains.value = [];
     }
-  }
+  },
 );
 
 /* 
@@ -360,7 +361,7 @@ const filterListByQuery = () => {
     selectedType.value = query.type;
     store.setHeaderTitle(query.type);
     const configsToBeFiltred = storedConfigList.value.filter(
-      (item) => item.configType === query.type
+      (item) => item.configType === query.type,
     );
     getChainsFromFiltredConfigs(configsToBeFiltred);
   }

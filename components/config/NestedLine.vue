@@ -51,9 +51,10 @@
 
       <template v-else-if="Array.isArray(value)">
         <configNestedProvider
-          v-if="key === 'nodeProviders' || key === 'apiProviders'"
+          v-if="isNestedArrayVisible(key)"
           :isCloned="isCloned"
           :configNestedObject="value"
+          :areNewFieldsAdded="areNewFieldsAdded(key)"
           :configUpdateTrigger="props.configUpdateTrigger"
         />
         <UiInputField
@@ -90,6 +91,15 @@ const props = defineProps({
 const defaultNestedObject = ref(cleared(props.configNestedObject));
 
 const isConfigUpdated = ref(false);
+
+const isNestedArrayVisible = (key) =>
+  key === "nodeProviders" ||
+  key === "apiProviders" ||
+  key === "configuredProviderGroups" ||
+  key === "networks";
+
+const areNewFieldsAdded = (key) =>
+  key === "nodeProviders" || key === "apiProviders";
 
 const configBorderStyle = computed(() => {
   if (props.configNestedObject?.["@type"]) return "";
