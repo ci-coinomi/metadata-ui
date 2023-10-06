@@ -67,8 +67,10 @@
           </div>
         </div>
       </div>
-
-      <div class="flex w-[70%] gap-4 justify-center">
+      <div
+        v-if="isConfigEditable(currentConfig.configType)"
+        class="flex w-[70%] gap-4 justify-center"
+      >
         <UiButton class="w-1/5 success" @click="onCloneConfigHandler">
           Clone config
         </UiButton>
@@ -141,6 +143,15 @@ const currentItemInStoreIndex = computed(() =>
     (item) => item.configId === currentConfig.value.configId,
   ),
 );
+
+/**
+ * Hide edit buttons for not-editable config types
+ */
+const isConfigEditable = (currentConfigType) =>
+  !(
+    currentConfigType === "CONFIGURED_PROVIDER_NETWORKS" ||
+    currentConfigType === "CONFIGURED_PROVIDER_GROUPS"
+  );
 
 // Modal handlers
 const modalParentHandler = (value) => {

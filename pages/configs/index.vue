@@ -88,7 +88,12 @@
 
 <script setup>
 import { createEmptyConfigFileClone } from "~/utils/utilfunc";
-import { getConfigs, getConfigsTypes } from "~/api/configs";
+import {
+  getConfigs,
+  getConfigsTypes,
+  getProviderGroup,
+  getProviderNetworks,
+} from "~/api/configs";
 import { useStore } from "~/store";
 
 definePageMeta({
@@ -259,12 +264,20 @@ const fetchConfigs = async () => {
   isLoading.value = false;
 };
 
+const getProvidersData = async () => {
+  const groupResponse = await getProviderGroup();
+  const netwResponse = await getProviderNetworks();
+  console.log("groupResponse", groupResponse);
+  console.log("netwResponse", netwResponse);
+};
+
 onMounted(() => {
   window.addEventListener("scroll", handleScroll);
   store.setHeaderTitle("Select config type");
   fetchConfigTypes();
   fetchConfigs();
   filterListByQuery();
+  getProvidersData();
 });
 
 onUnmounted(() => {

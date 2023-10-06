@@ -1,6 +1,9 @@
 <template>
   <div class="p-2 flex flex-col gap-2 w-full border rounded-sm border-gray-400">
-    <UiButton class="success ml-auto" @click="onAddProviderHandler"
+    <UiButton
+      v-if="areNewFieldsAdded"
+      class="success ml-auto"
+      @click="onAddProviderHandler"
       >Add provider</UiButton
     >
     <div
@@ -38,6 +41,7 @@ const props = defineProps({
   configNestedObject: Object,
   isCloned: Boolean,
   configUpdateTrigger: Number,
+  areNewFieldsAdded: Boolean,
 });
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
@@ -65,18 +69,21 @@ const onDeleteClickHandler = (key) => {
 
 onMounted(() => {
   /**
-   * Web-832. We adding companyName and network to all existed providers.
+   * Web-832. We adding companyName and network to all existed providers. If props was passed
    */
-  // eslint-disable-next-line array-callback-return
-  props.configNestedObject.map((item, index) => {
-    if (!("companyName" in item)) {
-      props.configNestedObject[index].companyName = "";
-    }
 
-    if (!("network" in item)) {
-      props.configNestedObject[index].network = "";
-    }
-  });
+  if (props.areNewFieldsAdded) {
+    // eslint-disable-next-line array-callback-return
+    props.configNestedObject.map((item, index) => {
+      if (!("companyName" in item)) {
+        props.configNestedObject[index].companyName = "";
+      }
+
+      if (!("network" in item)) {
+        props.configNestedObject[index].network = "";
+      }
+    });
+  }
 });
 
 watch(
