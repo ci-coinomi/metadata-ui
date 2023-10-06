@@ -97,6 +97,8 @@ const isNestedArrayVisible = (key) =>
   key === "apiProviders" ||
   key === "configuredProviderGroups" ||
   key === "providers" ||
+  key === "settings" ||
+  key === "linkouts" ||
   key === "networks";
 
 const areNewFieldsAdded = (key) =>
@@ -126,14 +128,14 @@ watch(
   () => {
     !areObjectsEqual(
       cleared(defaultNestedObject.value),
-      cleared(props.configNestedObject),
+      cleared(props.configNestedObject)
     )
       ? (isConfigUpdated.value = true)
       : (isConfigUpdated.value = false);
   },
   {
     deep: true,
-  },
+  }
 );
 
 watch(
@@ -141,6 +143,6 @@ watch(
   () => {
     defaultNestedObject.value = cleared(props.configNestedObject);
     isConfigUpdated.value = false;
-  },
+  }
 );
 </script>
