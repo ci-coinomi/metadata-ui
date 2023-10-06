@@ -138,12 +138,12 @@ const onConfirmHandler = () => {
     }
   }
   */
-  $toast.success("Parent was changed");
+  // $toast.success("Parent was changed");
   emit("isModalConfirmed", newParentConfig);
 };
 
 const onNullClickHandler = () => {
-  $toast.success("Parent was set as null");
+  // $toast.success("Parent was set as null");
   emit("isModalConfirmed", "SET_NULL");
 };
 
