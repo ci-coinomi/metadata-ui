@@ -17,7 +17,7 @@
     />
 
     <userSkeleton v-if="isLoading" />
-    <div v-else class="flex flex-col justify-center items-center gap-2 w-11/12">
+    <div v-else class="flex flex-col justify-center items-center gap-2 w-full">
       <div class="flex justify-between w-full items-center">
         <p>
           <span class="text-gray-500">Total users: </span>

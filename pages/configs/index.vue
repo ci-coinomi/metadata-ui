@@ -14,9 +14,7 @@
     </h2>
 
     <div v-else class="flex flex-col justify-center items-center gap-6 w-full">
-      <div
-        class="w-11/12 shadow-md p-4 rounded-md flex flex-col items-center gap-4"
-      >
+      <div class="shadow-md p-4 rounded-md flex flex-col items-center gap-4">
         <div class="w-full">
           <div v-if="configTypes.length === 0">
             <h2 class="text-xl text-center">Config types were not recieved</h2>
@@ -26,6 +24,7 @@
               v-for="typeItem in configTypes"
               :key="typeItem"
               :value="typeItem"
+              class="small"
               :class="typeItem === selectedType ? 'primary' : ''"
               @click="onTypesSelectHandler(typeItem)"
               >{{ typeItem }}</uiButton
@@ -48,7 +47,7 @@
           </UiButton>
         </div>
       </div>
-      <div class="flex flex-col gap-2 w-11/12 justify-center items-center">
+      <div class="flex flex-col gap-2 justify-center items-center w-full">
         <div class="flex w-full justify-between items-center gap-4">
           <div class="py-2 mr-aut flex gap-4">
             <p class="w-[135px]">
