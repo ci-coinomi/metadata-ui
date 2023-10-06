@@ -48,12 +48,13 @@ export const getConfigsTypes = async () => {
 };
 
 export const updateConfig = async (previousConfig, updatedConfigFile) => {
-  const { configId, configName, configType } = previousConfig;
+  const { configId, configName, configType, parentConfig } = previousConfig;
   const response = await api(`v1/admin/configs/${configId}`, "PUT", {
     configId,
     configName,
     configType,
     configFile: updatedConfigFile,
+    parentConfig,
   });
   if (response._data) {
     return response._data;
