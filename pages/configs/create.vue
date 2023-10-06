@@ -30,7 +30,6 @@
         <div class="flex gap-4 w-full items-start justify-between">
           <div class="w-full">
             <ConfigParentData
-              v-if="currentConfig && currentConfig.parentConfig"
               :parent-data="currentConfig.parentConfig"
               :current-config-data="currentConfig"
             />
@@ -87,7 +86,8 @@
           <uiButton
             v-if="
               currentConfig.configType === 'PARTNER' ||
-              currentConfig.configType === 'PROVIDERS'
+              currentConfig.configType === 'PROVIDERS' ||
+              currentConfig.configType === 'BANNER'
             "
             class="w-1/3 primary"
             @click="changeParentHandler"
@@ -145,10 +145,19 @@ const nameInputClass = computed(() =>
 // Modal handlers
 const modalTextHandler = (value) => {
   isTextModalVisible.value = null;
+  if (value && value === "SET_NULL") {
+    currentConfig.value.parentConfig = null;
+    return;
+  }
+
   if (value) {
-    currentConfig.value.parentConfig.configId = value.configId;
-    currentConfig.value.parentConfig.configType = value.configType;
-    currentConfig.value.parentConfig.configName = value.configName;
+    const { configId, configType, configName } = value;
+    const newParentConfig = {
+      configId,
+      configType,
+      configName,
+    };
+    currentConfig.value.parentConfig = newParentConfig;
   }
 };
 

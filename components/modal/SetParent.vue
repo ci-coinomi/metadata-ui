@@ -5,18 +5,26 @@
     <div class="bg-white p-10 rounded-md flex flex-col gap-6">
       <h2 class="text-lg text-center font-bold">Provide new parent name.</h2>
       <p class="text-center opacity-50">
-        <span v-if="currentConfig.configType === 'PROVIDERS'">
+        <span
+          v-if="
+            currentConfig.configType === 'PROVIDERS' ||
+            currentConfig.configType === 'BANNER'
+          "
+        >
           Only config with Blockchain type can be passed
         </span>
         <span v-else>
           Only config with Asset or Blockchain type can be passed
         </span>
       </p>
-      <UiInputField
-        v-model="textInputValue"
-        type="text"
-        :placeholder="'New parent name...'"
-      />
+      <div class="flex gap-1">
+        <UiInputField
+          v-model="textInputValue"
+          type="text"
+          :placeholder="'New parent name...'"
+        />
+        <UiButton class="warning" @click="onNullClickHandler">Null</UiButton>
+      </div>
       <div class="flex gap-4 justify-between">
         <UiButton class="danger w-2/5" @click="onCanselHandler"
           >Cancel</UiButton
@@ -64,9 +72,11 @@ const onConfirmHandler = () => {
       );
       return;
     }
-  } else {
+  }
+
+  if (props.currentConfig.configType === "PARTNER") {
     /**
-     * Searching for BLOCKCHAIN and ASSET. For Partners clones.
+     * Searching for BLOCKCHAIN and ASSET.
      */
     newParentConfig = props.configs.find(
       (item) =>
@@ -76,6 +86,23 @@ const onConfirmHandler = () => {
     if (!newParentConfig) {
       $toast.warning(
         `Asset or Blockchain with the name "${textInputValue.value}" was not found.`,
+      );
+      return;
+    }
+  }
+
+  if (props.currentConfig.configType === "BANNER") {
+    /**
+     * Searching for BLOCKCHAIN.
+     */
+    newParentConfig = props.configs.find(
+      (item) =>
+        item.configName === textInputValue.value &&
+        item.configType === "BLOCKCHAIN",
+    );
+    if (!newParentConfig) {
+      $toast.warning(
+        `Blockchain with the name "${textInputValue.value}" was not found.`,
       );
       return;
     }
@@ -111,9 +138,13 @@ const onConfirmHandler = () => {
     }
   }
   */
-
   $toast.success("Parent was changed");
   emit("isModalConfirmed", newParentConfig);
+};
+
+const onNullClickHandler = () => {
+  $toast.success("Parent was set as null");
+  emit("isModalConfirmed", "SET_NULL");
 };
 
 /*

@@ -67,6 +67,7 @@ onMounted(() => {
   /**
    * Web-832. We adding companyName and network to all existed providers.
    */
+  // eslint-disable-next-line array-callback-return
   props.configNestedObject.map((item, index) => {
     if (!("companyName" in item)) {
       props.configNestedObject[index].companyName = "";
@@ -83,7 +84,7 @@ watch(
   () => {
     defaultNestedObject.value = cleared(props.configNestedObject);
     isConfigUpdated.value = false;
-  }
+  },
 );
 
 watch(
@@ -91,13 +92,13 @@ watch(
   () => {
     !areObjectsEqual(
       cleared(defaultNestedObject.value),
-      cleared(props.configNestedObject)
+      cleared(props.configNestedObject),
     )
       ? (isConfigUpdated.value = true)
       : (isConfigUpdated.value = false);
   },
   {
     deep: true,
-  }
+  },
 );
 </script>
