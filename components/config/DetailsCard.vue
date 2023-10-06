@@ -27,6 +27,7 @@
             v-if="currentConfig"
             :parent-data="currentConfig.parentConfig"
             :current-config-data="currentConfig"
+            :parentUpdateTrigger="configUpdateTrigger"
           />
           <configNestedLine
             :configNestedObject="configFileObj"
@@ -67,11 +68,19 @@
         </div>
       </div>
 
-      <div class="flex w-[70%] gap-4 justify-between">
+      <div class="flex w-[70%] gap-4 justify-center">
         <UiButton class="w-1/5 success" @click="onCloneConfigHandler">
           Clone config
         </UiButton>
-        <UiButton class="w-1/5 primary" @click="changeParentHandler">
+        <UiButton
+          v-if="
+            currentConfig.configType === 'PARTNER' ||
+            currentConfig.configType === 'PROVIDERS' ||
+            currentConfig.configType === 'BANNER'
+          "
+          class="w-1/5 primary"
+          @click="changeParentHandler"
+        >
           Change parent
         </UiButton>
         <UiButton class="w-1/5 warning" @click="onUpdateConfigHandler">
@@ -123,6 +132,8 @@ const confirmModalType = ref(null);
 const confirmModalPayload = ref(null);
 
 const isParentModalVisible = ref(null);
+const isParentUpdated = ref(false);
+const defaultParentConfig = ref(props.config.parentConfig);
 
 const storedConfigList = computed(() => store.configsList);
 const currentItemInStoreIndex = computed(() =>
@@ -251,7 +262,7 @@ const onUpdateConfigHandler = () => {
 // Requests
 
 const updateConfigRequest = async () => {
-  if (isConfigUpdated.value) {
+  if (isConfigUpdated.value || isParentUpdated.value) {
     const updatedConfigString = JSON.stringify(configFileObj.value);
     const response = await updateConfig(
       currentConfig.value,
@@ -265,6 +276,7 @@ const updateConfigRequest = async () => {
     } else {
       $toast.success(`Config ${currentConfig.value.configName} was updated`);
       currentConfig.value.configFile = response.configFile;
+      defaultParentConfig.value = currentConfig.value.parentConfig;
 
       // Update store.configList by adding updated config...
       const updatedConfigsList = [...storedConfigList.value];
@@ -387,6 +399,20 @@ watch(
   },
   {
     deep: true,
+  },
+);
+
+watch(
+  () => currentConfig.value?.parentConfig?.configId,
+  () => {
+    if (
+      currentConfig.value?.parentConfig?.configId !==
+      defaultParentConfig.value?.configId
+    ) {
+      isParentUpdated.value = true;
+    } else {
+      isParentUpdated.value = false;
+    }
   },
 );
 </script>

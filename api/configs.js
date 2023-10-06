@@ -49,7 +49,6 @@ export const getConfigsTypes = async () => {
 
 export const updateConfig = async (previousConfig, updatedConfigFile) => {
   const { configId, configName, configType, parentConfig } = previousConfig;
-  console.log(parentConfig);
   const response = await api(`v1/admin/configs/${configId}`, "PUT", {
     configId,
     configName,

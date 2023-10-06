@@ -67,6 +67,7 @@ onMounted(() => {
   /**
    * Web-832. We adding companyName and network to all existed providers.
    */
+  // eslint-disable-next-line array-callback-return
   props.configNestedObject.map((item, index) => {
     if (!("companyName" in item)) {
       props.configNestedObject[index].companyName = "";

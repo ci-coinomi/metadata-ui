@@ -5,7 +5,12 @@
     <div class="bg-white p-10 rounded-md flex flex-col gap-6">
       <h2 class="text-lg text-center font-bold">Provide new parent name.</h2>
       <p class="text-center opacity-50">
-        <span v-if="currentConfig.configType === 'PROVIDERS'">
+        <span
+          v-if="
+            currentConfig.configType === 'PROVIDERS' ||
+            currentConfig.configType === 'BANNER'
+          "
+        >
           Only config with Blockchain type can be passed
         </span>
         <span v-else>
@@ -88,16 +93,16 @@ const onConfirmHandler = () => {
 
   if (props.currentConfig.configType === "BANNER") {
     /**
-     * Searching for BLOCKCHAIN and ASSET.
+     * Searching for BLOCKCHAIN.
      */
     newParentConfig = props.configs.find(
       (item) =>
         item.configName === textInputValue.value &&
-        (item.configType === "ASSET" || item.configType === "BLOCKCHAIN"),
+        item.configType === "BLOCKCHAIN",
     );
     if (!newParentConfig) {
       $toast.warning(
-        `Asset or Blockchain with the name "${textInputValue.value}" was not found.`,
+        `Blockchain with the name "${textInputValue.value}" was not found.`,
       );
       return;
     }

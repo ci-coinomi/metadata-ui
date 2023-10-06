@@ -5,7 +5,10 @@
     @close-modal="toggleChildrenModal(false)"
   />
 
-  <section class="w-full mb-4 p-4 border border-gray-300 rounded-md">
+  <section
+    class="w-full mb-4 p-4 border rounded-md"
+    :class="isParentUpdated ? 'border-[#d38b32]' : 'border-gray-300'"
+  >
     <div class="flex justify-between items-center gap-2">
       <div v-if="parentData">
         <p>
@@ -50,10 +53,18 @@ import { useStore } from "~/store";
 const store = useStore();
 const route = useRoute();
 
-const props = defineProps(["parentData", "currentConfigData"]);
+const props = defineProps([
+  "parentData",
+  "currentConfigData",
+  "parentUpdateTrigger",
+]);
 
 const children = ref([]);
 const isChildrenConfigVisible = ref(false);
+const defaultParentId = ref(props.parentData?.configId);
+const isParentUpdated = computed(
+  () => defaultParentId.value !== props.parentData?.configId,
+);
 
 const toParentNavigateHandler = () => {
   if (process.client) {
@@ -78,6 +89,13 @@ onMounted(() => {
   );
   children.value = childConfigsArray;
 });
+
+watch(
+  () => props.parentUpdateTrigger,
+  () => {
+    defaultParentId.value = props.parentData?.configId;
+  },
+);
 </script>
 
 <style scoped>
