@@ -20,7 +20,7 @@
       @is-modal-confirmed="modalTextHandler"
     />
 
-    <div class="p-4 flex justify-center items-center w-full">
+    <div class="flex justify-center items-center w-full">
       <configBannerSkeleton v-if="isLoading" />
 
       <div

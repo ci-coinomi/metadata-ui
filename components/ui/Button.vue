@@ -8,6 +8,10 @@
 </template>
 
 <style scoped>
+.small {
+  font-size: 13px;
+}
+
 .warning,
 .success,
 .danger,

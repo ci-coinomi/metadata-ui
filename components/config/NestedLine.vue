@@ -128,14 +128,14 @@ watch(
   () => {
     !areObjectsEqual(
       cleared(defaultNestedObject.value),
-      cleared(props.configNestedObject)
+      cleared(props.configNestedObject),
     )
       ? (isConfigUpdated.value = true)
       : (isConfigUpdated.value = false);
   },
   {
     deep: true,
-  }
+  },
 );
 
 watch(
@@ -143,6 +143,6 @@ watch(
   () => {
     defaultNestedObject.value = cleared(props.configNestedObject);
     isConfigUpdated.value = false;
-  }
+  },
 );
 </script>
