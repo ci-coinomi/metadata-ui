@@ -96,6 +96,7 @@ const isNestedArrayVisible = (key) =>
   key === "nodeProviders" ||
   key === "apiProviders" ||
   key === "configuredProviderGroups" ||
+  key === "providers" ||
   key === "networks";
 
 const areNewFieldsAdded = (key) =>
