@@ -1,60 +1,112 @@
 <template>
-  <article
-    class="flex border border-black p-6 rounded-xl w-full items-center gap-3"
-  >
-    <h2 class="w-1/5">{{ chain.name }}</h2>
+  <article class="border border-black p-6 rounded-xl items-start w-full">
+    <div class="flex items-center gap-3 w-full">
+      <h2 class="w-1/5">{{ chain.name }}</h2>
 
-    <div class="flex flex-1 flex-col">
-      <div class="flex flex-wrap gap-1">
-        <h3 class="text-gray-400">Node Providers:</h3>
-        <p v-if="chain.nodeProviders.length === 0" class="text-gray-400">
-          Does not exist
-        </p>
-        <template v-else>
-          <p v-for="(provider, index) in chain.nodeProviders" :key="provider">
-            {{ provider
-            }}<span v-if="index + 1 < chain.nodeProviders.length">,</span
-            ><span v-else>.</span>
+      <div class="flex flex-1 flex-col">
+        <div class="flex flex-wrap gap-1">
+          <h3 class="text-gray-400">Node Providers:</h3>
+          <p v-if="chain.nodeProviders.length === 0" class="text-gray-400">
+            Does not exist
           </p>
-        </template>
-      </div>
-      <div class="flex flex-wrap gap-1">
-        <h3 class="text-gray-400">Api Providers:</h3>
-        <p v-if="chain.apiProviders.length === 0" class="text-gray-400">
-          Does not exist
-        </p>
-        <template v-else>
-          <p v-for="(provider, index) in chain.apiProviders" :key="provider">
-            {{ provider
-            }}<span v-if="index + 1 < chain.apiProviders.length">,</span
-            ><span v-else>.</span>
+          <template v-else>
+            <p v-for="(provider, index) in chain.nodeProviders" :key="provider">
+              {{ provider
+              }}<span v-if="index + 1 < chain.nodeProviders.length">,</span
+              ><span v-else>.</span>
+            </p>
+          </template>
+        </div>
+        <div class="flex flex-wrap gap-1">
+          <h3 class="text-gray-400">Api Providers:</h3>
+          <p v-if="chain.apiProviders.length === 0" class="text-gray-400">
+            Does not exist
           </p>
-        </template>
-      </div>
-    </div>
-
-    <div class="flex w-1/5 gap-1">
-      <span class="text-gray-400">Height:</span>
-      <span v-if="heightValue"> {{ heightValue }}</span>
-      <span v-else>Not recieved</span>
-    </div>
-
-    <div class="flex flex-1">
-      <div v-if="chainsHeight && chainsHeight.length > 0" class="w-full">
-        <div
-          v-for="chainItem in chainsHeight"
-          :key="chainItem.chainId"
-          class="flex gap-1 w-full"
-        >
-          <p class="w-2/5 flex gap-1">
-            <span class="text-gray-400">ChainId:</span>{{ chainItem.chainId }},
-          </p>
-          <p class="w-3/5 flex gap-1">
-            <span class="text-gray-400">Height:</span>{{ chainItem.height }}
-          </p>
+          <template v-else>
+            <p v-for="(provider, index) in chain.apiProviders" :key="provider">
+              {{ provider
+              }}<span v-if="index + 1 < chain.apiProviders.length">,</span
+              ><span v-else>.</span>
+            </p>
+          </template>
         </div>
       </div>
-      <div v-else class="text-gray-400">Chain IDs were not recieved</div>
+
+      <div class="flex w-1/5 gap-1">
+        <span class="text-gray-400">Height:</span>
+        <span v-if="heightValue"> {{ heightValue }}</span>
+        <span v-else>Not recieved</span>
+      </div>
+
+      <div class="flex flex-1 flex-col">
+        <div
+          v-if="
+            chainsHeight && chainsHeight.length > 0 && chainsHeight.length <= 3
+          "
+          class="w-full"
+        >
+          <div
+            v-for="chainItem in chainsHeight"
+            :key="chainItem.chainId"
+            class="flex gap-1 w-full"
+          >
+            <p class="w-2/5 flex gap-1">
+              <span class="text-gray-400">ChainId:</span
+              >{{ chainItem.chainId }},
+            </p>
+            <p class="w-3/5 flex gap-1">
+              <span class="text-gray-400">Height:</span>{{ chainItem.height }}
+            </p>
+          </div>
+        </div>
+        <div
+          v-if="
+            chainsHeight && chainsHeight.length > 0 && chainsHeight.length > 3
+          "
+          class="w-full flex justify-center"
+        >
+          <UiButton @click="onShowMoreChainsClick">
+            <span v-if="!showChains">Show chains</span>
+            <span v-else>Hide chains</span>
+          </UiButton>
+        </div>
+        <div
+          v-if="!chainsHeight && zoneData"
+          class="w-full flex gap-1 justify-center"
+        >
+          <span class="text-gray-400">ZoneId:</span> {{ zoneData }}
+        </div>
+        <div
+          v-if="(!chainsHeight || chainsHeight.length === 0) && !zoneData"
+          class="text-gray-400 text-center"
+        >
+          ZoneId or Chain IDs were not recieved
+        </div>
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <div class="w-1/5" />
+      <div class="flex flex-1" />
+      <div class="w-1/5" />
+      <div class="flex flex-1">
+        <Transition name="scale">
+          <div v-if="showChains" class="w-full">
+            <div
+              v-for="chainItem in chainsHeight"
+              :key="chainItem.chainId"
+              class="w-full flex gap-1"
+            >
+              <p class="w-2/5 flex gap-1">
+                <span class="text-gray-400">ChainId:</span
+                >{{ chainItem.chainId }},
+              </p>
+              <p class="w-3/5 flex gap-1">
+                <span class="text-gray-400">Height:</span>{{ chainItem.height }}
+              </p>
+            </div>
+          </div>
+        </Transition>
+      </div>
     </div>
   </article>
 </template>
@@ -69,6 +121,12 @@ const props = defineProps(["chain"]);
 const client = ref(null);
 const heightValue = ref(null);
 const chainsHeight = ref(null);
+const zoneData = ref(null);
+const showChains = ref(false);
+
+const onShowMoreChainsClick = () => {
+  showChains.value = !showChains.value;
+};
 
 onMounted(() => {
   const wssUrlString = app.$wss_api + "/" + props.chain.eucId;
@@ -80,11 +138,16 @@ onMounted(() => {
     onConnect: function () {
       client.value.subscribe("/topic/blockchain/height", function (message) {
         const payload = JSON.parse(message.body);
-        if (payload?.currentHeight) heightValue.value = payload.currentHeight;
-        if (payload?.chainHeights)
-          chainsHeight.value = payload.chainHeights.sort(
+        if (!payload) return;
+        const { chainHeights, currentHeight, zoneId } = payload;
+
+        if (currentHeight) heightValue.value = currentHeight;
+        if (chainHeights) {
+          chainsHeight.value = chainHeights.sort(
             (a, b) => Number(a.chainId) - Number(b.chainId),
           );
+        }
+        if (zoneId) zoneData.value = zoneId;
       });
     },
   });
@@ -95,3 +158,21 @@ onBeforeUnmount(() => {
   client.value?.deactivate();
 });
 </script>
+
+<style>
+.scale-enter-active,
+.scale-leave-active {
+  transform-origin: top;
+  transition: transform 0.3s ease-in-out;
+}
+
+.scale-enter-to,
+.scale-leave-from {
+  transform: scaleY(1);
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  transform: scaleY(0);
+}
+</style>
