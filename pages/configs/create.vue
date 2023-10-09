@@ -87,7 +87,8 @@
             v-if="
               currentConfig.configType === 'PARTNER' ||
               currentConfig.configType === 'PROVIDERS' ||
-              currentConfig.configType === 'BANNER'
+              currentConfig.configType === 'BANNER' ||
+              currentConfig.configType === 'ECO_SETTING'
             "
             class="w-1/3 primary"
             @click="changeParentHandler"

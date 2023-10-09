@@ -1,19 +1,20 @@
 <template>
   <div class="p-2 flex flex-col gap-2 w-full border rounded-sm border-gray-400">
     <UiButton
-      v-if="areNewFieldsAdded"
+      v-if="isArrayEditable"
       class="success ml-auto"
       @click="onAddProviderHandler"
-      >Add provider</UiButton
     >
+      Add item
+    </UiButton>
     <div
       v-for="(value, key) in props.configNestedObject"
-      :key="key"
+      :key="value"
       class="flex gap-4 rounded-sm w-full items-start"
     >
       <div class="w-full flex flex-col gap-2">
         <div v-if="isFieldNew(key)" class="flex justify-between items-center">
-          <h2 class="text-gray-600">New provider</h2>
+          <h2 class="text-gray-600">New item</h2>
 
           <uiButton
             class="danger h-[34px] min-w-[34px]"
@@ -27,8 +28,8 @@
             :isCloned="isCloned"
             :configNestedObject="value"
             :configUpdateTrigger="configUpdateTrigger"
-            :update-memo="configUpdateTrigger"
-            :is-memo="true"
+            :isObjectDeletable="isNextLevelObjectDeletable(configFieldType)"
+            @delete-config-field="() => onDeleteNestedLineHandler(key)"
           />
         </div>
       </div>
@@ -41,22 +42,63 @@ const props = defineProps({
   configNestedObject: Object,
   isCloned: Boolean,
   configUpdateTrigger: Number,
-  areNewFieldsAdded: Boolean,
+  configFieldType: String,
 });
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
-const isConfigUpdated = ref(false);
+const isArrayEditable = computed(
+  () =>
+    props.configFieldType === "nodeProviders" ||
+    props.configFieldType === "apiProviders" ||
+    props.configFieldType === "settings" ||
+    props.configFieldType === "linkouts",
+);
+
+const isNextLevelObjectDeletable = (type) => {
+  return type === "settings" || type === "linkouts";
+};
+
+const onDeleteNestedLineHandler = (idx) => {
+  props.configNestedObject.splice(idx, 1);
+};
 
 const onAddProviderHandler = () => {
-  props.configNestedObject.push({
-    name: "",
-    url: "",
-    visible: false,
-    priority: "",
-    companyName: "",
-    network: "",
-    supportedMethods: [],
-  });
+  let defaultArrayObject;
+
+  if (
+    props.configFieldType === "nodeProviders" ||
+    props.configFieldType === "apiProviders"
+  ) {
+    defaultArrayObject = {
+      name: "",
+      url: "",
+      visible: false,
+      priority: "",
+      companyName: "",
+      network: "",
+      supportedMethods: [],
+    };
+  }
+  if (props.configFieldType === "settings") {
+    defaultArrayObject = {
+      name: "",
+      color: "",
+      visible: false,
+      sortOrder: "",
+      linkouts: [],
+    };
+  }
+  if (props.configFieldType === "linkouts") {
+    defaultArrayObject = {
+      name: "",
+      url: "",
+      imageName: "",
+      visible: false,
+      sortOrder: "",
+    };
+  }
+
+  props.configNestedObject.push(defaultArrayObject);
 };
 
 const isFieldNew = (key) => {
@@ -72,7 +114,10 @@ onMounted(() => {
    * Web-832. We adding companyName and network to all existed providers. If props was passed
    */
 
-  if (props.areNewFieldsAdded) {
+  if (
+    props.configFieldType === "nodeProviders" ||
+    props.configFieldType === "apiProviders"
+  ) {
     // eslint-disable-next-line array-callback-return
     props.configNestedObject.map((item, index) => {
       if (!("companyName" in item)) {
@@ -90,22 +135,6 @@ watch(
   () => props.configUpdateTrigger,
   () => {
     defaultNestedObject.value = cleared(props.configNestedObject);
-    isConfigUpdated.value = false;
-  },
-);
-
-watch(
-  () => props.configNestedObject,
-  () => {
-    !areObjectsEqual(
-      cleared(defaultNestedObject.value),
-      cleared(props.configNestedObject),
-    )
-      ? (isConfigUpdated.value = true)
-      : (isConfigUpdated.value = false);
-  },
-  {
-    deep: true,
   },
 );
 </script>

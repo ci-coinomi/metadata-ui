@@ -8,7 +8,8 @@
         <span
           v-if="
             currentConfig.configType === 'PROVIDERS' ||
-            currentConfig.configType === 'BANNER'
+            currentConfig.configType === 'BANNER' ||
+            currentConfig.configType === 'ECO_SETTING'
           "
         >
           Only config with Blockchain type can be passed
@@ -92,6 +93,23 @@ const onConfirmHandler = () => {
   }
 
   if (props.currentConfig.configType === "BANNER") {
+    /**
+     * Searching for BLOCKCHAIN.
+     */
+    newParentConfig = props.configs.find(
+      (item) =>
+        item.configName === textInputValue.value &&
+        item.configType === "BLOCKCHAIN",
+    );
+    if (!newParentConfig) {
+      $toast.warning(
+        `Blockchain with the name "${textInputValue.value}" was not found.`,
+      );
+      return;
+    }
+  }
+
+  if (props.currentConfig.configType === "ECO_SETTING") {
     /**
      * Searching for BLOCKCHAIN.
      */
