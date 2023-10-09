@@ -3,18 +3,32 @@
     class="p-2 flex flex-col gap-2 w-full rounded-sm"
     :class="configBorderStyle"
   >
-    <p
+    <div
       v-if="
         props.configNestedObject &&
         !props.configNestedObject.hasOwnProperty('@type')
       "
-      class="text-gray-600"
+      class="flex justify-between"
     >
-      <span> Object </span>
-      <span v-if="Object.entries(props.configNestedObject).length === 0">
-        (empty)
-      </span>
-    </p>
+      <p class="text-gray-600">
+        <span> Object </span>
+        <span v-if="Object.entries(props.configNestedObject).length === 0">
+          (empty)
+        </span>
+      </p>
+
+      <uiButton
+        v-if="isObjectDeletable"
+        class="danger h-[34px] min-w-[34px]"
+        @click="onObjectDeleteClick"
+      >
+        <img
+          src="~/assets/icons/icon-trash.svg"
+          class="w-4 h-4 icon-trash"
+          alt="delete user"
+        />
+      </uiButton>
+    </div>
     <div
       v-for="(value, key) in props.configNestedObject"
       :key="key"
@@ -37,7 +51,7 @@
         <configNestedLine
           :isCloned="isCloned"
           :configNestedObject="value"
-          :configUpdateTrigger="props.configUpdateTrigger"
+          :configUpdateTrigger="configUpdateTrigger"
         />
       </template>
 
@@ -54,8 +68,8 @@
           v-if="isNestedArrayVisible(key)"
           :isCloned="isCloned"
           :configNestedObject="value"
-          :areNewFieldsAdded="areNewFieldsAdded(key)"
-          :configUpdateTrigger="props.configUpdateTrigger"
+          :configFieldType="key"
+          :configUpdateTrigger="configUpdateTrigger"
         />
         <UiInputField
           v-else
@@ -86,11 +100,16 @@ const props = defineProps({
   configNestedObject: Object,
   isCloned: Boolean,
   configUpdateTrigger: Number,
+  isObjectDeletable: Boolean,
 });
 
-const defaultNestedObject = ref(cleared(props.configNestedObject));
+const emit = defineEmits(["deleteConfigField"]);
 
-const isConfigUpdated = ref(false);
+const onObjectDeleteClick = () => {
+  emit("deleteConfigField");
+};
+
+const defaultNestedObject = ref(cleared(props.configNestedObject));
 
 const isNestedArrayVisible = (key) =>
   key === "nodeProviders" ||
@@ -100,9 +119,6 @@ const isNestedArrayVisible = (key) =>
   key === "settings" ||
   key === "linkouts" ||
   key === "networks";
-
-const areNewFieldsAdded = (key) =>
-  key === "nodeProviders" || key === "apiProviders";
 
 const configBorderStyle = computed(() => {
   if (props.configNestedObject?.["@type"]) return "";
@@ -124,25 +140,9 @@ const isObject = (value) => {
 };
 
 watch(
-  () => props.configNestedObject,
-  () => {
-    !areObjectsEqual(
-      cleared(defaultNestedObject.value),
-      cleared(props.configNestedObject),
-    )
-      ? (isConfigUpdated.value = true)
-      : (isConfigUpdated.value = false);
-  },
-  {
-    deep: true,
-  },
-);
-
-watch(
   () => props.configUpdateTrigger,
   () => {
     defaultNestedObject.value = cleared(props.configNestedObject);
-    isConfigUpdated.value = false;
   },
 );
 </script>
