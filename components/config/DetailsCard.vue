@@ -29,7 +29,14 @@
             :current-config-data="currentConfig"
             :parentUpdateTrigger="configUpdateTrigger"
           />
+          <ConfigConfiguredProvidersNestedLine
+            v-if="config.configType === 'CONFIGURED_PROVIDERS'"
+            :configNestedObject="configFileObj"
+            :is-cloned="false"
+            :configUpdateTrigger="configUpdateTrigger"
+          />
           <configNestedLine
+            v-else
             :configNestedObject="configFileObj"
             :is-cloned="false"
             :configUpdateTrigger="configUpdateTrigger"
@@ -113,7 +120,6 @@ const router = useRouter();
 const props = defineProps({
   config: Object,
 });
-
 const emit = defineEmits(["configUpdateEmit"]);
 
 const configUpdateTrigger = ref(1);
