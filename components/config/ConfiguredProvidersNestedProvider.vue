@@ -52,7 +52,8 @@ const isConfigUpdated = ref(false);
 const isNetworkModalVisible = ref(false);
 
 const isNextLevelObjectDeletable = (type) => {
-  return type === "providers";
+  // return type === "providers";
+  return false
 };
 
 const onAddNetworkHandler = () => {
