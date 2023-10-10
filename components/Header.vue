@@ -1,13 +1,13 @@
 <template>
-  <header class="bg-white px-4 pt-4 pb-4 w-full shadow-md">
-    <div class="flex justify-between max-w-[1400px] m-auto">
+  <header class="w-full bg-white px-4 pb-4 pt-4 shadow-md">
+    <div class="m-auto flex max-w-[1400px] justify-between">
       <div
-        class="flex gap-2 items-center cursor-pointer"
+        class="flex cursor-pointer items-center gap-2"
         @click="onConfigsNavigateHandler"
       >
         <img
           src="~/assets/images/euclabs-logo.png"
-          class="w-7 h-7"
+          class="h-7 w-7"
           alt="users"
         />
         <h2 class="flex items-center">Metadata UI</h2>
@@ -30,7 +30,7 @@
           v-if="route.name !== 'questions'"
           @click="onFaqNavigateHandler"
         >
-          <img src="~/assets/icons/icon-faq.svg" class="w-4 h-4" alt="users" />
+          <img src="~/assets/icons/icon-faq.svg" class="h-4 w-4" alt="users" />
         </UiButton>
         <ClientOnly>
           <UiButton
@@ -39,7 +39,7 @@
           >
             <img
               src="~/assets/icons/icon-users.svg"
-              class="w-4 h-4"
+              class="h-4 w-4"
               alt="users"
             />
           </UiButton>
@@ -47,7 +47,7 @@
         <UiButton @click="onLogoutHandler">
           <img
             src="~/assets/icons/icon-logout.svg"
-            class="w-4 h-4"
+            class="h-4 w-4"
             alt="logout"
           />
         </UiButton>

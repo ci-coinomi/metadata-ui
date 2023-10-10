@@ -1,19 +1,19 @@
 <template>
   <div ref="selectRef" class="relative">
     <p
-      class="flex justify-start disabled:opacity-25 outline-none rounded-md border-0 py-1.5 px-6 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 cursor-pointer"
+      class="flex cursor-pointer justify-start rounded-md border-0 px-6 py-1.5 text-gray-900 outline-none ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 disabled:opacity-25 sm:text-sm sm:leading-6"
       @click="onSelectedValueClick"
     >
       {{ selectedItem }}
     </p>
     <div
       v-if="isSelectOpen && selectList.length > 0"
-      class="absolute top-8 left-0 py-1.5 px-6 ring-1 ring-inset ring-gray-300 rounded-md mt-2 bg-white z-10"
+      class="absolute left-0 top-8 z-10 mt-2 rounded-md bg-white px-6 py-1.5 ring-1 ring-inset ring-gray-300"
     >
       <div
         v-for="(item, index) in selectList"
         :key="index"
-        class="sm:text-sm sm:leading-6 text-gray-900 hover:underline cursor-pointer"
+        class="cursor-pointer text-gray-900 hover:underline sm:text-sm sm:leading-6"
         @click="onSelectListItemClick(item)"
       >
         {{ item }}

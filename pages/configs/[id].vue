@@ -1,6 +1,6 @@
 <template>
-  <main class="bg-white p-4 mt-3 relative">
-    <div v-if="isLoading" class="flex justify-center items-center">
+  <main class="relative mt-3 bg-white p-4">
+    <div v-if="isLoading" class="flex items-center justify-center">
       <ConfigBannerSkeleton />
     </div>
     <ConfigDetailsCard v-else :config="config" />

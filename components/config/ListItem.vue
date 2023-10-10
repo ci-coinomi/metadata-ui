@@ -1,10 +1,10 @@
 <template>
   <article
-    class="flex flex-col border rounded-md"
+    class="flex flex-col rounded-md border"
     :class="isConfigUpdated ? 'border-[#d38b32]' : 'border-gray-400'"
   >
     <div
-      class="cursor-pointer flex gap-3 items-center justify-between w-full p-2 rounded-md"
+      class="flex w-full cursor-pointer items-center justify-between gap-3 rounded-md p-2"
       :class="listItemClass"
       @click="toggleListItem()"
     >
@@ -12,13 +12,13 @@
         <span class="text-gray-500">Name:</span>
         {{ props.config.configName }}
       </p>
-      <p class="min-w-[175px] ml-auto">
+      <p class="ml-auto min-w-[175px]">
         <span class="text-gray-500">Type:</span>
         {{ props.config.configType }}
       </p>
       <img
         src="~/assets/icons/icon-arrow-right.svg"
-        class="w-4 h-4 duration-150"
+        class="h-4 w-4 duration-150"
         :class="isOpened ? 'rotate-90' : ''"
         alt="add"
       />

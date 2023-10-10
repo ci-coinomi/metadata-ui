@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 flex flex-col gap-2 w-full border rounded-sm border-gray-400">
+  <div class="flex w-full flex-col gap-2 rounded-sm border border-gray-400 p-2">
     <UiButton
       v-if="isArrayEditable"
       class="success ml-auto"
@@ -10,10 +10,10 @@
     <div
       v-for="(value, key) in props.configNestedObject"
       :key="value"
-      class="flex gap-4 rounded-sm w-full items-start"
+      class="flex w-full items-start gap-4 rounded-sm"
     >
-      <div class="w-full flex flex-col gap-2">
-        <div v-if="isFieldNew(key)" class="flex justify-between items-center">
+      <div class="flex w-full flex-col gap-2">
+        <div v-if="isFieldNew(key)" class="flex items-center justify-between">
           <h2 class="text-gray-600">New item</h2>
 
           <uiButton
@@ -23,7 +23,7 @@
             Delete
           </uiButton>
         </div>
-        <div class="flex flex-col gap-2 w-full rounded-sm">
+        <div class="flex w-full flex-col gap-2 rounded-sm">
           <configNestedLine
             :isCloned="isCloned"
             :configNestedObject="value"

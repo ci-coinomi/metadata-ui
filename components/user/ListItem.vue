@@ -1,6 +1,6 @@
 <template>
   <article
-    class="flex gap-3 items-center ring-1 ring-inset ring-gray-400 rounded-md p-2 w-full"
+    class="flex w-full items-center gap-3 rounded-md p-2 ring-1 ring-inset ring-gray-400"
   >
     <p class="w-1/3">
       <span class="text-gray-500">Name:</span>
@@ -10,7 +10,7 @@
       <span class="text-gray-500">Role:</span>
       {{ props.user.roles.length > 1 ? "Super Admin" : "Admin" }}
     </p>
-    <p class="w-1/3 flex items-center gap-1">
+    <p class="flex w-1/3 items-center gap-1">
       <span class="text-gray-500">Status:</span>
       <UiSwitcher
         :value="props.user.enabled"
@@ -18,25 +18,25 @@
         class="opacity-60"
       />
     </p>
-    <div class="ml-auto flex justify-center items-center gap-1">
+    <div class="ml-auto flex items-center justify-center gap-1">
       <uiButton
-        class="warning px-2 py-2 h-[34px]"
+        class="warning h-[34px] px-2 py-2"
         @click="onUpdateClickHandler"
       >
         <img
           src="~/assets/icons/icon-update.svg"
-          class="w-6 h-6 icon-update"
+          class="icon-update h-6 w-6"
           alt="delete user"
         />
       </uiButton>
       <uiButton
         :disabled="props.user.username === store.currentUser.username"
-        class="ml-auto danger px-2 py-2 h-[34px]"
+        class="danger ml-auto h-[34px] px-2 py-2"
         @click="onDeleteClickHandler"
       >
         <img
           src="~/assets/icons/icon-trash.svg"
-          class="w-6 h-6 icon-trash"
+          class="icon-trash h-6 w-6"
           alt="delete user"
         />
       </uiButton>

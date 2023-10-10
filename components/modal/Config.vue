@@ -1,16 +1,16 @@
 <template>
   <div
-    class="popup fixed inset-0 z-30 bg-[#0D0D0D]/[.9] flex justify-center items-center"
+    class="popup fixed inset-0 z-30 flex items-center justify-center bg-[#0D0D0D]/[.9]"
   >
-    <div class="bg-white p-10 rounded-md flex flex-col gap-6">
-      <h2 class="text-lg text-center font-bold">{{ modalText }}</h2>
+    <div class="flex flex-col gap-6 rounded-md bg-white p-10">
+      <h2 class="text-center text-lg font-bold">{{ modalText }}</h2>
       <UiInputField
         v-if="props.modalType === 'SETCLONENAME'"
         v-model="cloneConfigName"
         type="text"
         :placeholder="'New config name...'"
       />
-      <div class="flex gap-4 justify-between">
+      <div class="flex justify-between gap-4">
         <UiButton class="danger w-2/5" @click="onCanselHandler"
           >Cancel</UiButton
         >

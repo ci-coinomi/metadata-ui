@@ -1,6 +1,6 @@
 <template>
   <main
-    class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
+    class="mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
     <modalConfirm
       v-if="isConfirmModalVisible"
@@ -20,14 +20,14 @@
       @is-modal-confirmed="modalTextHandler"
     />
 
-    <div class="flex justify-center items-center w-full">
+    <div class="flex w-full items-center justify-center">
       <configBannerSkeleton v-if="isLoading" />
 
       <div
         v-else
-        class="flex flex-col gap-4 justify-center items-center w-full"
+        class="flex w-full flex-col items-center justify-center gap-4"
       >
-        <div class="flex gap-4 w-full items-start justify-between">
+        <div class="flex w-full items-start justify-between gap-4">
           <div class="w-full">
             <ConfigParentData
               :parent-data="currentConfig.parentConfig"
@@ -35,9 +35,9 @@
             />
             <div
               v-if="currentConfig"
-              class="flex gap-4 justify-center items-center"
+              class="flex items-center justify-center gap-4"
             >
-              <p class="text-gray-400 flex-none">Clone name:</p>
+              <p class="flex-none text-gray-400">Clone name:</p>
               <UiInputField
                 v-model="currentConfig.configName"
                 :type="'text'"
@@ -55,20 +55,20 @@
               :is-cloned="true"
             />
           </div>
-          <div class="flex flex-col gap-4 justify-center items-center">
+          <div class="flex flex-col items-center justify-center gap-4">
             <div
               v-if="configImages.length === 0"
-              class="flex justify-center items-center border rounded-md shadow-md w-[250px] h-[323px]"
+              class="flex h-[323px] w-[250px] items-center justify-center rounded-md border shadow-md"
             >
               <UiButton class="success" @click="onAddNewImageHandler">
                 <img
                   src="~/assets/icons/icon-add.svg"
-                  class="w-6 h-6 icon-add"
+                  class="icon-add h-6 w-6"
                   alt="add"
                 />
               </UiButton>
             </div>
-            <div v-else class="flex justify-center gap-4 flex-col items-center">
+            <div v-else class="flex flex-col items-center justify-center gap-4">
               <configImageCard
                 v-for="image in configImages"
                 :key="image.imageId"
@@ -80,7 +80,7 @@
               <UiButton class="success" @click="onAddNewImageHandler">
                 <img
                   src="~/assets/icons/icon-add.svg"
-                  class="w-6 h-6 icon-add"
+                  class="icon-add h-6 w-6"
                   alt="add"
                 />
               </UiButton>
@@ -88,7 +88,7 @@
           </div>
         </div>
 
-        <div class="flex w-2/5 gap-4 justify-between">
+        <div class="flex w-2/5 justify-between gap-4">
           <uiButton
             v-if="
               currentConfig.configType === 'PARTNER' ||
@@ -96,15 +96,15 @@
               currentConfig.configType === 'BANNER' ||
               currentConfig.configType === 'ECO_SETTING'
             "
-            class="w-1/3 primary"
+            class="primary w-1/3"
             @click="changeParentHandler"
           >
             Change parent
           </uiButton>
-          <UiButton class="w-1/3 success" @click="onSaveCloneHandler">
+          <UiButton class="success w-1/3" @click="onSaveCloneHandler">
             Save
           </UiButton>
-          <UiButton class="w-1/3 danger" @click="onReturnHandler">
+          <UiButton class="danger w-1/3" @click="onReturnHandler">
             Cancel
           </UiButton>
         </div>

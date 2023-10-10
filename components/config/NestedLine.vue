@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-2 flex flex-col gap-2 w-full rounded-sm"
+    class="flex w-full flex-col gap-2 rounded-sm p-2"
     :class="configBorderStyle"
   >
     <div
@@ -24,7 +24,7 @@
       >
         <img
           src="~/assets/icons/icon-trash.svg"
-          class="w-4 h-4 icon-trash"
+          class="icon-trash h-4 w-4"
           alt="delete user"
         />
       </uiButton>
@@ -35,7 +35,7 @@
       :class="
         isObject(value) || Array.isArray(value) ? 'items-start' : 'items-center'
       "
-      class="flex py-1 gap-4 rounded-sm"
+      class="flex gap-4 rounded-sm py-1"
     >
       <p
         :class="

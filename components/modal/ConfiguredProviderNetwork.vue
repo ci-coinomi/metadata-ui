@@ -1,16 +1,16 @@
 <template>
   <div
-    class="fixed inset-0 z-30 bg-[#0D0D0D]/[.9] flex justify-center items-center"
+    class="fixed inset-0 z-30 flex items-center justify-center bg-[#0D0D0D]/[.9]"
   >
     <div
       ref="modalRef"
-      class="bg-white px-10 py-5 rounded-md flex flex-col gap-2 items-center max-h-[75vh] overflow-x-auto"
+      class="flex max-h-[75vh] flex-col items-center gap-2 overflow-x-auto rounded-md bg-white px-10 py-5"
     >
-      <h2 class="text-lg text-center font-bold">Select network:</h2>
+      <h2 class="text-center text-lg font-bold">Select network:</h2>
       <div
         v-for="network in networks"
         :key="network.id"
-        class="flex gap-2 border border-gray-400 p-2 rounded-lg cursor-pointer w-full justify-between"
+        class="flex w-full cursor-pointer justify-between gap-2 rounded-lg border border-gray-400 p-2"
         @click="onNetworkClickHandler(network)"
       >
         <p>
