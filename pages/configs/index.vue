@@ -113,6 +113,8 @@ const searchValue = ref("");
 
 const configTypes = computed(() => store.configTypes);
 const storedConfigList = computed(() => store.configsList);
+const providersGroups = computed(() => store.providersGroups);
+const providersNetworks = computed(() => store.providersNetworks);
 
 /*
 Filtering configs by configType - by Chain - by Name and sorting by id.
@@ -264,10 +266,15 @@ const fetchConfigs = async () => {
 };
 
 const getProvidersData = async () => {
-  const groupResponse = await getProviderGroup();
-  const netwResponse = await getProviderNetworks();
-  console.log("groupResponse", groupResponse);
-  console.log("netwResponse", netwResponse);
+  if (
+    providersGroups.value.length === 0 ||
+    providersNetworks.value.length === 0
+  ) {
+    const networksResponse = await getProviderNetworks();
+    const groupResponse = await getProviderGroup();
+    store.setProvidersGroups(groupResponse);
+    store.setProvidersNetworks(networksResponse);
+  }
 };
 
 onMounted(() => {

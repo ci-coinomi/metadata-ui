@@ -4,11 +4,21 @@ export const useStore = defineStore("app-store", {
   state: () => ({
     configTypes: [],
     configsList: [],
+    providersGroups: [],
+    providersNetworks: [],
     headerTitle: "",
     currentUser: null,
     cloneConfigData: null,
   }),
   actions: {
+    setProvidersGroups(payload) {
+      this.providersGroups = payload;
+    },
+
+    setProvidersNetworks(payload) {
+      this.providersNetworks = payload;
+    },
+
     setConfigTypes(payload) {
       this.configTypes = payload;
     },
