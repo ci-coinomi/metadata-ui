@@ -41,7 +41,6 @@ const props = defineProps({
 });
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
-
 const isConfigUpdated = ref(false);
 
 const onAddProviderHandler = () => {
@@ -50,6 +49,8 @@ const onAddProviderHandler = () => {
     url: "",
     visible: false,
     priority: "",
+    companyName: "",
+    network: "",
     supportedMethods: [],
   });
 };
@@ -62,12 +63,27 @@ const onDeleteClickHandler = (key) => {
   props.configNestedObject.splice(key, 1);
 };
 
+onMounted(() => {
+  /**
+   * Web-832. We adding companyName and network to all existed providers.
+   */
+  props.configNestedObject.map((item, index) => {
+    if (!("companyName" in item)) {
+      props.configNestedObject[index].companyName = "";
+    }
+
+    if (!("network" in item)) {
+      props.configNestedObject[index].network = "";
+    }
+  });
+});
+
 watch(
   () => props.configUpdateTrigger,
   () => {
     defaultNestedObject.value = cleared(props.configNestedObject);
     isConfigUpdated.value = false;
-  },
+  }
 );
 
 watch(
@@ -75,13 +91,13 @@ watch(
   () => {
     !areObjectsEqual(
       cleared(defaultNestedObject.value),
-      cleared(props.configNestedObject),
+      cleared(props.configNestedObject)
     )
       ? (isConfigUpdated.value = true)
       : (isConfigUpdated.value = false);
   },
   {
     deep: true,
-  },
+  }
 );
 </script>
