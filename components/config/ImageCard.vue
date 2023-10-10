@@ -1,36 +1,36 @@
 <template>
   <article
-    class="p-4 flex flex-col gap-4 border shadow-md justify-between bg-gray-100 rounded-sm"
+    class="flex flex-col justify-between gap-4 rounded-sm border bg-gray-100 p-4 shadow-md"
   >
-    <div class="flex justify-center items-center h-[200px]">
+    <div class="flex h-[200px] items-center justify-center">
       <img
         :src="getImageSrc(props.image)"
-        class="max-w-[216px] max-h-[200px] h-auto self-center"
+        class="h-auto max-h-[200px] max-w-[216px] self-center"
         :title="props.image.imageName"
       />
     </div>
     <div class="flex flex-col gap-4">
-      <h3 class="flex justify-center items-center break-all">
+      <h3 class="flex items-center justify-center break-all">
         {{ props.image.imageName }}
       </h3>
-      <div class="flex justify-evenly items-center gap-1">
+      <div class="flex items-center justify-evenly gap-1">
         <uiButton
-          class="warning px-2 py-2 h-[34px]"
+          class="warning h-[34px] px-2 py-2"
           @click="onUpdateClickHandler"
         >
           <img
             src="~/assets/icons/icon-update.svg"
-            class="w-6 h-6 icon-update"
+            class="icon-update h-6 w-6"
             alt="delete user"
           />
         </uiButton>
         <uiButton
-          class="danger px-2 py-2 h-[34px]"
+          class="danger h-[34px] px-2 py-2"
           @click="onDeleteClickHandler"
         >
           <img
             src="~/assets/icons/icon-trash.svg"
-            class="w-6 h-6 icon-trash"
+            class="icon-trash h-6 w-6"
             alt="delete user"
           />
         </uiButton>

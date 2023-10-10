@@ -1,6 +1,6 @@
 <template>
   <main
-    class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
+    class="mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
     <configIndexSkeleton v-if="isLoading" />
 
@@ -8,18 +8,18 @@
       v-else-if="
         !isLoading && (!storedConfigList || storedConfigList.length === 0)
       "
-      class="text-xl flex justify-center items-center"
+      class="flex items-center justify-center text-xl"
     >
       Configs were not recieved
     </h2>
 
-    <div v-else class="flex flex-col justify-center items-center gap-6 w-full">
-      <div class="shadow-md p-4 rounded-md flex flex-col items-center gap-4">
+    <div v-else class="flex w-full flex-col items-center justify-center gap-6">
+      <div class="flex flex-col items-center gap-4 rounded-md p-4 shadow-md">
         <div class="w-full">
           <div v-if="configTypes.length === 0">
-            <h2 class="text-xl text-center">Config types were not recieved</h2>
+            <h2 class="text-center text-xl">Config types were not recieved</h2>
           </div>
-          <div v-else class="grid gap-4 grid-rows-2 grid-cols-4 w-full">
+          <div v-else class="grid w-full grid-cols-4 grid-rows-2 gap-4">
             <uiButton
               v-for="typeItem in configTypes"
               :key="typeItem"
@@ -33,7 +33,7 @@
         </div>
         <div
           v-if="!isBlockchainBlockHidden"
-          class="flex gap-4 w-full justify-center"
+          class="flex w-full justify-center gap-4"
         >
           <UiButton
             v-for="chain in blockchains"
@@ -47,9 +47,9 @@
           </UiButton>
         </div>
       </div>
-      <div class="flex flex-col gap-2 justify-center items-center w-full">
-        <div class="flex w-full justify-between items-center gap-4">
-          <div class="py-2 mr-aut flex gap-4">
+      <div class="flex w-full flex-col items-center justify-center gap-2">
+        <div class="flex w-full items-center justify-between gap-4">
+          <div class="mr-aut flex gap-4 py-2">
             <p class="w-[135px]">
               <span class="text-gray-500">Total count: </span
               >{{ storedConfigList.length }}

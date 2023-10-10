@@ -1,9 +1,9 @@
 <template>
   <div
-    class="fixed inset-0 z-30 bg-[#0D0D0D]/[.9] flex justify-center items-center"
+    class="fixed inset-0 z-30 flex items-center justify-center bg-[#0D0D0D]/[.9]"
   >
-    <div class="bg-white p-10 rounded-md flex flex-col gap-6">
-      <h2 class="text-lg text-center font-bold">Provide new parent name.</h2>
+    <div class="flex flex-col gap-6 rounded-md bg-white p-10">
+      <h2 class="text-center text-lg font-bold">Provide new parent name.</h2>
       <p class="text-center opacity-50">
         <span
           v-if="
@@ -26,7 +26,7 @@
         />
         <UiButton class="warning" @click="onNullClickHandler">Null</UiButton>
       </div>
-      <div class="flex gap-4 justify-between">
+      <div class="flex justify-between gap-4">
         <UiButton class="danger w-2/5" @click="onCanselHandler"
           >Cancel</UiButton
         >

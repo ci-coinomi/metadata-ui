@@ -6,10 +6,10 @@
   />
 
   <section
-    class="w-full mb-4 p-4 border rounded-md"
+    class="mb-4 w-full rounded-md border p-4"
     :class="isParentUpdated ? 'border-[#d38b32]' : 'border-gray-300'"
   >
-    <div class="flex justify-between items-center gap-2">
+    <div class="flex items-center justify-between gap-2">
       <div v-if="parentData">
         <p>
           <span class="text-gray-400">Parent id: </span>
@@ -24,13 +24,13 @@
           {{ props.parentData.configType }}
         </p>
       </div>
-      <div v-else class="text-gray-400 w-full text-center">
+      <div v-else class="w-full text-center text-gray-400">
         Config has no parent
       </div>
       <div class="flex flex-col gap-2">
         <uiButton
           v-if="props.parentData"
-          class="primary w-full text-center whitespace-nowrap"
+          class="primary w-full whitespace-nowrap text-center"
           @click="toParentNavigateHandler"
         >
           To parent

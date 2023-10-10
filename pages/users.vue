@@ -1,6 +1,6 @@
 <template>
   <main
-    class="flex flex-col justify-center items-center gap-6 m-auto bg-white p-4 shadow-md mt-3 rounded"
+    class="m-auto mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
     <modalConfirm
       v-if="isConfirmModalVisible"
@@ -17,8 +17,8 @@
     />
 
     <userSkeleton v-if="isLoading" />
-    <div v-else class="flex flex-col justify-center items-center gap-2 w-full">
-      <div class="flex justify-between w-full items-center">
+    <div v-else class="flex w-full flex-col items-center justify-center gap-2">
+      <div class="flex w-full items-center justify-between">
         <p>
           <span class="text-gray-500">Total users: </span>
           <span> {{ usersList.length }}</span>

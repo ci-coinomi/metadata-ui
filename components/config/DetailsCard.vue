@@ -17,11 +17,11 @@
     @is-modal-confirmed="modalParentHandler"
   />
 
-  <div class="p-4 flex justify-center items-center">
+  <div class="flex items-center justify-center p-4">
     <configBannerSkeleton v-if="isLoading" />
 
-    <div v-else class="flex flex-col gap-4 justify-center items-center w-full">
-      <div class="flex gap-4 w-full items-start justify-between">
+    <div v-else class="flex w-full flex-col items-center justify-center gap-4">
+      <div class="flex w-full items-start justify-between gap-4">
         <div class="w-full">
           <ConfigParentData
             v-if="currentConfig"
@@ -42,20 +42,20 @@
             :configUpdateTrigger="configUpdateTrigger"
           />
         </div>
-        <div class="flex flex-col gap-4 justify-center items-center">
+        <div class="flex flex-col items-center justify-center gap-4">
           <div
             v-if="configImages.length === 0"
-            class="flex justify-center items-center border rounded-md shadow-md w-[250px] h-[323px]"
+            class="flex h-[323px] w-[250px] items-center justify-center rounded-md border shadow-md"
           >
             <UiButton class="success" @click="onAddNewImageHandler">
               <img
                 src="~/assets/icons/icon-add.svg"
-                class="w-6 h-6 icon-add"
+                class="icon-add h-6 w-6"
                 alt="add"
               />
             </UiButton>
           </div>
-          <div v-else class="flex justify-center gap-4 flex-col items-center">
+          <div v-else class="flex flex-col items-center justify-center gap-4">
             <configImageCard
               v-for="image in configImages"
               :key="image.imageId"
@@ -67,7 +67,7 @@
             <UiButton class="success" @click="onAddNewImageHandler">
               <img
                 src="~/assets/icons/icon-add.svg"
-                class="w-6 h-6 icon-add"
+                class="icon-add h-6 w-6"
                 alt="add"
               />
             </UiButton>
@@ -76,9 +76,9 @@
       </div>
       <div
         v-if="isConfigEditable(currentConfig.configType)"
-        class="flex w-[70%] gap-4 justify-center"
+        class="flex w-[70%] justify-center gap-4"
       >
-        <UiButton class="w-1/5 success" @click="onCloneConfigHandler">
+        <UiButton class="success w-1/5" @click="onCloneConfigHandler">
           Clone config
         </UiButton>
         <UiButton
@@ -88,15 +88,15 @@
             currentConfig.configType === 'BANNER' ||
             currentConfig.configType === 'ECO_SETTING'
           "
-          class="w-1/5 primary"
+          class="primary w-1/5"
           @click="changeParentHandler"
         >
           Change parent
         </UiButton>
-        <UiButton class="w-1/5 warning" @click="onUpdateConfigHandler">
+        <UiButton class="warning w-1/5" @click="onUpdateConfigHandler">
           Save changes
         </UiButton>
-        <UiButton class="w-1/5 danger" @click="onDeleteConfigHandler">
+        <UiButton class="danger w-1/5" @click="onDeleteConfigHandler">
           Delete
         </UiButton>
       </div>

@@ -1,5 +1,5 @@
 <template>
-  <main class="pt-10 flex flex-col justify-center items-center gap-6">
+  <main class="flex flex-col items-center justify-center gap-6 pt-10">
     <h1 class="text-2xl font-bold">Error 404</h1>
     <p>The page you are looking for doesn't exist or has been moved.</p>
     <div class="flex gap-4">
