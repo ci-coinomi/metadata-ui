@@ -44,7 +44,13 @@
                 :class="nameInputClass"
               />
             </div>
+            <ConfigConfiguredProvidersNestedLine
+              v-if="currentConfig.configType === 'CONFIGURED_PROVIDERS'"
+              :configNestedObject="configFileObj"
+              :is-cloned="true"
+            />
             <configNestedLine
+              v-else
               :configNestedObject="configFileObj"
               :is-cloned="true"
             />

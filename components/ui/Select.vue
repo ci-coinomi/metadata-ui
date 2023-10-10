@@ -1,34 +1,34 @@
 <template>
-  <div class="">
+  <div ref="selectRef" class="relative">
     <p
       class="flex justify-start disabled:opacity-25 outline-none rounded-md border-0 py-1.5 px-6 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 cursor-pointer"
       @click="onSelectedValueClick"
     >
       {{ selectedItem }}
     </p>
-    <Transition name="collapse">
+    <div
+      v-if="isSelectOpen && selectList.length > 0"
+      class="absolute top-8 left-0 py-1.5 px-6 ring-1 ring-inset ring-gray-300 rounded-md mt-2 bg-white z-10"
+    >
       <div
-        v-if="isSelectOpen && selectList.length > 0"
-        class="py-1.5 px-6 ring-1 ring-inset ring-gray-300 rounded-md mt-2"
+        v-for="(item, index) in selectList"
+        :key="index"
+        class="sm:text-sm sm:leading-6 text-gray-900 hover:underline cursor-pointer"
+        @click="onSelectListItemClick(item)"
       >
-        <div
-          v-for="(item, index) in selectList"
-          :key="index"
-          @click="onSelectListItemClick(item)"
-        >
-          {{ item }}
-        </div>
+        {{ item }}
       </div>
-    </Transition>
+    </div>
   </div>
 </template>
 
 <script setup>
 const props = defineProps(["selectList", "defaultValue"]);
-const emits = defineEmits([""]);
+const emit = defineEmits(["selectHandler"]);
 
 const selectedItem = ref(null);
 const isSelectOpen = ref(null);
+const selectRef = ref(null);
 
 const onSelectedValueClick = () => {
   isSelectOpen.value = !isSelectOpen.value;
@@ -37,29 +37,21 @@ const onSelectedValueClick = () => {
 const onSelectListItemClick = (value) => {
   selectedItem.value = value;
   isSelectOpen.value = false;
+  emit("selectHandler", value);
+};
+
+const handleClickOutside = (event) => {
+  if (selectRef.value && !selectRef.value.contains(event.target)) {
+    isSelectOpen.value = false;
+  }
 };
 
 onMounted(() => {
   selectedItem.value = props.defaultValue;
+  document.addEventListener("mousedown", handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("mousedown", handleClickOutside);
 });
 </script>
-
-<style scoped>
-.collapse-enter-active {
-  animation: collapse reverse 200ms ease;
-}
-
-.collapse-leave-active {
-  animation: collapse 200ms ease;
-}
-
-@keyframes collapse {
-  from {
-    max-height: 2000px;
-  }
-
-  to {
-    max-height: 0px;
-  }
-}
-</style>

@@ -3,15 +3,32 @@
     class="p-2 flex flex-col gap-2 w-full rounded-sm"
     :class="configBorderStyle"
   >
-    <p
-      v-if="configNestedObject && !configNestedObject.hasOwnProperty('@type')"
-      class="text-gray-600"
+    <div
+      v-if="
+        props.configNestedObject &&
+        !props.configNestedObject.hasOwnProperty('@type')
+      "
+      class="flex justify-between"
     >
-      <span> Object </span>
-      <span v-if="Object.entries(configNestedObject).length === 0">
-        (empty)
-      </span>
-    </p>
+      <p class="text-gray-600">
+        <span> Object </span>
+        <span v-if="Object.entries(props.configNestedObject).length === 0">
+          (empty)
+        </span>
+      </p>
+
+      <uiButton
+        v-if="isObjectDeletable"
+        class="danger h-[34px] min-w-[34px]"
+        @click="onObjectDeleteClick"
+      >
+        <img
+          src="~/assets/icons/icon-trash.svg"
+          class="w-4 h-4 icon-trash"
+          alt="delete user"
+        />
+      </uiButton>
+    </div>
     <div
       v-for="(value, key) in configNestedObject"
       :key="key"
@@ -53,12 +70,14 @@
           v-if="isNestedArrayVisible(key)"
           :isCloned="isCloned"
           :configNestedObject="value"
-          :configUpdateTrigger="props.configUpdateTrigger"
+          :configFieldType="key"
+          :configUpdateTrigger="configUpdateTrigger"
         />
         <UiInputField
           v-else
           :model-value="configNestedObject[key]"
           type="text"
+          :disabled="isFieldDisabled(key)"
           :update-memo="configUpdateTrigger"
           :is-memo="true"
           @input="
@@ -68,8 +87,11 @@
       </template>
       <UiSelect
         v-else-if="key === 'blockchain'"
-        :selectList="['one', 'two']"
+        :selectList="blockchainsList"
         :defaultValue="value"
+        @select-handler="
+          (selectValue) => (props.configNestedObject[key] = selectValue)
+        "
       />
       <UiInputField
         v-else
@@ -80,29 +102,98 @@
         :disabled="isFieldDisabled(key)"
       />
     </div>
+
+    <article v-if="editionalData.length > 0" class="flex gap-2 flex-col">
+      <div
+        v-for="editionalDataItem in editionalData"
+        :key="editionalDataItem.id"
+      >
+        <h3 class="text-center">Aditional data:</h3>
+        <div
+          v-for="(value, key) in editionalDataItem"
+          :key="key"
+          class="flex gap-2 py-1 items-center"
+        >
+          <p
+            :class="
+              isObject(value) || Array.isArray(value)
+                ? 'text-gray-600'
+                : 'text-gray-400'
+            "
+          >
+            {{ key }}
+          </p>
+          <UiSwitcher
+            v-if="typeof value === 'boolean'"
+            :value="value"
+            disabled
+            class="opacity-50"
+          />
+          <UiInputField
+            v-else
+            :model-value="value"
+            type="text"
+            :disabled="true"
+          />
+        </div>
+      </div>
+    </article>
   </div>
 </template>
 
 <script setup>
+import { useStore } from "~/store";
+
+const store = useStore();
+
 const props = defineProps({
   configNestedObject: Object,
   isCloned: Boolean,
   configUpdateTrigger: Number,
+  isObjectDeletable: Boolean,
 });
+const emit = defineEmits(["deleteConfigField"]);
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
-
 const isConfigUpdated = ref(false);
 
-const isNestedArrayVisible = (key) => key === "providers";
+const editionalData = computed(() => {
+  const editionalDataArray = [];
+  defaultNestedObject.value?.networkIds?.forEach((networkId) => {
+    const itemInResponse = store.providersNetworks.find(
+      (item) => item.id === networkId,
+    );
+    if (itemInResponse) editionalDataArray.push(itemInResponse);
+  });
+
+  if (editionalDataArray) {
+    console.log("Object", cleared(defaultNestedObject.value));
+    console.log("EditionalData", cleared(store.providersNetworks));
+  }
+  return editionalDataArray;
+});
+
+const onObjectDeleteClick = () => {
+  emit("deleteConfigField");
+};
+
+const blockchainsList = computed(() =>
+  store.configsList
+    .filter((item) => item.configType === "BLOCKCHAIN")
+    .map((item) => {
+      const configFileObj = JSON.parse(item.configFile);
+      return configFileObj.eucId;
+    }),
+);
 
 const configBorderStyle = computed(() => {
   if (props.configNestedObject?.["@type"]) return "";
   return "border border-gray-400";
 });
 
+const isNestedArrayVisible = (key) => key === "providers";
 const isFieldDisabled = (key) => {
-  if (key === "@type") {
+  if (key === "@type" || key === "providerName" || key === "networkIds") {
     return true;
   } else if (!props.isCloned && key === "eucId") {
     return true;
@@ -110,7 +201,6 @@ const isFieldDisabled = (key) => {
     return false;
   }
 };
-
 const isObject = (value) => {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 };

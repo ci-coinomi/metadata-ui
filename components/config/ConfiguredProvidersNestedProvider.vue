@@ -1,11 +1,15 @@
 <template>
+  <modalConfiguredProviderNetwork
+    v-if="isNetworkModalVisible"
+    @is-modal-confirmed="(data) => onNetworkModalConfirmHandler(data)"
+  />
   <div class="p-2 flex flex-col gap-2 w-full border rounded-sm border-gray-400">
-    <UiButton class="success ml-auto" @click="onAddProviderHandler">
-      Add provider
+    <UiButton class="success ml-auto" @click="onAddNetworkHandler">
+      Add network
     </UiButton>
     <div
       v-for="(value, key) in props.configNestedObject"
-      :key="key"
+      :key="value"
       class="flex gap-4 rounded-sm w-full items-start"
     >
       <div class="w-full flex flex-col gap-2">
@@ -20,12 +24,14 @@
           </uiButton>
         </div>
         <div class="flex flex-col gap-2 w-full rounded-sm">
-          <configNestedLine
+          <configConfiguredProvidersNestedLine
             :isCloned="isCloned"
             :configNestedObject="value"
             :configUpdateTrigger="configUpdateTrigger"
             :update-memo="configUpdateTrigger"
             :is-memo="true"
+            :isObjectDeletable="isNextLevelObjectDeletable(configFieldType)"
+            @delete-config-field="() => onDeleteNestedLineHandler(key)"
           />
         </div>
       </div>
@@ -38,18 +44,35 @@ const props = defineProps({
   configNestedObject: Object,
   isCloned: Boolean,
   configUpdateTrigger: Number,
+  configFieldType: String,
 });
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
 const isConfigUpdated = ref(false);
+const isNetworkModalVisible = ref(false);
 
-const onAddProviderHandler = () => {
-  props.configNestedObject.push({
+const isNextLevelObjectDeletable = (type) => {
+  return type === "providers";
+};
+
+const onAddNetworkHandler = () => {
+  isNetworkModalVisible.value = true;
+};
+
+const onDeleteNestedLineHandler = (idx) => {
+  props.configNestedObject.splice(idx, 1);
+};
+
+const onNetworkModalConfirmHandler = (selectedNetwork) => {
+  isNetworkModalVisible.value = false;
+  const addedNetworkObject = {
     enabled: false,
     priority: "",
-    providerName: "",
+    providerName: selectedNetwork.providerName,
     networkIds: [],
-  });
+  };
+  addedNetworkObject.networkIds.push(selectedNetwork.id);
+  props.configNestedObject.push(addedNetworkObject);
 };
 
 const isFieldNew = (key) => {
