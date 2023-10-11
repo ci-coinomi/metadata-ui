@@ -116,7 +116,7 @@ const isNestedArrayVisible = (key) =>
   key === "apiProviders" ||
   key === "configuredProviderGroups" ||
   key === "providers" ||
-  key === "settings" ||
+  key === "categories" ||
   key === "linkouts" ||
   key === "networks";
 

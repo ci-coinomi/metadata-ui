@@ -15,8 +15,9 @@
       <div class="flex w-full flex-col gap-2">
         <div v-if="isFieldNew(key)" class="flex items-center justify-between">
           <h2 class="text-gray-600">New item</h2>
-
+          <!-- categories can be deleted anyway, not only when they are new -->
           <uiButton
+            v-if="configFieldType !== 'categories'"
             class="danger h-[34px] min-w-[34px]"
             @click="onDeleteClickHandler(key)"
           >
@@ -50,12 +51,12 @@ const isArrayEditable = computed(
   () =>
     props.configFieldType === "nodeProviders" ||
     props.configFieldType === "apiProviders" ||
-    props.configFieldType === "settings" ||
+    props.configFieldType === "categories" ||
     props.configFieldType === "linkouts",
 );
 
 const isNextLevelObjectDeletable = (type) => {
-  return type === "settings" || type === "linkouts";
+  return type === "categories" || type === "linkouts";
 };
 
 const onDeleteNestedLineHandler = (idx) => {
@@ -79,13 +80,13 @@ const onAddProviderHandler = () => {
       supportedMethods: [],
     };
   }
-  if (props.configFieldType === "settings") {
+  if (props.configFieldType === "categories") {
     defaultArrayObject = {
       name: "",
       color: "",
       visible: false,
       sortOrder: "",
-      linkouts: [],
+      // linkouts: [],
     };
   }
   if (props.configFieldType === "linkouts") {
