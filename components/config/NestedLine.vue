@@ -10,7 +10,7 @@
       "
       class="flex justify-between"
     >
-      <p class="text-gray-600">
+      <p class="text-gray-400">
         <span> Object </span>
         <span v-if="Object.entries(props.configNestedObject).length === 0">
           (empty)
@@ -37,13 +37,7 @@
       "
       class="flex gap-4 rounded-sm py-1"
     >
-      <p
-        :class="
-          isObject(value) || Array.isArray(value)
-            ? 'text-gray-600'
-            : 'text-gray-400'
-        "
-      >
+      <p class="text-gray-400">
         {{ key }}
       </p>
 
@@ -118,7 +112,8 @@ const isNestedArrayVisible = (key) =>
   key === "providers" ||
   key === "categories" ||
   key === "linkouts" ||
-  key === "networks";
+  key === "networks" ||
+  key === "accounts";
 
 const configBorderStyle = computed(() => {
   if (props.configNestedObject?.["@type"]) return "";

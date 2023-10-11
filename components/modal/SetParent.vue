@@ -2,32 +2,64 @@
   <div
     class="fixed inset-0 z-30 flex items-center justify-center bg-[#0D0D0D]/[.9]"
   >
-    <div class="flex flex-col gap-6 rounded-md bg-white p-10">
+    <div
+      class="relative flex max-h-[90vh] flex-col gap-6 overflow-x-auto rounded-md bg-white p-10"
+    >
       <h2 class="text-center text-lg font-bold">Provide new parent name.</h2>
       <p class="text-center opacity-50">
-        <span
-          v-if="
-            currentConfig.configType === 'PROVIDERS' ||
-            currentConfig.configType === 'BANNER' ||
-            currentConfig.configType === 'ECO_SETTING' ||
-            currentConfig.configType === 'DAPP'
-          "
-        >
+        <span v-if="isBlockchainOnlyParent">
           Only config with Blockchain type can be passed
         </span>
         <span v-else>
           Only config with Asset or Blockchain type can be passed
         </span>
       </p>
-      <div class="flex gap-1">
-        <UiInputField
-          v-model="textInputValue"
-          type="text"
-          :placeholder="'New parent name...'"
-        />
-        <UiButton class="warning" @click="onNullClickHandler">Null</UiButton>
+      <div class="flex flex-col gap-1">
+        <template v-if="isBlockchainOnlyParent">
+          <div
+            v-for="blockchain in blockchainsArray"
+            :key="blockchain.configId"
+            class="cursor-pointer rounded-lg border border-gray-400 px-4 py-2 hover:border-gray-900"
+            @click="onBlockchainClickHandler(blockchain)"
+          >
+            <p>
+              <span class="text-gray-400">Name: </span>
+              {{ blockchain.configName }}
+            </p>
+            <p>
+              <span class="text-gray-400">EucId: </span>
+              {{ blockchain.eucId }}
+            </p>
+          </div>
+          <p
+            class="cursor-pointer rounded-lg border border-gray-400 px-4 py-2 text-center hover:border-gray-900"
+            @click="onNullClickHandler"
+          >
+            Null
+          </p>
+        </template>
+        <div v-else class="flex gap-2">
+          <UiInputField
+            v-model="textInputValue"
+            type="text"
+            :placeholder="'New parent name...'"
+          />
+          <UiButton
+            v-if="currentConfig.configType !== 'CONFIGURED_PROVIDERS'"
+            class="warning"
+            @click="onNullClickHandler"
+          >
+            Null
+          </UiButton>
+        </div>
       </div>
-      <div class="flex justify-between gap-4">
+      <UiButton
+        v-if="isBlockchainOnlyParent"
+        class="danger smallPaddings absolute right-2 top-2"
+        @click="onCanselHandler"
+        >X
+      </UiButton>
+      <div v-if="!isBlockchainOnlyParent" class="flex justify-center gap-4">
         <UiButton class="danger w-2/5" @click="onCanselHandler"
           >Cancel</UiButton
         >
@@ -40,15 +72,41 @@
 </template>
 
 <script setup>
+import { useStore } from "~/store";
+
+const store = useStore();
+const { $toast } = useNuxtApp();
+
 const emit = defineEmits(["isModalConfirmed"]);
 const props = defineProps(["configs", "currentConfig"]);
 
-const { $toast } = useNuxtApp();
-
 const textInputValue = ref("");
+
+const blockchainsArray = computed(() =>
+  store.configsList
+    .filter((item) => item.configType === "BLOCKCHAIN")
+    .map((item) => {
+      const configNestedObject = JSON.parse(item.configFile);
+      item.eucId = configNestedObject.eucId;
+      return item;
+    }),
+);
+const isBlockchainOnlyParent = computed(
+  () =>
+    props.currentConfig.configType === "PROVIDERS" ||
+    props.currentConfig.configType === "BANNER" ||
+    props.currentConfig.configType === "ECO_SETTING" ||
+    props.currentConfig.configType === "CONFIGURED_PROVIDERS" ||
+    props.currentConfig.configType === "DAPP",
+);
 
 const onCanselHandler = () => {
   emit("isModalConfirmed", false);
+};
+
+const onBlockchainClickHandler = (item) => {
+  delete item.eucId;
+  emit("isModalConfirmed", item);
 };
 
 const onConfirmHandler = () => {
@@ -59,10 +117,14 @@ const onConfirmHandler = () => {
 
   let newParentConfig;
 
-  if (props.currentConfig.configType === "PROVIDERS") {
-    /**
-     * Searching for BLOCKCHAIN. For Providers clones.
-     */
+  const currentConfigType = props.currentConfig.configType;
+  if (
+    currentConfigType === "PROVIDERS" ||
+    currentConfigType === "BANNER" ||
+    currentConfigType === "ECO_SETTING" ||
+    currentConfigType === "CONFIGURED_PROVIDERS" ||
+    currentConfigType === "DAPP"
+  ) {
     newParentConfig = props.configs.find(
       (item) =>
         item.configName === textInputValue.value &&
@@ -76,10 +138,7 @@ const onConfirmHandler = () => {
     }
   }
 
-  if (props.currentConfig.configType === "PARTNER") {
-    /**
-     * Searching for BLOCKCHAIN and ASSET.
-     */
+  if (currentConfigType === "PARTNER") {
     newParentConfig = props.configs.find(
       (item) =>
         item.configName === textInputValue.value &&
@@ -93,124 +152,12 @@ const onConfirmHandler = () => {
     }
   }
 
-  if (props.currentConfig.configType === "BANNER") {
-    /**
-     * Searching for BLOCKCHAIN.
-     */
-    newParentConfig = props.configs.find(
-      (item) =>
-        item.configName === textInputValue.value &&
-        item.configType === "BLOCKCHAIN",
-    );
-    if (!newParentConfig) {
-      $toast.warning(
-        `Blockchain with the name "${textInputValue.value}" was not found.`,
-      );
-      return;
-    }
-  }
-
-  if (props.currentConfig.configType === "ECO_SETTING") {
-    /**
-     * Searching for BLOCKCHAIN.
-     */
-    newParentConfig = props.configs.find(
-      (item) =>
-        item.configName === textInputValue.value &&
-        item.configType === "BLOCKCHAIN",
-    );
-    if (!newParentConfig) {
-      $toast.warning(
-        `Blockchain with the name "${textInputValue.value}" was not found.`,
-      );
-      return;
-    }
-  }
-
-  if (props.currentConfig.configType === "DAPP") {
-    /**
-     * Searching for BLOCKCHAIN.
-     */
-    newParentConfig = props.configs.find(
-      (item) =>
-        item.configName === textInputValue.value &&
-        item.configType === "BLOCKCHAIN",
-    );
-    if (!newParentConfig) {
-      $toast.warning(
-        `Blockchain with the name "${textInputValue.value}" was not found.`,
-      );
-      return;
-    }
-  }
-
-  /**
-   * We can set another asset but it needs to have the same BLOCKCHAIN as it was in previous parent.
-   */
-  /*
-  if (newParentConfig.configType === "ASSET") {
-
-    const oldParentChainConfig = getClosestChain(
-      props.currentConfig.parentConfig,
-    );
-    if (typeof oldParentChainConfig === "string") {
-      ?? 
-      $toast.warning(oldParentChainConfig);
-      return;
-    }
-
-    const oldParentChainConfigChildren = getChildConfigs(
-      props.configs,
-      oldParentChainConfig.configId,
-    );
-
-    const isNewParentHasSameChain = oldParentChainConfigChildren.find(
-      (item) => item.configId === newParentConfig.configId,
-    );
-
-    if (!isNewParentHasSameChain) {
-      $toast.warning("New asset parent has invalid chain");
-      return;
-    }
-  }
-  */
-  // $toast.success("Parent was changed");
   emit("isModalConfirmed", newParentConfig);
 };
 
 const onNullClickHandler = () => {
-  // $toast.success("Parent was set as null");
   emit("isModalConfirmed", "SET_NULL");
 };
-
-/*
-const getChildConfigs = (configs, id) => {
-  return configs.filter(
-    (configItem) => configItem.parentConfig?.configId === id,
-  );
-};
-*/
-/*
-const getClosestChain = (config, depth = 0) => {
-  if (depth > 100) {
-    return "Previous parent has chain of more than 100 parents and chain was not found";
-  }
-
-  if (config.configType === "BLOCKCHAIN") {
-    return config;
-  }
-
-  const fullConfigObject = props.configs.find(
-    (item) => item.configId === config.configId,
-  );
-
-  if (fullConfigObject.parentConfig) {
-    return getClosestChain(fullConfigObject.parentConfig, depth + 1);
-  } else {
-    return "Previous parent chain was not found";
-  }
-};
-*/
 
 onMounted(() => {
   document.body.style.overflow = "hidden";

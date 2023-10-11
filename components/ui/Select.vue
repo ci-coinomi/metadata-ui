@@ -1,7 +1,8 @@
 <template>
   <div ref="selectRef" class="relative">
     <p
-      class="flex cursor-pointer justify-start rounded-md border-0 px-6 py-1.5 text-gray-900 outline-none ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 disabled:opacity-25 sm:text-sm sm:leading-6"
+      class="flex cursor-pointer justify-start rounded-md border-0 px-6 py-1.5 outline-none ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 disabled:opacity-25 sm:text-sm sm:leading-6"
+      :class="disabled ? 'text-gray-400' : 'text-gray-900'"
       @click="onSelectedValueClick"
     >
       {{ selectedItem }}
@@ -23,7 +24,7 @@
 </template>
 
 <script setup>
-const props = defineProps(["selectList", "defaultValue"]);
+const props = defineProps(["selectList", "defaultValue", "disabled"]);
 const emit = defineEmits(["selectHandler"]);
 
 const selectedItem = ref(null);
@@ -31,6 +32,7 @@ const isSelectOpen = ref(null);
 const selectRef = ref(null);
 
 const onSelectedValueClick = () => {
+  if (props.disabled) return;
   isSelectOpen.value = !isSelectOpen.value;
 };
 

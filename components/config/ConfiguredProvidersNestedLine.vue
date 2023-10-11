@@ -10,7 +10,7 @@
       "
       class="flex justify-between"
     >
-      <p class="text-gray-600">
+      <p class="text-gray-400">
         <span> Object </span>
         <span v-if="Object.entries(props.configNestedObject).length === 0">
           (empty)
@@ -33,19 +33,11 @@
       v-for="(value, key) in configNestedObject"
       :key="key"
       :class="
-        isObject(value) || Array.isArray(value) || key === 'blockchain'
-          ? 'items-start'
-          : 'items-center'
+        isObject(value) || Array.isArray(value) ? 'items-start' : 'items-center'
       "
       class="flex gap-4 rounded-sm py-1"
     >
-      <p
-        :class="
-          isObject(value) || Array.isArray(value)
-            ? 'text-gray-600'
-            : 'text-gray-400'
-        "
-      >
+      <p class="text-gray-400">
         {{ key }}
       </p>
 
@@ -72,6 +64,7 @@
           :configNestedObject="value"
           :configFieldType="key"
           :configUpdateTrigger="configUpdateTrigger"
+          :blockchain="configNestedObject['blockchain']"
         />
         <UiInputField
           v-else
@@ -85,13 +78,14 @@
           "
         />
       </template>
-      <UiSelect
+      <UiInputField
         v-else-if="key === 'blockchain'"
-        :selectList="blockchainsList"
-        :defaultValue="value"
-        @select-handler="
-          (selectValue) => (props.configNestedObject[key] = selectValue)
-        "
+        :model-value="configNestedObject[key]"
+        type="text"
+        :placeholder="'Select parent...'"
+        :update-memo="configUpdateTrigger"
+        :is-memo="true"
+        :disabled="isFieldDisabled(key)"
       />
       <UiInputField
         v-else
@@ -151,6 +145,8 @@ const props = defineProps({
   isCloned: Boolean,
   configUpdateTrigger: Number,
   isObjectDeletable: Boolean,
+  blockchain: String,
+  fullConfigObject: Object,
 });
 const emit = defineEmits(["deleteConfigField"]);
 
@@ -166,10 +162,10 @@ const editionalData = computed(() => {
     if (itemInResponse) editionalDataArray.push(itemInResponse);
   });
 
-  if (editionalDataArray) {
-    console.log("Object", cleared(defaultNestedObject.value));
-    console.log("EditionalData", cleared(store.providersNetworks));
-  }
+  // if (editionalDataArray) {
+  //   console.log("Object", cleared(defaultNestedObject.value));
+  //   console.log("EditionalData", cleared(store.providersNetworks));
+  // }
   return editionalDataArray;
 });
 
@@ -182,7 +178,10 @@ const blockchainsList = computed(() =>
     .filter((item) => item.configType === "BLOCKCHAIN")
     .map((item) => {
       const configFileObj = JSON.parse(item.configFile);
-      return configFileObj.eucId;
+      return {
+        name: item.configName,
+        eucId: configFileObj.eucId,
+      };
     }),
 );
 
@@ -193,7 +192,12 @@ const configBorderStyle = computed(() => {
 
 const isNestedArrayVisible = (key) => key === "providers";
 const isFieldDisabled = (key) => {
-  if (key === "@type" || key === "providerName" || key === "networkIds") {
+  if (
+    key === "@type" ||
+    key === "providerName" ||
+    key === "networkIds" ||
+    key === "blockchain"
+  ) {
     return true;
   } else if (!props.isCloned && key === "eucId") {
     return true;
@@ -225,6 +229,19 @@ watch(
   () => {
     defaultNestedObject.value = cleared(props.configNestedObject);
     isConfigUpdated.value = false;
+  },
+);
+
+watch(
+  () => props.fullConfigObject?.parentConfig,
+  () => {
+    const parent = props.fullConfigObject?.parentConfig;
+    if (parent) {
+      const selectedParent = blockchainsList.value.find(
+        (item) => item.name === parent.configName,
+      );
+      props.configNestedObject.blockchain = selectedParent.eucId;
+    }
   },
 );
 </script>

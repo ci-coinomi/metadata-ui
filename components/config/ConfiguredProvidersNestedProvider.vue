@@ -1,12 +1,22 @@
 <template>
   <modalConfiguredProviderNetwork
     v-if="isNetworkModalVisible"
+    :blockchain="blockchain"
     @is-modal-confirmed="(data) => onNetworkModalConfirmHandler(data)"
   />
   <div class="flex w-full flex-col gap-2 rounded-sm border border-gray-400 p-2">
-    <UiButton class="success ml-auto" @click="onAddNetworkHandler">
-      Add network
-    </UiButton>
+    <div class="flex items-center">
+      <p v-if="!blockchain" class="text-gray-400">
+        Select parent to provide blockchain
+      </p>
+      <UiButton
+        class="success ml-auto"
+        :disabled="!blockchain"
+        @click="onAddNetworkHandler"
+      >
+        Add network
+      </UiButton>
+    </div>
     <div
       v-for="(value, key) in props.configNestedObject"
       :key="value"
@@ -30,6 +40,7 @@
             :configUpdateTrigger="configUpdateTrigger"
             :update-memo="configUpdateTrigger"
             :is-memo="true"
+            :blockchain="blockchain"
             :isObjectDeletable="isNextLevelObjectDeletable(configFieldType)"
             @delete-config-field="() => onDeleteNestedLineHandler(key)"
           />
@@ -45,6 +56,7 @@ const props = defineProps({
   isCloned: Boolean,
   configUpdateTrigger: Number,
   configFieldType: String,
+  blockchain: String,
 });
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
@@ -67,14 +79,16 @@ const onDeleteNestedLineHandler = (idx) => {
 
 const onNetworkModalConfirmHandler = (selectedNetwork) => {
   isNetworkModalVisible.value = false;
-  const addedNetworkObject = {
-    enabled: false,
-    priority: "",
-    providerName: selectedNetwork.providerName,
-    networkIds: [],
-  };
-  addedNetworkObject.networkIds.push(selectedNetwork.id);
-  props.configNestedObject.push(addedNetworkObject);
+  if (selectedNetwork) {
+    const addedNetworkObject = {
+      enabled: false,
+      priority: "",
+      providerName: selectedNetwork.providerName,
+      networkIds: [],
+    };
+    addedNetworkObject.networkIds.push(selectedNetwork.id);
+    props.configNestedObject.push(addedNetworkObject);
+  }
 };
 
 const isFieldNew = (key) => {
