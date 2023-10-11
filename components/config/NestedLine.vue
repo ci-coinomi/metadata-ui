@@ -112,7 +112,8 @@ const isNestedArrayVisible = (key) =>
   key === "providers" ||
   key === "settings" ||
   key === "linkouts" ||
-  key === "networks";
+  key === "networks" ||
+  key === "accounts";
 
 const configBorderStyle = computed(() => {
   if (props.configNestedObject?.["@type"]) return "";

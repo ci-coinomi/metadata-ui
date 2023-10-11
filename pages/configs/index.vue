@@ -19,7 +19,7 @@
           <div v-if="configTypes.length === 0">
             <h2 class="text-center text-xl">Config types were not recieved</h2>
           </div>
-          <div v-else class="grid w-full grid-cols-5 grid-rows-2 gap-4">
+          <div v-else class="grid w-full grid-cols-4 grid-rows-2 gap-4">
             <uiButton
               v-for="typeItem in configTypes"
               :key="typeItem"

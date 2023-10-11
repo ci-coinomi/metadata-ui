@@ -4,11 +4,12 @@
   >
     <div
       ref="modalRef"
-      class="flex max-h-[75vh] flex-col items-center gap-2 overflow-x-auto rounded-md bg-white px-10 py-5"
+      class="relative flex max-h-[75vh] flex-col items-center gap-2 overflow-x-auto rounded-md bg-white px-14 py-7"
     >
       <h2 class="text-center text-lg font-bold">Select network:</h2>
-      <div v-if="networks.length === 0">
-        Networks with name <b>{{ blockchain }}</b> were not found
+      <div v-if="networks.length === 0" class="text-red-600">
+        Networks with name <b class="text-gray-900">{{ blockchain }}</b> were
+        not found
       </div>
       <template v-else>
         <div
@@ -28,8 +29,11 @@
         </div>
       </template>
 
-      <UiButton class="danger w-2/5" @click="onCanselClickHandler">
-        Cancel
+      <UiButton
+        class="danger smallPaddings absolute right-2 top-2"
+        @click="onCanselClickHandler"
+      >
+        X
       </UiButton>
     </div>
   </div>

@@ -466,10 +466,10 @@ const setInitParentForConfiguredProviders = () => {
    * If we creating CONFIGURED_PROVIDERS and we don't have blockchain - open modal and make user to choose blockchain
    */
   if (
-    currentConfig.value.configType !== "CONFIGURED_PROVIDERS" &&
-    configFileObj.value.blockchain
-  )
-    return;
-  isTextModalVisible.value = true;
+    currentConfig.value.configType === "CONFIGURED_PROVIDERS" &&
+    !configFileObj.value.blockchain
+  ) {
+    isTextModalVisible.value = true;
+  }
 };
 </script>

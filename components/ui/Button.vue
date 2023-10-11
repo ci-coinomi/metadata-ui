@@ -12,6 +12,10 @@
   font-size: 13px;
 }
 
+.smallPaddings {
+  padding: 4px 8px;
+}
+
 .warning,
 .success,
 .danger,
