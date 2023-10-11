@@ -35,10 +35,13 @@ import { useStore } from "~/store";
 
 const store = useStore();
 
+const props = defineProps(["blockchain"]);
 const emit = defineEmits(["isModalConfirmed"]);
 
 const modalRef = ref();
-const networks = computed(() => store.providersNetworks);
+const networks = computed(() =>
+  store.providersNetworks.filter((item) => item.network === props.blockchain),
+);
 
 const onCanselClickHandler = () => {
   emit("isModalConfirmed", false);

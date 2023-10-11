@@ -1,6 +1,7 @@
 <template>
   <modalConfiguredProviderNetwork
     v-if="isNetworkModalVisible"
+    :blockchain="blockchain"
     @is-modal-confirmed="(data) => onNetworkModalConfirmHandler(data)"
   />
   <div class="flex w-full flex-col gap-2 rounded-sm border border-gray-400 p-2">
@@ -30,6 +31,7 @@
             :configUpdateTrigger="configUpdateTrigger"
             :update-memo="configUpdateTrigger"
             :is-memo="true"
+            :blockchain="blockchain"
             :isObjectDeletable="isNextLevelObjectDeletable(configFieldType)"
             @delete-config-field="() => onDeleteNestedLineHandler(key)"
           />
@@ -45,6 +47,7 @@ const props = defineProps({
   isCloned: Boolean,
   configUpdateTrigger: Number,
   configFieldType: String,
+  blockchain: String,
 });
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));

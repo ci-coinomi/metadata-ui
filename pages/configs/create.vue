@@ -359,6 +359,19 @@ const getParentConfigFromStore = (cloneData) => {
   // Deleting apiVersion...
   const defaultConfigFile = JSON.parse(cloneData.configFile);
   if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
+  console.log("defaultConfigFile", defaultConfigFile);
+  /**
+   * createEmptyConfigFileClone in index clears all arrays and add empty string to them.
+   * Empty string as value of providers array in configuredProviders is invalid.
+   */
+  if (
+    defaultConfigFile["@type"] === "configuredProviders" &&
+    defaultConfigFile.providers?.length === 1 &&
+    defaultConfigFile.providers?.[0] === ""
+  ) {
+    defaultConfigFile.providers = [];
+  }
+
   const updatedConfigFile = JSON.stringify(defaultConfigFile);
 
   const newConfigObject = {
@@ -367,6 +380,7 @@ const getParentConfigFromStore = (cloneData) => {
     configFile: updatedConfigFile,
     parentConfig: cloneData.parentConfig,
   };
+
   currentConfig.value = newConfigObject;
   configFileObj.value = JSON.parse(currentConfig.value.configFile);
   configImages.value = cloneData.configImages;

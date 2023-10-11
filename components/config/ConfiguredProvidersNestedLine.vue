@@ -33,9 +33,7 @@
       v-for="(value, key) in configNestedObject"
       :key="key"
       :class="
-        isObject(value) || Array.isArray(value) || key === 'blockchain'
-          ? 'items-start'
-          : 'items-center'
+        isObject(value) || Array.isArray(value) ? 'items-start' : 'items-center'
       "
       class="flex gap-4 rounded-sm py-1"
     >
@@ -72,6 +70,7 @@
           :configNestedObject="value"
           :configFieldType="key"
           :configUpdateTrigger="configUpdateTrigger"
+          :blockchain="configNestedObject['blockchain']"
         />
         <UiInputField
           v-else
@@ -151,6 +150,7 @@ const props = defineProps({
   isCloned: Boolean,
   configUpdateTrigger: Number,
   isObjectDeletable: Boolean,
+  blockchain: String,
 });
 const emit = defineEmits(["deleteConfigField"]);
 
@@ -166,10 +166,10 @@ const editionalData = computed(() => {
     if (itemInResponse) editionalDataArray.push(itemInResponse);
   });
 
-  if (editionalDataArray) {
-    console.log("Object", cleared(defaultNestedObject.value));
-    console.log("EditionalData", cleared(store.providersNetworks));
-  }
+  // if (editionalDataArray) {
+  //   console.log("Object", cleared(defaultNestedObject.value));
+  //   console.log("EditionalData", cleared(store.providersNetworks));
+  // }
   return editionalDataArray;
 });
 
@@ -193,7 +193,12 @@ const configBorderStyle = computed(() => {
 
 const isNestedArrayVisible = (key) => key === "providers";
 const isFieldDisabled = (key) => {
-  if (key === "@type" || key === "providerName" || key === "networkIds") {
+  if (
+    key === "@type" ||
+    key === "providerName" ||
+    key === "networkIds" ||
+    key === "blockchain"
+  ) {
     return true;
   } else if (!props.isCloned && key === "eucId") {
     return true;

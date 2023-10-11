@@ -65,7 +65,7 @@
             :type="'text'"
           />
           <UiButton
-            v-if="!isCreateEmptyConfigHidden"
+            v-if="isCreateEmptyConfigVisible"
             class="success whitespace-nowrap"
             @click="onCreateEmptyCloneHandler"
           >
@@ -154,13 +154,15 @@ const visibleConfigs = computed(() =>
 /*
 Shown only for config types without parentConfig
 */
-const isCreateEmptyConfigHidden = computed(
-  () =>
-    isLoading.value ||
+const isCreateEmptyConfigVisible = computed(() => {
+  if (selectedType.value === "CONFIGURED_PROVIDERS") return true;
+  if (
     filtredConfigs.value.length === 0 ||
-    visibleConfigs.value.some((el) => el.parentConfig),
-);
-
+    visibleConfigs.value.some((el) => el.parentConfig)
+  )
+    return false;
+  return true;
+});
 const isBlockchainBlockHidden = computed(
   () => isLoading.value || blockchains.value.length === 0,
 );
@@ -178,7 +180,7 @@ const onChainClickHandler = (chain) => {
   updateQueryParams();
 };
 
-/* 
+/*
 Set all values to default (accept selectedType) and get chains list as well.
 */
 const onTypesSelectHandler = (type) => {
@@ -192,7 +194,7 @@ const onTypesSelectHandler = (type) => {
   updateQueryParams();
 };
 
-/* 
+/*
 Print more configs (+30) after scrolling to the bottom of the page by increasing visibleItemsCount.
 */
 const handleScroll = () => {
@@ -207,19 +209,30 @@ const handleScroll = () => {
   }
 };
 
-/* 
-Awailable for configTypes were configs have no parentConfig. 
+/*
+Awailable for configTypes were configs have no parentConfig.
 Setting all fields of visibleConfigs.value[0] as empty and redirect to /configs/create
 */
 const onCreateEmptyCloneHandler = () => {
-  const firstConfigInList = visibleConfigs.value[0];
-  const emptyConfigFile = createEmptyConfigFileClone(
-    firstConfigInList.configFile,
-  );
+  let configToBePassed;
+  let configFileToBePassed;
+  let parentDataToBePassed;
+
+  if (selectedType.value === "CONFIGURED_PROVIDERS") {
+    configToBePassed = visibleConfigs.value[0];
+    configFileToBePassed = createEmptyConfigFileClone(
+      configToBePassed.configFile,
+    );
+  } else {
+    configToBePassed = visibleConfigs.value[0];
+    configFileToBePassed = createEmptyConfigFileClone(
+      configToBePassed.configFile,
+    );
+  }
 
   const cloneData = {
-    config: firstConfigInList,
-    configFile: emptyConfigFile,
+    config: configToBePassed,
+    configFile: configFileToBePassed,
     configImages: [],
   };
 
@@ -234,7 +247,7 @@ const onCreateEmptyCloneHandler = () => {
 
 // Requests
 
-/* 
+/*
 Fetch config types if store.configTypes is empty
 */
 const fetchConfigTypes = async () => {
@@ -248,7 +261,7 @@ const fetchConfigTypes = async () => {
   }
 };
 
-/* 
+/*
 Fetch configs if store.configsList is empty.
 */
 const fetchConfigs = async () => {
@@ -326,7 +339,7 @@ watch(
   },
 );
 
-/* 
+/*
 For updating query params after changing searchValue.
 */
 watch(searchValue, () => {
@@ -375,7 +388,7 @@ const filterListByQuery = () => {
   if (query.chain) selectedChain.value = query.chain;
 };
 
-/* 
+/*
 Push selectedChain and selectedType to query.
 */
 const updateQueryParams = async () => {
@@ -393,7 +406,7 @@ const updateQueryParams = async () => {
   });
 };
 
-/* 
+/*
 Remove the passed parameter from query
 */
 const removeUnusedRouterQuery = (queryToRemove) => {
@@ -407,7 +420,7 @@ const removeUnusedRouterQuery = (queryToRemove) => {
   });
 };
 
-/* 
+/*
 Getting every unique chain name from config.configFile.eucId's in configs array.
 If we have no chain names in eucId after '@' - hide chainsBlock
 If we have only one chain type in filtredConfigs - show chainsBlock and select this chain
@@ -433,7 +446,7 @@ const getChainsFromFiltredConfigs = (configs) => {
   }
 };
 
-/* 
+/*
 Get chain name from passed config.
 Specifically from config.configFile.eucId, (value after '@')
 */
