@@ -94,7 +94,8 @@
               currentConfig.configType === 'PARTNER' ||
               currentConfig.configType === 'PROVIDERS' ||
               currentConfig.configType === 'BANNER' ||
-              currentConfig.configType === 'ECO_SETTING'
+              currentConfig.configType === 'ECO_SETTING' ||
+              currentConfig.configType === 'DAPP'
             "
             class="primary w-1/3"
             @click="changeParentHandler"
