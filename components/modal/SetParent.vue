@@ -9,7 +9,8 @@
           v-if="
             currentConfig.configType === 'PROVIDERS' ||
             currentConfig.configType === 'BANNER' ||
-            currentConfig.configType === 'ECO_SETTING'
+            currentConfig.configType === 'ECO_SETTING' ||
+            currentConfig.configType === 'CONFIGURED_PROVIDERS'
           "
         >
           Only config with Blockchain type can be passed
@@ -24,7 +25,13 @@
           type="text"
           :placeholder="'New parent name...'"
         />
-        <UiButton class="warning" @click="onNullClickHandler">Null</UiButton>
+        <UiButton
+          v-if="currentConfig.configType !== 'CONFIGURED_PROVIDERS'"
+          class="warning"
+          @click="onNullClickHandler"
+        >
+          Null
+        </UiButton>
       </div>
       <div class="flex justify-between gap-4">
         <UiButton class="danger w-2/5" @click="onCanselHandler"
@@ -110,6 +117,23 @@ const onConfirmHandler = () => {
   }
 
   if (props.currentConfig.configType === "ECO_SETTING") {
+    /**
+     * Searching for BLOCKCHAIN.
+     */
+    newParentConfig = props.configs.find(
+      (item) =>
+        item.configName === textInputValue.value &&
+        item.configType === "BLOCKCHAIN",
+    );
+    if (!newParentConfig) {
+      $toast.warning(
+        `Blockchain with the name "${textInputValue.value}" was not found.`,
+      );
+      return;
+    }
+  }
+
+  if (props.currentConfig.configType === "CONFIGURED_PROVIDERS") {
     /**
      * Searching for BLOCKCHAIN.
      */

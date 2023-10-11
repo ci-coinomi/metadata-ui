@@ -10,7 +10,7 @@
       "
       class="flex justify-between"
     >
-      <p class="text-gray-600">
+      <p class="text-gray-400">
         <span> Object </span>
         <span v-if="Object.entries(props.configNestedObject).length === 0">
           (empty)
@@ -37,13 +37,7 @@
       "
       class="flex gap-4 rounded-sm py-1"
     >
-      <p
-        :class="
-          isObject(value) || Array.isArray(value)
-            ? 'text-gray-600'
-            : 'text-gray-400'
-        "
-      >
+      <p class="text-gray-400">
         {{ key }}
       </p>
 
@@ -84,13 +78,14 @@
           "
         />
       </template>
-      <UiSelect
+      <UiInputField
         v-else-if="key === 'blockchain'"
-        :selectList="blockchainsList"
-        :defaultValue="value"
-        @select-handler="
-          (selectValue) => (props.configNestedObject[key] = selectValue)
-        "
+        :model-value="configNestedObject[key]"
+        type="text"
+        :placeholder="'Select parent...'"
+        :update-memo="configUpdateTrigger"
+        :is-memo="true"
+        :disabled="isFieldDisabled(key)"
       />
       <UiInputField
         v-else
@@ -151,6 +146,7 @@ const props = defineProps({
   configUpdateTrigger: Number,
   isObjectDeletable: Boolean,
   blockchain: String,
+  fullConfigObject: Object,
 });
 const emit = defineEmits(["deleteConfigField"]);
 
@@ -182,7 +178,10 @@ const blockchainsList = computed(() =>
     .filter((item) => item.configType === "BLOCKCHAIN")
     .map((item) => {
       const configFileObj = JSON.parse(item.configFile);
-      return configFileObj.eucId;
+      return {
+        name: item.configName,
+        eucId: configFileObj.eucId,
+      };
     }),
 );
 
@@ -230,6 +229,19 @@ watch(
   () => {
     defaultNestedObject.value = cleared(props.configNestedObject);
     isConfigUpdated.value = false;
+  },
+);
+
+watch(
+  () => props.fullConfigObject?.parentConfig,
+  () => {
+    const parent = props.fullConfigObject?.parentConfig;
+    if (parent) {
+      const selectedParent = blockchainsList.value.find(
+        (item) => item.name === parent.configName,
+      );
+      props.configNestedObject.blockchain = selectedParent.eucId;
+    }
   },
 );
 </script>

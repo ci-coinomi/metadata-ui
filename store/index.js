@@ -19,12 +19,20 @@ export const useStore = defineStore("app-store", {
       this.providersNetworks = payload;
     },
 
-    setConfigTypes(payload) {
-      this.configTypes = payload;
+    setConfigTypes(typesArray) {
+      this.configTypes = typesArray.filter(
+        (item) =>
+          item !== "CONFIGURED_PROVIDER_NETWORKS" &&
+          item !== "CONFIGURED_PROVIDER_GROUPS",
+      );
     },
 
-    setConfigsList(payload) {
-      this.configsList = payload;
+    setConfigsList(configsArray) {
+      this.configsList = configsArray.filter(
+        (item) =>
+          item.configType !== "CONFIGURED_PROVIDER_NETWORKS" &&
+          item.configType !== "CONFIGURED_PROVIDER_GROUPS",
+      );
     },
 
     setHeaderTitle(payload) {

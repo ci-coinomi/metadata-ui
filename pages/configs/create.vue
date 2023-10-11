@@ -35,9 +35,9 @@
             />
             <div
               v-if="currentConfig"
-              class="flex items-center justify-center gap-4"
+              class="flex items-center justify-center gap-4 p-2"
             >
-              <p class="flex-none text-gray-400">Clone name:</p>
+              <p class="flex-none text-gray-400">Name:</p>
               <UiInputField
                 v-model="currentConfig.configName"
                 :type="'text'"
@@ -48,6 +48,7 @@
               v-if="currentConfig.configType === 'CONFIGURED_PROVIDERS'"
               :configNestedObject="configFileObj"
               :is-cloned="true"
+              :full-config-object="currentConfig"
             />
             <configNestedLine
               v-else
@@ -94,7 +95,8 @@
               currentConfig.configType === 'PARTNER' ||
               currentConfig.configType === 'PROVIDERS' ||
               currentConfig.configType === 'BANNER' ||
-              currentConfig.configType === 'ECO_SETTING'
+              currentConfig.configType === 'ECO_SETTING' ||
+              currentConfig.configType === 'CONFIGURED_PROVIDERS'
             "
             class="primary w-1/3"
             @click="changeParentHandler"
@@ -321,11 +323,30 @@ const getParentCategoryFromQuery = (queryType) => {
   const firstOfType = storedConfigList.value.filter(
     (item) => item.configType === queryType,
   )[0];
+
   const emptyConfigFIle = createEmptyConfigFileClone(firstOfType.configFile);
+
+  // Deleting apiVersion...
+  const defaultConfigFile = JSON.parse(emptyConfigFIle);
+  if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
+  /**
+   * createEmptyConfigFileClone in index clears all arrays and add empty string to them.
+   * Empty string as value of providers array in configuredProviders is invalid.
+   */
+  if (
+    defaultConfigFile["@type"] === "configuredProviders" &&
+    defaultConfigFile.providers?.length === 1 &&
+    defaultConfigFile.providers?.[0] === ""
+  ) {
+    defaultConfigFile.providers = [];
+  }
+
+  const updatedConfigFile = JSON.stringify(defaultConfigFile);
+
   const newConfigObject = {
     configName: "",
     configType: firstOfType.configType,
-    configFile: emptyConfigFIle,
+    configFile: updatedConfigFile,
     parentConfig: firstOfType.parentConfig,
   };
   currentConfig.value = newConfigObject;
@@ -340,6 +361,18 @@ const getParentConfigFormQuery = (queryParentId) => {
   // Deleting apiVersion...
   const defaultConfigFile = JSON.parse(parentConfig.configFile);
   if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
+
+  /**
+   * createEmptyConfigFileClone in index clears all arrays and add empty string to them.
+   * Empty string as value of providers array in configuredProviders is invalid.
+   */
+  if (
+    defaultConfigFile["@type"] === "configuredProviders" &&
+    defaultConfigFile.providers?.length === 1 &&
+    defaultConfigFile.providers?.[0] === ""
+  ) {
+    defaultConfigFile.providers = [];
+  }
   const updatedConfigFile = JSON.stringify(defaultConfigFile);
 
   const newConfigObject = {
@@ -359,7 +392,6 @@ const getParentConfigFromStore = (cloneData) => {
   // Deleting apiVersion...
   const defaultConfigFile = JSON.parse(cloneData.configFile);
   if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
-  console.log("defaultConfigFile", defaultConfigFile);
   /**
    * createEmptyConfigFileClone in index clears all arrays and add empty string to them.
    * Empty string as value of providers array in configuredProviders is invalid.
@@ -403,12 +435,13 @@ const moveParentOnTheFirstPlace = (parentConfig, configList) => {
 };
 
 onMounted(async () => {
-  store.setHeaderTitle("Create clone");
+  store.setHeaderTitle("Create config");
   isLoading.value = true;
 
   if (cloneConfigData.value) {
     getParentConfigFromStore(cleared(cloneConfigData.value));
     isLoading.value = false;
+    setInitParentForConfiguredProviders();
     return;
   }
 
@@ -417,12 +450,26 @@ onMounted(async () => {
   if (route.query.parent) {
     getParentConfigFormQuery(route.query.parent);
     isLoading.value = false;
+    setInitParentForConfiguredProviders();
     return;
   }
 
   if (route.query.type) {
     getParentCategoryFromQuery(route.query.type);
+    setInitParentForConfiguredProviders();
     isLoading.value = false;
   }
 });
+
+const setInitParentForConfiguredProviders = () => {
+  /**
+   * If we creating CONFIGURED_PROVIDERS and we don't have blockchain - open modal and make user to choose blockchain
+   */
+  if (
+    currentConfig.value.configType !== "CONFIGURED_PROVIDERS" &&
+    configFileObj.value.blockchain
+  )
+    return;
+  isTextModalVisible.value = true;
+};
 </script>

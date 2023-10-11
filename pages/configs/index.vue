@@ -19,7 +19,7 @@
           <div v-if="configTypes.length === 0">
             <h2 class="text-center text-xl">Config types were not recieved</h2>
           </div>
-          <div v-else class="grid w-full grid-cols-4 grid-rows-2 gap-4">
+          <div v-else class="grid w-full grid-cols-5 grid-rows-2 gap-4">
             <uiButton
               v-for="typeItem in configTypes"
               :key="typeItem"
@@ -214,21 +214,10 @@ Awailable for configTypes were configs have no parentConfig.
 Setting all fields of visibleConfigs.value[0] as empty and redirect to /configs/create
 */
 const onCreateEmptyCloneHandler = () => {
-  let configToBePassed;
-  let configFileToBePassed;
-  let parentDataToBePassed;
-
-  if (selectedType.value === "CONFIGURED_PROVIDERS") {
-    configToBePassed = visibleConfigs.value[0];
-    configFileToBePassed = createEmptyConfigFileClone(
-      configToBePassed.configFile,
-    );
-  } else {
-    configToBePassed = visibleConfigs.value[0];
-    configFileToBePassed = createEmptyConfigFileClone(
-      configToBePassed.configFile,
-    );
-  }
+  const configToBePassed = visibleConfigs.value[0];
+  const configFileToBePassed = createEmptyConfigFileClone(
+    configToBePassed.configFile,
+  );
 
   const cloneData = {
     config: configToBePassed,
