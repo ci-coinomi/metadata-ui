@@ -96,7 +96,8 @@ const isBlockchainOnlyParent = computed(
     props.currentConfig.configType === "PROVIDERS" ||
     props.currentConfig.configType === "BANNER" ||
     props.currentConfig.configType === "ECO_SETTING" ||
-    props.currentConfig.configType === "CONFIGURED_PROVIDERS",
+    props.currentConfig.configType === "CONFIGURED_PROVIDERS" ||
+    props.currentConfig.configType === "DAPP",
 );
 
 const onCanselHandler = () => {
@@ -121,7 +122,8 @@ const onConfirmHandler = () => {
     currentConfigType === "PROVIDERS" ||
     currentConfigType === "BANNER" ||
     currentConfigType === "ECO_SETTING" ||
-    currentConfigType === "CONFIGURED_PROVIDERS"
+    currentConfigType === "CONFIGURED_PROVIDERS" ||
+    currentConfigType === "DAPP"
   ) {
     newParentConfig = props.configs.find(
       (item) =>

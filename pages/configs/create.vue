@@ -96,6 +96,7 @@
               currentConfig.configType === 'PROVIDERS' ||
               currentConfig.configType === 'BANNER' ||
               currentConfig.configType === 'ECO_SETTING' ||
+              currentConfig.configType === 'DAPP' ||
               currentConfig.configType === 'CONFIGURED_PROVIDERS'
             "
             class="primary w-1/3"
