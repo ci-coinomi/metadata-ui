@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline outline-1 outline-gray-400 hover:outline-2 active:outline-[3px] disabled:opacity-25"
+    class="flex items-center justify-center rounded-md px-3 py-2 text-sm text-gray-900 shadow-sm outline outline-1 outline-gray-400 hover:outline-2 active:outline-[3px] disabled:opacity-25"
   >
     <slot />
   </button>
