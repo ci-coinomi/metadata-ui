@@ -4,8 +4,14 @@
     :blockchain="blockchain"
     @is-modal-confirmed="(data) => onNetworkModalConfirmHandler(data)"
   />
+
+  <ModalConfiguredProviderGroup
+    v-if="isGroupModalVisible"
+    :blockchain="blockchain"
+    @is-modal-confirmed="(data) => onGroupModalConfirmHandler(data)"
+  />
   <div class="flex w-full flex-col gap-2 rounded-sm border border-gray-400 p-2">
-    <div class="flex items-center">
+    <div class="flex items-center gap-2">
       <p v-if="!blockchain" class="text-gray-400">
         Select parent to provide blockchain
       </p>
@@ -15,6 +21,13 @@
         @click="onAddNetworkHandler"
       >
         Add network
+      </UiButton>
+      <UiButton
+        class="success"
+        :disabled="!blockchain"
+        @click="onAddGroupClickHandler"
+      >
+        Add group
       </UiButton>
     </div>
     <div
@@ -62,11 +75,14 @@ const props = defineProps({
 const defaultNestedObject = ref(cleared(props.configNestedObject));
 const isConfigUpdated = ref(false);
 const isNetworkModalVisible = ref(false);
+const isGroupModalVisible = ref(false);
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const isNextLevelObjectDeletable = (type) => {
-  // return type === "providers";
+const isNextLevelObjectDeletable = () => {
   return false;
+};
+
+const onAddGroupClickHandler = () => {
+  isGroupModalVisible.value = true;
 };
 
 const onAddNetworkHandler = () => {
@@ -77,6 +93,20 @@ const onDeleteNestedLineHandler = (idx) => {
   props.configNestedObject.splice(idx, 1);
 };
 
+const onGroupModalConfirmHandler = (selectedGroup) => {
+  isGroupModalVisible.value = false;
+  if (!selectedGroup) return;
+
+  const newNetworkObjects = selectedGroup.networks.map((item) => ({
+    enabled: false,
+    priority: "",
+    providerName: item.providerName,
+    networkIds: [item.id],
+  }));
+
+  props.configNestedObject.push(...newNetworkObjects);
+};
+
 const onNetworkModalConfirmHandler = (selectedNetwork) => {
   isNetworkModalVisible.value = false;
   if (selectedNetwork) {
@@ -84,9 +114,8 @@ const onNetworkModalConfirmHandler = (selectedNetwork) => {
       enabled: false,
       priority: "",
       providerName: selectedNetwork.providerName,
-      networkIds: [],
+      networkIds: [selectedNetwork.id],
     };
-    addedNetworkObject.networkIds.push(selectedNetwork.id);
     props.configNestedObject.push(addedNetworkObject);
   }
 };
