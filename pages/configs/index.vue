@@ -120,28 +120,30 @@ const providersNetworks = computed(() => store.providersNetworks);
 Filtering configs by configType - by Chain - by Name and sorting by id.
 Filter depends on selectedType, selectedChain, searchValue and configs
 */
-const filtredConfigs = computed(() =>
-  storedConfigList.value
-    .filter((item) =>
-      selectedType.value ? item.configType === selectedType.value : item,
+
+const filtredConfigs = computed(() => {
+  return storedConfigList.value
+    .filter(
+      (item) => !selectedType.value || item.configType === selectedType.value,
     )
     .filter((item) => {
-      if (selectedChain.value && selectedChain.value !== "All") {
+      if (selectedType.value === "BANNER" && selectedChain.value) {
+        if (selectedChain.value === "All") return true;
+        if (selectedChain.value === "koala") return !item.parentConfig;
+        return item.parentConfig?.configName === selectedChain.value;
+      } else if (selectedChain.value && selectedChain.value !== "All") {
         const configChainName = getChainNameFromConfigItem(item);
         return configChainName === selectedChain.value;
-      } else {
-        return item;
       }
+      return true;
     })
-    .filter((item) =>
-      searchValue.value
-        ? item.configName
-            .toLowerCase()
-            .includes(searchValue.value.toLowerCase())
-        : item,
+    .filter(
+      (item) =>
+        !searchValue.value ||
+        item.configName.toLowerCase().includes(searchValue.value.toLowerCase()),
     )
-    .sort((a, b) => b.configId - a.configId),
-);
+    .sort((a, b) => b.configId - a.configId);
+});
 
 /*
 Lazy-load, works with handleScroll().
@@ -279,13 +281,13 @@ const getProvidersData = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener("scroll", handleScroll);
   store.setHeaderTitle("Select config type");
-  fetchConfigTypes();
-  fetchConfigs();
+  await fetchConfigTypes();
+  await fetchConfigs();
   filterListByQuery();
-  getProvidersData();
+  await getProvidersData();
 });
 
 onUnmounted(() => {
@@ -414,13 +416,23 @@ Getting every unique chain name from config.configFile.eucId's in configs array.
 If we have no chain names in eucId after '@' - hide chainsBlock
 If we have only one chain type in filtredConfigs - show chainsBlock and select this chain
 If there are more than 1 chain in filtredConfigs - add 'All' (selected by default) and show chains in chainsBlock
+
+For BANNER - search for parentConfig name (blockchains) or 'koala' if !parentConfig
 */
 const getChainsFromFiltredConfigs = (configs) => {
   const chainsSet = new Set();
-  configs.forEach((item) => {
-    const chainItem = getChainNameFromConfigItem(item);
-    if (chainItem) chainsSet.add(chainItem);
-  });
+
+  if (selectedType.value === "BANNER") {
+    configs.forEach((item) => {
+      const chainItem = item.parentConfig?.configName || "koala";
+      if (chainItem) chainsSet.add(chainItem);
+    });
+  } else {
+    configs.forEach((item) => {
+      const chainItem = getChainNameFromConfigItem(item);
+      if (chainItem) chainsSet.add(chainItem);
+    });
+  }
   const chainsArray = Array.from(chainsSet);
 
   if (chainsArray.length === 0) {

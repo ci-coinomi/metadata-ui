@@ -8,10 +8,26 @@
       :class="listItemClass"
       @click="toggleListItem()"
     >
-      <p class="overflow-x-auto">
-        <span class="text-gray-500">Name:</span>
-        {{ props.config.configName }}
-      </p>
+      <div class="flex items-center gap-2 overflow-x-auto p-1">
+        <p>
+          <span class="text-gray-500">Name:</span>
+          {{ props.config.configName }}
+        </p>
+        <UiButton class="smallPaddings" @click.stop="onCopyNameClick">
+          <img
+            v-if="!copied"
+            src="~/assets/icons/icon-copy.svg"
+            class="h-4 w-4"
+            alt="copy"
+          />
+          <img
+            v-else
+            src="~/assets/icons/icon-check.svg"
+            class="h-4 w-4"
+            alt="copy"
+          />
+        </UiButton>
+      </div>
       <p class="ml-auto min-w-[175px]">
         <span class="text-gray-500">Type:</span>
         {{ props.config.configType }}
@@ -39,6 +55,7 @@ const props = defineProps({
 
 const isOpened = ref(false);
 const isConfigUpdated = ref(false);
+const copied = ref(false);
 
 const listItemClass = computed(() => {
   const zebra = props.configIndex % 2 ? "bg-white" : "bg-gray-100";
@@ -49,6 +66,16 @@ const listItemClass = computed(() => {
     : (listItemClassValue = "border-b border-gray-400");
   return `${zebra} ${listItemClassValue}`;
 });
+
+const onCopyNameClick = () => {
+  if (!copied.value) {
+    navigator.clipboard.writeText(props.config.configName);
+    copied.value = true;
+    setTimeout(() => {
+      copied.value = false;
+    }, 800);
+  }
+};
 
 const toggleListItem = () => {
   isOpened.value = !isOpened.value;
