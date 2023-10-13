@@ -23,3 +23,33 @@ export const serializeCoinApi = (blockchains, providers) => {
     };
   });
 };
+
+export const serializeConfigs = (allConfigs) => {
+  const serializedConfigs = allConfigs.map((config) => {
+    const parentConfigChain = getClosestChain(config, allConfigs);
+    return { ...config, configChain: parentConfigChain };
+  });
+  return serializedConfigs;
+};
+
+const getClosestChain = (config, allConfigs, depth = 0) => {
+  if (depth > 100) {
+    return "Infinite circle error";
+  }
+
+  if (config.configType === "BLOCKCHAIN") {
+    return config;
+  }
+
+  const fullConfigObject = allConfigs.find(
+    (item) => item.configId === config.configId,
+  );
+
+  if (fullConfigObject.parentConfig) {
+    return getClosestChain(
+      fullConfigObject.parentConfig,
+      allConfigs,
+      depth + 1,
+    );
+  }
+};
