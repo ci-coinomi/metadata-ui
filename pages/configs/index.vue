@@ -487,6 +487,8 @@ const getChainNameFromConfigItem = (config, searchPlace) => {
         const splitValues = config.configName.split("@");
         const chainName = splitValues[1];
         if (chainName) return chainName;
+      } else if (config.configName) {
+        return 'other'
       }
     }
   } catch (error) {
