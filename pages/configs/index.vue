@@ -127,12 +127,25 @@ const filtredConfigs = computed(() => {
       (item) => !selectedType.value || item.configType === selectedType.value,
     )
     .filter((item) => {
-      if (selectedType.value === "BANNER" && selectedChain.value) {
+      if (
+        (selectedType.value === "BANNER" ||
+          selectedType.value === "DAPP" ||
+          selectedType.value === "NFT_COLLECTION") &&
+        selectedChain.value
+      ) {
         if (selectedChain.value === "All") return true;
         if (selectedChain.value === "koala") return !item.parentConfig;
         return item.parentConfig?.configName === selectedChain.value;
-      } else if (selectedChain.value && selectedChain.value !== "All") {
-        const configChainName = getChainNameFromConfigItem(item);
+      }
+      if (selectedType.value === "ASSET" && selectedChain.value) {
+        if (selectedChain.value === "All") return true;
+        const configChainName = getChainNameFromConfigItem(item, "eucId");
+        return configChainName === selectedChain.value;
+      }
+      if (selectedType.value === "PARTNER" && selectedChain.value) {
+        if (selectedChain.value === "All") return true;
+
+        const configChainName = getChainNameFromConfigItem(item, "name");
         return configChainName === selectedChain.value;
       }
       return true;
@@ -421,15 +434,23 @@ For BANNER - search for parentConfig name (blockchains) or 'koala' if !parentCon
 */
 const getChainsFromFiltredConfigs = (configs) => {
   const chainsSet = new Set();
-
-  if (selectedType.value === "BANNER") {
+  if (
+    selectedType.value === "BANNER" ||
+    selectedType.value === "DAPP" ||
+    selectedType.value === "NFT_COLLECTION"
+  ) {
     configs.forEach((item) => {
       const chainItem = item.parentConfig?.configName || "koala";
       if (chainItem) chainsSet.add(chainItem);
     });
-  } else {
+  } else if (selectedType.value === "ASSET") {
     configs.forEach((item) => {
-      const chainItem = getChainNameFromConfigItem(item);
+      const chainItem = getChainNameFromConfigItem(item, "eucId");
+      if (chainItem) chainsSet.add(chainItem);
+    });
+  } else if (selectedType.value === "PARTNER") {
+    configs.forEach((item) => {
+      const chainItem = getChainNameFromConfigItem(item, "name");
       if (chainItem) chainsSet.add(chainItem);
     });
   }
@@ -451,14 +472,22 @@ const getChainsFromFiltredConfigs = (configs) => {
 Get chain name from passed config.
 Specifically from config.configFile.eucId, (value after '@')
 */
-const getChainNameFromConfigItem = (config) => {
+const getChainNameFromConfigItem = (config, searchPlace) => {
   try {
-    const configObj = JSON.parse(config.configFile);
-    const eucId = configObj.eucId;
-    if (eucId && eucId.includes("@")) {
-      const splitValues = eucId.split("@");
-      const chainName = splitValues[1];
-      if (chainName) return chainName;
+    if (searchPlace === "eucId") {
+      const configObj = JSON.parse(config.configFile);
+      const eucId = configObj.eucId;
+      if (eucId && eucId.includes("@")) {
+        const splitValues = eucId.split("@");
+        const chainName = splitValues[1];
+        if (chainName) return chainName;
+      }
+    } else if (searchPlace === "name") {
+      if (config.configName && config.configName.includes("@")) {
+        const splitValues = config.configName.split("@");
+        const chainName = splitValues[1];
+        if (chainName) return chainName;
+      }
     }
   } catch (error) {
     // eslint-disable-next-line no-console
