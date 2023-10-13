@@ -1,14 +1,14 @@
 <template>
   <div
-    class="popup fixed inset-0 z-30 bg-[#0D0D0D]/[.9] flex justify-center items-center"
+    class="popup fixed inset-0 z-30 flex items-center justify-center bg-[#0D0D0D]/[.9]"
   >
-    <div class="bg-white p-10 rounded-md flex flex-col gap-6">
-      <h2 v-if="props.payload" class="text-lg text-center font-bold">
+    <div class="flex flex-col gap-6 rounded-md bg-white p-10">
+      <h2 v-if="props.payload" class="text-center text-lg font-bold">
         <span class="text-gray-500">Editing user: </span
         >{{ props.payload?.username }}
       </h2>
 
-      <h2 v-else class="text-lg text-center font-bold">
+      <h2 v-else class="text-center text-lg font-bold">
         <span>Create user</span>
       </h2>
       <UiInputField
@@ -30,7 +30,7 @@
         <select
           id="role-select"
           v-model="role"
-          class="p-1 rounded-md"
+          class="rounded-md p-1"
           @change="onRoleSelectHandler($event)"
         >
           <option disabled>Choose role:</option>
@@ -45,7 +45,7 @@
         <p class="text-sm">{{ status ? "Enabled" : "Disabled" }}</p>
       </div>
 
-      <div class="flex gap-4 justify-between">
+      <div class="flex justify-between gap-4">
         <UiButton class="danger w-2/5" @click="onCanselHandler"
           >Cancel</UiButton
         >

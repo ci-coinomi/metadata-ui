@@ -10,37 +10,52 @@
     >{{ confirmModalText }}</modalConfirm
   >
 
-  <div class="p-4 flex justify-center items-center">
+  <modalSetParent
+    v-if="isParentModalVisible"
+    :configs="storedConfigList"
+    :current-config="currentConfig"
+    @is-modal-confirmed="modalParentHandler"
+  />
+
+  <div class="flex items-center justify-center p-4">
     <configBannerSkeleton v-if="isLoading" />
 
-    <div v-else class="flex flex-col gap-4 justify-center items-center w-full">
-      <div class="flex gap-4 w-full items-start justify-between">
+    <div v-else class="flex w-full flex-col items-center justify-center gap-4">
+      <div class="flex w-full items-start justify-between gap-4">
         <div class="w-full">
           <ConfigParentData
             v-if="currentConfig"
             :parent-data="currentConfig.parentConfig"
             :current-config-data="currentConfig"
+            :parentUpdateTrigger="configUpdateTrigger"
+          />
+          <ConfigConfiguredProvidersNestedLine
+            v-if="config.configType === 'CONFIGURED_PROVIDERS'"
+            :configNestedObject="configFileObj"
+            :is-cloned="false"
+            :configUpdateTrigger="configUpdateTrigger"
           />
           <configNestedLine
+            v-else
             :configNestedObject="configFileObj"
             :is-cloned="false"
             :configUpdateTrigger="configUpdateTrigger"
           />
         </div>
-        <div class="flex flex-col gap-4 justify-center items-center">
+        <div class="flex flex-col items-center justify-center gap-4">
           <div
             v-if="configImages.length === 0"
-            class="flex justify-center items-center border rounded-md shadow-md w-[250px] h-[323px]"
+            class="flex h-[323px] w-[250px] items-center justify-center rounded-md border shadow-md"
           >
             <UiButton class="success" @click="onAddNewImageHandler">
               <img
                 src="~/assets/icons/icon-add.svg"
-                class="w-6 h-6 icon-add"
+                class="icon-add h-6 w-6"
                 alt="add"
               />
             </UiButton>
           </div>
-          <div v-else class="flex justify-center gap-4 flex-col items-center">
+          <div v-else class="flex flex-col items-center justify-center gap-4">
             <configImageCard
               v-for="image in configImages"
               :key="image.imageId"
@@ -52,22 +67,37 @@
             <UiButton class="success" @click="onAddNewImageHandler">
               <img
                 src="~/assets/icons/icon-add.svg"
-                class="w-6 h-6 icon-add"
+                class="icon-add h-6 w-6"
                 alt="add"
               />
             </UiButton>
           </div>
         </div>
       </div>
-
-      <div class="flex w-1/2 gap-4 justify-between">
-        <UiButton class="w-1/4 success" @click="onCloneConfigHandler">
+      <div
+        v-if="isConfigEditable(currentConfig.configType)"
+        class="flex w-[70%] justify-center gap-4"
+      >
+        <UiButton class="success w-1/5" @click="onCloneConfigHandler">
           Clone config
         </UiButton>
-        <UiButton class="w-1/4 warning" @click="onUpdateConfigHandler">
+        <UiButton
+          v-if="
+            currentConfig.configType === 'PARTNER' ||
+            currentConfig.configType === 'PROVIDERS' ||
+            currentConfig.configType === 'BANNER' ||
+            currentConfig.configType === 'ECO_SETTING' ||
+            currentConfig.configType === 'DAPP'
+          "
+          class="primary w-1/5"
+          @click="changeParentHandler"
+        >
+          Change parent
+        </UiButton>
+        <UiButton class="warning w-1/5" @click="onUpdateConfigHandler">
           Save changes
         </UiButton>
-        <UiButton class="w-1/4 danger" @click="onDeleteConfigHandler">
+        <UiButton class="danger w-1/5" @click="onDeleteConfigHandler">
           Delete
         </UiButton>
       </div>
@@ -92,7 +122,6 @@ const router = useRouter();
 const props = defineProps({
   config: Object,
 });
-
 const emit = defineEmits(["configUpdateEmit"]);
 
 const configUpdateTrigger = ref(1);
@@ -112,6 +141,10 @@ const confirmModalText = ref(null);
 const confirmModalType = ref(null);
 const confirmModalPayload = ref(null);
 
+const isParentModalVisible = ref(null);
+const isParentUpdated = ref(false);
+const defaultParentConfig = ref(props.config.parentConfig);
+
 const storedConfigList = computed(() => store.configsList);
 const currentItemInStoreIndex = computed(() =>
   storedConfigList.value.findIndex(
@@ -119,7 +152,35 @@ const currentItemInStoreIndex = computed(() =>
   ),
 );
 
+/**
+ * Hide edit buttons for not-editable config types
+ */
+const isConfigEditable = (currentConfigType) =>
+  !(
+    currentConfigType === "CONFIGURED_PROVIDER_NETWORKS" ||
+    currentConfigType === "CONFIGURED_PROVIDER_GROUPS"
+  );
+
 // Modal handlers
+const modalParentHandler = (value) => {
+  isParentModalVisible.value = null;
+
+  if (value && value === "SET_NULL") {
+    currentConfig.value.parentConfig = null;
+    return;
+  }
+
+  if (value) {
+    const { configId, configType, configName } = value;
+    const newParentConfig = {
+      configId,
+      configType,
+      configName,
+    };
+    currentConfig.value.parentConfig = newParentConfig;
+  }
+};
+
 const modalConfirmHandler = (isConfirmed) => {
   isConfirmModalVisible.value = false;
 
@@ -165,6 +226,10 @@ const addImageModalHandler = (imageData) => {
 };
 
 // Button handlers
+
+const changeParentHandler = () => {
+  isParentModalVisible.value = true;
+};
 
 const onCloneConfigHandler = () => {
   const cloneData = {
@@ -216,7 +281,7 @@ const onUpdateConfigHandler = () => {
 // Requests
 
 const updateConfigRequest = async () => {
-  if (isConfigUpdated.value) {
+  if (isConfigUpdated.value || isParentUpdated.value) {
     const updatedConfigString = JSON.stringify(configFileObj.value);
     const response = await updateConfig(
       currentConfig.value,
@@ -230,6 +295,7 @@ const updateConfigRequest = async () => {
     } else {
       $toast.success(`Config ${currentConfig.value.configName} was updated`);
       currentConfig.value.configFile = response.configFile;
+      defaultParentConfig.value = currentConfig.value.parentConfig;
 
       // Update store.configList by adding updated config...
       const updatedConfigsList = [...storedConfigList.value];
@@ -352,6 +418,20 @@ watch(
   },
   {
     deep: true,
+  },
+);
+
+watch(
+  () => currentConfig.value?.parentConfig?.configId,
+  () => {
+    if (
+      currentConfig.value?.parentConfig?.configId !==
+      defaultParentConfig.value?.configId
+    ) {
+      isParentUpdated.value = true;
+    } else {
+      isParentUpdated.value = false;
+    }
   },
 );
 </script>

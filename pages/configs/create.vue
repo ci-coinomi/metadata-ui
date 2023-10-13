@@ -1,6 +1,6 @@
 <template>
   <main
-    class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
+    class="mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
     <modalConfirm
       v-if="isConfirmModalVisible"
@@ -20,50 +20,56 @@
       @is-modal-confirmed="modalTextHandler"
     />
 
-    <div class="p-4 flex justify-center items-center w-full">
+    <div class="flex w-full items-center justify-center">
       <configBannerSkeleton v-if="isLoading" />
 
       <div
         v-else
-        class="flex flex-col gap-4 justify-center items-center w-full"
+        class="flex w-full flex-col items-center justify-center gap-4"
       >
-        <div class="flex gap-4 w-full items-start justify-between">
+        <div class="flex w-full items-start justify-between gap-4">
           <div class="w-full">
             <ConfigParentData
-              v-if="currentConfig && currentConfig.parentConfig"
               :parent-data="currentConfig.parentConfig"
               :current-config-data="currentConfig"
             />
             <div
               v-if="currentConfig"
-              class="flex gap-4 justify-center items-center"
+              class="flex items-center justify-center gap-4 p-2"
             >
-              <p class="text-gray-400 flex-none">Clone name:</p>
+              <p class="flex-none text-gray-400">Name:</p>
               <UiInputField
                 v-model="currentConfig.configName"
                 :type="'text'"
                 :class="nameInputClass"
               />
             </div>
+            <ConfigConfiguredProvidersNestedLine
+              v-if="currentConfig.configType === 'CONFIGURED_PROVIDERS'"
+              :configNestedObject="configFileObj"
+              :is-cloned="true"
+              :full-config-object="currentConfig"
+            />
             <configNestedLine
+              v-else
               :configNestedObject="configFileObj"
               :is-cloned="true"
             />
           </div>
-          <div class="flex flex-col gap-4 justify-center items-center">
+          <div class="flex flex-col items-center justify-center gap-4">
             <div
               v-if="configImages.length === 0"
-              class="flex justify-center items-center border rounded-md shadow-md w-[250px] h-[323px]"
+              class="flex h-[323px] w-[250px] items-center justify-center rounded-md border shadow-md"
             >
               <UiButton class="success" @click="onAddNewImageHandler">
                 <img
                   src="~/assets/icons/icon-add.svg"
-                  class="w-6 h-6 icon-add"
+                  class="icon-add h-6 w-6"
                   alt="add"
                 />
               </UiButton>
             </div>
-            <div v-else class="flex justify-center gap-4 flex-col items-center">
+            <div v-else class="flex flex-col items-center justify-center gap-4">
               <configImageCard
                 v-for="image in configImages"
                 :key="image.imageId"
@@ -75,7 +81,7 @@
               <UiButton class="success" @click="onAddNewImageHandler">
                 <img
                   src="~/assets/icons/icon-add.svg"
-                  class="w-6 h-6 icon-add"
+                  class="icon-add h-6 w-6"
                   alt="add"
                 />
               </UiButton>
@@ -83,21 +89,25 @@
           </div>
         </div>
 
-        <div class="flex w-2/5 gap-4 justify-between">
+        <div class="flex w-2/5 justify-between gap-4">
           <uiButton
             v-if="
               currentConfig.configType === 'PARTNER' ||
-              currentConfig.configType === 'PROVIDERS'
+              currentConfig.configType === 'PROVIDERS' ||
+              currentConfig.configType === 'BANNER' ||
+              currentConfig.configType === 'ECO_SETTING' ||
+              currentConfig.configType === 'DAPP' ||
+              currentConfig.configType === 'CONFIGURED_PROVIDERS'
             "
-            class="w-1/3 primary"
+            class="primary w-1/3"
             @click="changeParentHandler"
           >
             Change parent
           </uiButton>
-          <UiButton class="w-1/3 success" @click="onSaveCloneHandler">
+          <UiButton class="success w-1/3" @click="onSaveCloneHandler">
             Save
           </UiButton>
-          <UiButton class="w-1/3 danger" @click="onReturnHandler">
+          <UiButton class="danger w-1/3" @click="onReturnHandler">
             Cancel
           </UiButton>
         </div>
@@ -145,10 +155,19 @@ const nameInputClass = computed(() =>
 // Modal handlers
 const modalTextHandler = (value) => {
   isTextModalVisible.value = null;
+  if (value && value === "SET_NULL") {
+    currentConfig.value.parentConfig = null;
+    return;
+  }
+
   if (value) {
-    currentConfig.value.parentConfig.configId = value.configId;
-    currentConfig.value.parentConfig.configType = value.configType;
-    currentConfig.value.parentConfig.configName = value.configName;
+    const { configId, configType, configName } = value;
+    const newParentConfig = {
+      configId,
+      configType,
+      configName,
+    };
+    currentConfig.value.parentConfig = newParentConfig;
   }
 };
 
@@ -305,11 +324,30 @@ const getParentCategoryFromQuery = (queryType) => {
   const firstOfType = storedConfigList.value.filter(
     (item) => item.configType === queryType,
   )[0];
+
   const emptyConfigFIle = createEmptyConfigFileClone(firstOfType.configFile);
+
+  // Deleting apiVersion...
+  const defaultConfigFile = JSON.parse(emptyConfigFIle);
+  if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
+  /**
+   * createEmptyConfigFileClone in index clears all arrays and add empty string to them.
+   * Empty string as value of providers array in configuredProviders is invalid.
+   */
+  if (
+    defaultConfigFile["@type"] === "configuredProviders" &&
+    defaultConfigFile.providers?.length === 1 &&
+    defaultConfigFile.providers?.[0] === ""
+  ) {
+    defaultConfigFile.providers = [];
+  }
+
+  const updatedConfigFile = JSON.stringify(defaultConfigFile);
+
   const newConfigObject = {
     configName: "",
     configType: firstOfType.configType,
-    configFile: emptyConfigFIle,
+    configFile: updatedConfigFile,
     parentConfig: firstOfType.parentConfig,
   };
   currentConfig.value = newConfigObject;
@@ -324,6 +362,18 @@ const getParentConfigFormQuery = (queryParentId) => {
   // Deleting apiVersion...
   const defaultConfigFile = JSON.parse(parentConfig.configFile);
   if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
+
+  /**
+   * createEmptyConfigFileClone in index clears all arrays and add empty string to them.
+   * Empty string as value of providers array in configuredProviders is invalid.
+   */
+  if (
+    defaultConfigFile["@type"] === "configuredProviders" &&
+    defaultConfigFile.providers?.length === 1 &&
+    defaultConfigFile.providers?.[0] === ""
+  ) {
+    defaultConfigFile.providers = [];
+  }
   const updatedConfigFile = JSON.stringify(defaultConfigFile);
 
   const newConfigObject = {
@@ -343,6 +393,18 @@ const getParentConfigFromStore = (cloneData) => {
   // Deleting apiVersion...
   const defaultConfigFile = JSON.parse(cloneData.configFile);
   if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
+  /**
+   * createEmptyConfigFileClone in index clears all arrays and add empty string to them.
+   * Empty string as value of providers array in configuredProviders is invalid.
+   */
+  if (
+    defaultConfigFile["@type"] === "configuredProviders" &&
+    defaultConfigFile.providers?.length === 1 &&
+    defaultConfigFile.providers?.[0] === ""
+  ) {
+    defaultConfigFile.providers = [];
+  }
+
   const updatedConfigFile = JSON.stringify(defaultConfigFile);
 
   const newConfigObject = {
@@ -351,6 +413,7 @@ const getParentConfigFromStore = (cloneData) => {
     configFile: updatedConfigFile,
     parentConfig: cloneData.parentConfig,
   };
+
   currentConfig.value = newConfigObject;
   configFileObj.value = JSON.parse(currentConfig.value.configFile);
   configImages.value = cloneData.configImages;
@@ -373,12 +436,13 @@ const moveParentOnTheFirstPlace = (parentConfig, configList) => {
 };
 
 onMounted(async () => {
-  store.setHeaderTitle("Create clone");
+  store.setHeaderTitle("Create config");
   isLoading.value = true;
 
   if (cloneConfigData.value) {
     getParentConfigFromStore(cleared(cloneConfigData.value));
     isLoading.value = false;
+    setInitParentForConfiguredProviders();
     return;
   }
 
@@ -387,12 +451,26 @@ onMounted(async () => {
   if (route.query.parent) {
     getParentConfigFormQuery(route.query.parent);
     isLoading.value = false;
+    setInitParentForConfiguredProviders();
     return;
   }
 
   if (route.query.type) {
     getParentCategoryFromQuery(route.query.type);
+    setInitParentForConfiguredProviders();
     isLoading.value = false;
   }
 });
+
+const setInitParentForConfiguredProviders = () => {
+  /**
+   * If we creating CONFIGURED_PROVIDERS and we don't have blockchain - open modal and make user to choose blockchain
+   */
+  if (
+    currentConfig.value.configType === "CONFIGURED_PROVIDERS" &&
+    !configFileObj.value.blockchain
+  ) {
+    isTextModalVisible.value = true;
+  }
+};
 </script>

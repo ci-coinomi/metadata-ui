@@ -1,11 +1,11 @@
 <template>
   <div
-    class="popup fixed inset-0 z-30 bg-[#0D0D0D]/[.9] flex justify-center items-center p-32"
+    class="popup fixed inset-0 z-30 flex items-center justify-center bg-[#0D0D0D]/[.9] p-32"
   >
     <div
-      class="bg-white p-10 rounded-md flex flex-col items-center gap-6 min-h-[40vh] max-w-[900px]"
+      class="flex min-h-[40vh] max-w-[900px] flex-col items-center gap-6 rounded-md bg-white p-10"
     >
-      <h2 class="text-lg text-center font-bold">
+      <h2 class="text-center text-lg font-bold">
         <span v-if="props.payload">Update image</span>
         <span v-else>Upload new image</span>
       </h2>
@@ -14,11 +14,11 @@
         ref="fileInput"
         type="file"
         accept="image/*"
-        class="flex justify-center items-center"
+        class="flex items-center justify-center"
         @change="fileChangeHandler"
       />
 
-      <div v-if="imageOldName" class="flex flex-col gap-2 w-full">
+      <div v-if="imageOldName" class="flex w-full flex-col gap-2">
         <p class="text-gray-500">Image old name:</p>
         <p>{{ imageOldName }}</p>
         <UiInputField
@@ -28,7 +28,7 @@
         />
       </div>
 
-      <div class="flex gap-4 justify-between mt-auto">
+      <div class="mt-auto flex justify-between gap-4">
         <UiButton class="danger w-2/5" @click="onCanselHandler"
           >Cancel</UiButton
         >

@@ -1,5 +1,5 @@
 <template>
-  <main class="pt-10 flex flex-col justify-center items-center gap-6">
+  <main class="flex flex-col items-center justify-center gap-6 pt-10">
     <h1 class="text-2xl font-bold">Access forbidden</h1>
     <p>Error 403</p>
     <p>You have no access to this page</p>
