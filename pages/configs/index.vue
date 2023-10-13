@@ -473,27 +473,39 @@ Get chain name from passed config.
 Specifically from config.configFile.eucId, (value after '@')
 */
 const getChainNameFromConfigItem = (config, searchPlace) => {
-  try {
-    if (searchPlace === "eucId") {
-      const configObj = JSON.parse(config.configFile);
-      const eucId = configObj.eucId;
-      if (eucId && eucId.includes("@")) {
-        const splitValues = eucId.split("@");
-        const chainName = splitValues[1];
-        if (chainName) return chainName;
-      }
-    } else if (searchPlace === "name") {
-      if (config.configName && config.configName.includes("@")) {
-        const splitValues = config.configName.split("@");
-        const chainName = splitValues[1];
-        if (chainName) return chainName;
-      } else if (config.configName) {
-        return 'other'
-      }
+  if (searchPlace === "eucId") {
+    const configObj = JSON.parse(config.configFile);
+    const eucId = configObj.eucId;
+    if (eucId && eucId.includes("@")) {
+      const splitValues = eucId.split("@");
+      const chainName = splitValues[1];
+      if (chainName) return chainName;
     }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("JSON error:", config, error);
+  }
+  if (searchPlace === "name") {
+    const closestChain = getClosestChain(config);
+    return closestChain ? closestChain.configName : "Other";
+  }
+};
+
+const getClosestChain = (config, depth = 0) => {
+  if (depth > 100) {
+    console.error(
+      "Previous parent has chain of more than 100 parents and chain was not found",
+    );
+    return;
+  }
+
+  if (config.configType === "BLOCKCHAIN") {
+    return config;
+  }
+
+  const fullConfigObject = storedConfigList.value.find(
+    (item) => item.configId === config.configId,
+  );
+
+  if (fullConfigObject.parentConfig) {
+    return getClosestChain(fullConfigObject.parentConfig, depth + 1);
   }
 };
 </script>
