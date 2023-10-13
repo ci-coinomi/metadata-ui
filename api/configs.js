@@ -17,7 +17,8 @@ const api = async (endpoint, method, payload) => {
 export const getConfigs = async () => {
   const response = await api(`v1/admin/configs`, "GET");
   if (response._data) {
-    return response._data;
+    const serializedConfigs = serializeConfigs(response._data);
+    return serializedConfigs;
   } else if (response.status) {
     return response.status;
   } else {

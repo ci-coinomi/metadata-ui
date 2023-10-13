@@ -483,32 +483,7 @@ const getChainNameFromConfigItem = (config, searchPlace) => {
     }
   }
   if (searchPlace === "name") {
-    const closestChain = getClosestChain(config);
-    return closestChain ? closestChain.configName : "Other";
-  }
-};
-
-const getClosestChain = (config, depth = 0) => {
-  if (depth > 100) {
-    console.error(
-      "Previous parent has chain of more than 100 parents and chain was not found",
-    );
-    return;
-  }
-
-  if (config.configType === "BLOCKCHAIN") {
-    return config;
-  }
-  if (config.parentConfig?.configType === "BLOCKCHAIN") {
-    return config.parentConfig;
-  }
-
-  const fullConfigObject = storedConfigList.value.find(
-    (item) => item.configId === config.configId,
-  );
-
-  if (fullConfigObject.parentConfig) {
-    return getClosestChain(fullConfigObject.parentConfig, depth + 1);
+    return config.configChain.configName;
   }
 };
 </script>
