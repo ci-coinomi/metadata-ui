@@ -499,6 +499,9 @@ const getClosestChain = (config, depth = 0) => {
   if (config.configType === "BLOCKCHAIN") {
     return config;
   }
+  if (config.parentConfig?.configType === "BLOCKCHAIN") {
+    return config.parentConfig;
+  }
 
   const fullConfigObject = storedConfigList.value.find(
     (item) => item.configId === config.configId,
