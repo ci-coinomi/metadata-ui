@@ -16,18 +16,26 @@
         Select parent to provide blockchain
       </p>
       <UiButton
+        v-if="blockchain"
         class="success ml-auto"
-        :disabled="!blockchain"
         @click="onAddNetworkHandler"
       >
         Add network
       </UiButton>
       <UiButton
+        v-if="blockchain"
         class="success"
-        :disabled="!blockchain"
         @click="onAddGroupClickHandler"
       >
         Add group
+      </UiButton>
+
+      <UiButton
+        v-if="!blockchain && fullConfigObject.configChain"
+        class="success ml-auto"
+        @click="onAddChainFromParent"
+      >
+        Get chain from parent
       </UiButton>
     </div>
     <div
@@ -54,6 +62,7 @@
             :update-memo="configUpdateTrigger"
             :is-memo="true"
             :blockchain="blockchain"
+            :fullConfigObject="fullConfigObject"
             :isObjectDeletable="isNextLevelObjectDeletable(configFieldType)"
             @delete-config-field="() => onDeleteNestedLineHandler(key)"
           />
@@ -64,18 +73,34 @@
 </template>
 
 <script setup>
+import { useStore } from "~/store";
+
+const store = useStore();
+
 const props = defineProps({
   configNestedObject: Object,
   isCloned: Boolean,
   configUpdateTrigger: Number,
   configFieldType: String,
   blockchain: String,
+  fullConfigObject: Object,
 });
+
+const emit = defineEmits(["setBlockchain"]);
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
 const isConfigUpdated = ref(false);
 const isNetworkModalVisible = ref(false);
 const isGroupModalVisible = ref(false);
+
+const onAddChainFromParent = () => {
+  const chain = store.configsList.find(
+    (item) => item.configId === props.fullConfigObject.configChain.configId,
+  );
+  const chainConfigFileObj = JSON.parse(chain.configFile);
+
+  emit("setBlockchain", chainConfigFileObj.eucId);
+};
 
 const isNextLevelObjectDeletable = () => {
   return false;
@@ -96,13 +121,19 @@ const onDeleteNestedLineHandler = (idx) => {
 const onGroupModalConfirmHandler = (selectedGroup) => {
   isGroupModalVisible.value = false;
   if (!selectedGroup) return;
-
-  const newNetworkObjects = selectedGroup.networks.map((item) => ({
-    enabled: false,
-    priority: "",
-    providerName: item.providerName,
-    networkIds: [item.id],
-  }));
+  const newNetworkObjects = selectedGroup.networks.map((item) => {
+    const networkObject = {
+      enabled: false,
+      priority: "",
+      accountApiKeyNames: [],
+      providerName: item.providerName,
+      networkIds: [item.id],
+    };
+    if (item.accountApiKeyNames) {
+      networkObject.accountApiKeyNames = [...item.accountApiKeyNames];
+    }
+    return networkObject;
+  });
 
   props.configNestedObject.push(...newNetworkObjects);
 };
@@ -116,6 +147,11 @@ const onNetworkModalConfirmHandler = (selectedNetwork) => {
       providerName: selectedNetwork.providerName,
       networkIds: [selectedNetwork.id],
     };
+    if (selectedNetwork.accountApiKeyNames) {
+      addedNetworkObject.accountApiKeyNames = [
+        ...selectedNetwork.accountApiKeyNames,
+      ];
+    }
     props.configNestedObject.push(addedNetworkObject);
   }
 };

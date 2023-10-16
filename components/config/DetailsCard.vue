@@ -34,6 +34,7 @@
             :configNestedObject="configFileObj"
             :is-cloned="false"
             :configUpdateTrigger="configUpdateTrigger"
+            :fullConfigObject="config"
           />
           <configNestedLine
             v-else

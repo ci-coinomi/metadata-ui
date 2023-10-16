@@ -37,7 +37,13 @@
       "
       class="flex gap-4 rounded-sm py-1"
     >
-      <p class="text-gray-400">
+      <p
+        :class="
+          isObject(value) || Array.isArray(value)
+            ? 'text-gray-600'
+            : 'text-gray-400'
+        "
+      >
         {{ key }}
       </p>
 
