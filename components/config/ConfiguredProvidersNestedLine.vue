@@ -17,6 +17,16 @@
         </span>
       </p>
 
+      <UiButton
+        v-if="
+          !configNestedObject.accountApiKeyNames && additionalData.length > 0
+        "
+        class="success"
+        @click="() => (configNestedObject.accountApiKeyNames = [])"
+      >
+        Create ApiKeys Field
+      </UiButton>
+
       <uiButton
         v-if="isObjectDeletable"
         class="danger h-[34px] min-w-[34px]"
@@ -37,7 +47,13 @@
       "
       class="flex gap-4 rounded-sm py-1"
     >
-      <p class="text-gray-400">
+      <p
+        :class="
+          isObject(value) || Array.isArray(value)
+            ? 'text-gray-600'
+            : 'text-gray-400'
+        "
+      >
         {{ key }}
       </p>
 
@@ -58,13 +74,48 @@
       />
 
       <template v-else-if="Array.isArray(value)">
+        <div v-if="key === 'accountApiKeyNames'" class="flex w-full gap-2">
+          <div
+            class="mr-auto flex w-full flex-col gap-2 rounded-md border border-gray-400 p-2"
+          >
+            <div
+              v-for="(
+                apiKey, apiKeyIndex
+              ) in configNestedObject.accountApiKeyNames"
+              :key="apiKey"
+              class="flex w-full items-center justify-between"
+            >
+              {{ apiKey }}
+
+              <UiButton
+                class="danger smallPaddings"
+                @click="() => onAccountApiKeyDeleteHandler(apiKeyIndex)"
+              >
+                <img
+                  src="~/assets/icons/icon-trash.svg"
+                  class="icon-trash h-4 w-4"
+                  alt="delete user"
+                />
+              </UiButton>
+            </div>
+          </div>
+          <UiSelect
+            :selectList="availableAccountApiKeyNamesForSelect"
+            :defaultValue="'Select...'"
+            :notSelectable="true"
+            @select-handler="(data) => props.configNestedObject[key].push(data)"
+          />
+        </div>
+
         <ConfigConfiguredProvidersNestedProvider
-          v-if="isNestedArrayVisible(key)"
+          v-else-if="isNestedArrayVisible(key)"
           :isCloned="isCloned"
           :configNestedObject="value"
           :configFieldType="key"
           :configUpdateTrigger="configUpdateTrigger"
           :blockchain="configNestedObject['blockchain']"
+          :fullConfigObject="fullConfigObject"
+          @set-blockchain="(data) => (configNestedObject.blockchain = data)"
         />
         <UiInputField
           v-else
@@ -97,14 +148,14 @@
       />
     </div>
 
-    <article v-if="editionalData.length > 0" class="flex flex-col gap-2">
+    <article v-if="additionalData.length > 0" class="flex flex-col gap-2">
       <div
-        v-for="editionalDataItem in editionalData"
-        :key="editionalDataItem.id"
+        v-for="additionalDataItem in additionalData"
+        :key="additionalDataItem.id"
       >
         <h3 class="text-center">Aditional data:</h3>
         <div
-          v-for="(value, key) in editionalDataItem"
+          v-for="(value, key) in additionalDataItem"
           :key="key"
           class="flex items-center gap-2 py-1"
         >
@@ -152,25 +203,40 @@ const emit = defineEmits(["deleteConfigField"]);
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
 const isConfigUpdated = ref(false);
+const availableAccountApiKeyNamesForSelect = ref([]);
 
-const editionalData = computed(() => {
-  const editionalDataArray = [];
+const additionalData = computed(() => {
+  const additionalDataArray = [];
   defaultNestedObject.value?.networkIds?.forEach((networkId) => {
     const itemInResponse = store.providersNetworks.find(
       (item) => item.id === networkId,
     );
-    if (itemInResponse) editionalDataArray.push(itemInResponse);
+    if (itemInResponse) {
+      additionalDataArray.push(itemInResponse);
+    }
+
+    if (itemInResponse && itemInResponse.accountApiKeyNames) {
+      availableAccountApiKeyNamesForSelect.value = [
+        ...itemInResponse.accountApiKeyNames,
+      ];
+    }
   });
 
-  // if (editionalDataArray) {
-  //   console.log("Object", cleared(defaultNestedObject.value));
-  //   console.log("EditionalData", cleared(store.providersNetworks));
-  // }
-  return editionalDataArray;
+  return additionalDataArray;
 });
 
 const onObjectDeleteClick = () => {
   emit("deleteConfigField");
+};
+
+const onAccountApiKeyDeleteHandler = (key) => {
+  const keyNamesArray = props.configNestedObject.accountApiKeyNames;
+
+  const updatedArray = [
+    ...keyNamesArray.slice(0, key),
+    ...keyNamesArray.slice(key + 1),
+  ];
+  props.configNestedObject.accountApiKeyNames = updatedArray;
 };
 
 const blockchainsList = computed(() =>
@@ -196,7 +262,8 @@ const isFieldDisabled = (key) => {
     key === "@type" ||
     key === "providerName" ||
     key === "networkIds" ||
-    key === "blockchain"
+    key === "blockchain" ||
+    key === "accountApiKeyNames"
   ) {
     return true;
   } else if (!props.isCloned && key === "eucId") {

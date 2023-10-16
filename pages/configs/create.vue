@@ -435,6 +435,18 @@ const moveParentOnTheFirstPlace = (parentConfig, configList) => {
   return null;
 };
 
+const getProvidersData = async () => {
+  if (
+    providersGroups.value.length === 0 ||
+    providersNetworks.value.length === 0
+  ) {
+    const networksResponse = await getProviderNetworks();
+    const groupResponse = await getProviderGroup();
+    store.setProvidersGroups(groupResponse);
+    store.setProvidersNetworks(networksResponse);
+  }
+};
+
 onMounted(async () => {
   store.setHeaderTitle("Create config");
   isLoading.value = true;
@@ -460,6 +472,7 @@ onMounted(async () => {
     setInitParentForConfiguredProviders();
     isLoading.value = false;
   }
+  getProvidersData();
 });
 
 const setInitParentForConfiguredProviders = () => {

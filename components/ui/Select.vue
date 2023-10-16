@@ -5,7 +5,10 @@
       :class="disabled ? 'text-gray-400' : 'text-gray-900'"
       @click="onSelectedValueClick"
     >
-      {{ selectedItem }}
+      <span v-if="selectList.length === 0"> Empty </span>
+      <span v-else>
+        {{ selectedItem }}
+      </span>
     </p>
     <div
       v-if="isSelectOpen && selectList.length > 0"
@@ -14,7 +17,7 @@
       <div
         v-for="(item, index) in selectList"
         :key="index"
-        class="cursor-pointer text-gray-900 hover:underline sm:text-sm sm:leading-6"
+        class="w-full cursor-pointer whitespace-nowrap text-gray-900 hover:underline sm:text-sm sm:leading-6"
         @click="onSelectListItemClick(item)"
       >
         {{ item }}
@@ -24,7 +27,12 @@
 </template>
 
 <script setup>
-const props = defineProps(["selectList", "defaultValue", "disabled"]);
+const props = defineProps([
+  "selectList",
+  "defaultValue",
+  "disabled",
+  "notSelectable",
+]);
 const emit = defineEmits(["selectHandler"]);
 
 const selectedItem = ref(null);
@@ -37,7 +45,9 @@ const onSelectedValueClick = () => {
 };
 
 const onSelectListItemClick = (value) => {
-  selectedItem.value = value;
+  if (!props.notSelectable) {
+    selectedItem.value = value;
+  }
   isSelectOpen.value = false;
   emit("selectHandler", value);
 };
