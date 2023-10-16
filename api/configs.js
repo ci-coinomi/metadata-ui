@@ -87,7 +87,7 @@ export const deleteConfig = async (configId) => {
 };
 
 export const getProviderGroup = async () => {
-  const response = await api(`/v2/provider/groups`, "GET");
+  const response = await api(`/admin/v2/provider/groups`, "GET");
   if (response._data) {
     return response._data;
   } else if (response.status) {
@@ -98,7 +98,7 @@ export const getProviderGroup = async () => {
 };
 
 export const getProviderNetworks = async () => {
-  const response = await api(`/v2/provider/networks`, "GET");
+  const response = await api(`/admin/v2/provider/networks`, "GET");
   if (response._data) {
     return response._data;
   } else if (response.status) {
