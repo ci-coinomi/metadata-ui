@@ -3,6 +3,14 @@
     class="flex w-full flex-col gap-2 rounded-sm p-2"
     :class="configBorderStyle"
   >
+    <ModalConfiguredProviderAddAccount
+      v-if="configNestedObject?.accountApiKeyNames && isAddAcountModalVisible"
+      :accountList="availableAccountApiKeyNamesForSelect"
+      :currentProviderList="configNestedObject?.accountApiKeyNames"
+      :defaultList="defaultNestedObject.accountApiKeyNames"
+      :isFieldNew="isFieldNew"
+      @is-modal-confirmed="onAddAccountModalConfirmHandler"
+    />
     <div
       v-if="
         props.configNestedObject &&
@@ -42,10 +50,10 @@
     <div
       v-for="(value, key) in configNestedObject"
       :key="key"
+      class="flex gap-4 rounded-sm"
       :class="
         isObject(value) || Array.isArray(value) ? 'items-start' : 'items-center'
       "
-      class="flex gap-4 rounded-sm py-1"
     >
       <p
         :class="
@@ -75,36 +83,19 @@
 
       <template v-else-if="Array.isArray(value)">
         <div v-if="key === 'accountApiKeyNames'" class="flex w-full gap-2">
-          <div
-            class="mr-auto flex w-full flex-col gap-2 rounded-md border border-gray-400 p-2"
-          >
-            <div
-              v-for="(
-                apiKey, apiKeyIndex
-              ) in configNestedObject.accountApiKeyNames"
-              :key="apiKey"
-              class="flex w-full items-center justify-between"
-            >
-              {{ apiKey }}
-
-              <UiButton
-                class="danger smallPaddings"
-                @click="() => onAccountApiKeyDeleteHandler(apiKeyIndex)"
-              >
-                <img
-                  src="~/assets/icons/icon-trash.svg"
-                  class="icon-trash h-4 w-4"
-                  alt="delete user"
-                />
-              </UiButton>
-            </div>
-          </div>
-          <UiSelect
-            :selectList="availableAccountApiKeyNamesForSelect"
-            :defaultValue="'Select...'"
-            :notSelectable="true"
-            @select-handler="(data) => props.configNestedObject[key].push(data)"
+          <UiInputField
+            :model-value="configNestedObject.accountApiKeyNames"
+            type="text"
+            disabled
+            :update-memo="configUpdateTrigger"
+            :is-memo="true"
           />
+          <UiButton
+            :disabled="isManageAccountBtnDisabled"
+            @click="isAddAcountModalVisible = !isAddAcountModalVisible"
+          >
+            Manage
+          </UiButton>
         </div>
 
         <ConfigConfiguredProvidersNestedProvider
@@ -153,33 +144,47 @@
         v-for="additionalDataItem in additionalData"
         :key="additionalDataItem.id"
       >
-        <h3 class="text-center">Aditional data:</h3>
+        <h3 class="text-center">Provider details</h3>
         <div
           v-for="(value, key) in additionalDataItem"
           :key="key"
-          class="flex items-center gap-2 py-1"
+          :class="nestedLineClass(key, value)"
         >
-          <p
-            :class="
-              isObject(value) || Array.isArray(value)
-                ? 'text-gray-600'
-                : 'text-gray-400'
-            "
-          >
-            {{ key }}
-          </p>
-          <UiSwitcher
-            v-if="typeof value === 'boolean'"
-            :value="value"
-            disabled
-            class="opacity-50"
-          />
-          <UiInputField
-            v-else
-            :model-value="value"
-            type="text"
-            :disabled="true"
-          />
+          <template v-if="key !== 'id'">
+            <p
+              :class="
+                isObject(value) || Array.isArray(value)
+                  ? 'text-gray-600'
+                  : 'text-gray-400'
+              "
+            >
+              {{ key }}
+            </p>
+            <UiSwitcher
+              v-if="typeof value === 'boolean'"
+              :value="value"
+              disabled
+              class="opacity-50"
+            />
+            <div
+              v-else-if="key === 'capabilities'"
+              class="flex flex-col gap-2 rounded-lg border border-gray-400 p-2"
+            >
+              <div
+                v-for="capability in value"
+                :key="capability"
+                class="cursor-default text-sm text-gray-400"
+              >
+                {{ capability }}
+              </div>
+            </div>
+            <UiInputField
+              v-else
+              :model-value="value"
+              type="text"
+              :disabled="true"
+            />
+          </template>
         </div>
       </div>
     </article>
@@ -198,11 +203,13 @@ const props = defineProps({
   isObjectDeletable: Boolean,
   blockchain: String,
   fullConfigObject: Object,
+  isFieldNew: Boolean,
 });
 const emit = defineEmits(["deleteConfigField"]);
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
 const isConfigUpdated = ref(false);
+const isAddAcountModalVisible = ref(false);
 const availableAccountApiKeyNamesForSelect = ref([]);
 
 const additionalData = computed(() => {
@@ -229,14 +236,11 @@ const onObjectDeleteClick = () => {
   emit("deleteConfigField");
 };
 
-const onAccountApiKeyDeleteHandler = (key) => {
-  const keyNamesArray = props.configNestedObject.accountApiKeyNames;
-
-  const updatedArray = [
-    ...keyNamesArray.slice(0, key),
-    ...keyNamesArray.slice(key + 1),
-  ];
-  props.configNestedObject.accountApiKeyNames = updatedArray;
+const onAddAccountModalConfirmHandler = (data) => {
+  isAddAcountModalVisible.value = false;
+  if (data) {
+    props.configNestedObject.accountApiKeyNames = data;
+  }
 };
 
 const blockchainsList = computed(() =>
@@ -251,12 +255,24 @@ const blockchainsList = computed(() =>
     }),
 );
 
+const isManageAccountBtnDisabled = computed(() => {
+  const defaultArray = defaultNestedObject.value.accountApiKeyNames;
+
+  if (availableAccountApiKeyNamesForSelect.value.length === 0) return true;
+  if (
+    defaultArray.length === 1 &&
+    availableAccountApiKeyNamesForSelect.value.length === 1
+  )
+    return true;
+});
+
 const configBorderStyle = computed(() => {
   if (props.configNestedObject?.["@type"]) return "";
   return "border border-gray-400";
 });
 
 const isNestedArrayVisible = (key) => key === "providers";
+
 const isFieldDisabled = (key) => {
   if (
     key === "@type" ||
@@ -271,6 +287,19 @@ const isFieldDisabled = (key) => {
   } else {
     return false;
   }
+};
+
+const nestedLineClass = (key, value) => {
+  let classNames = "flex gap-4 rounded-sm ";
+
+  if (isObject(value) || Array.isArray(value)) {
+    classNames += " items-start";
+  } else {
+    classNames += " items-center";
+  }
+
+  key !== "id" ? (classNames += " py-1") : (classNames += "");
+  return classNames;
 };
 const isObject = (value) => {
   return typeof value === "object" && value !== null && !Array.isArray(value);

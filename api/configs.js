@@ -107,3 +107,14 @@ export const getProviderNetworks = async () => {
     return "Cors Error";
   }
 };
+
+export const getProvidersAccounts = async () => {
+  const response = await api(`/admin/v2/provider/accounts`, "GET");
+  if (response._data) {
+    return response._data;
+  } else if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
+};
