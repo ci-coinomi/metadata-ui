@@ -92,6 +92,7 @@ import {
   getConfigsTypes,
   getProviderGroup,
   getProviderNetworks,
+  getProvidersAccounts,
 } from "~/api/configs";
 import { useStore } from "~/store";
 
@@ -285,12 +286,15 @@ const fetchConfigs = async () => {
 const getProvidersData = async () => {
   if (
     providersGroups.value.length === 0 ||
+    providersNetworks.value.length === 0 ||
     providersNetworks.value.length === 0
   ) {
     const networksResponse = await getProviderNetworks();
     const groupResponse = await getProviderGroup();
+    const accountResponse = await getProvidersAccounts();
     store.setProvidersGroups(groupResponse);
     store.setProvidersNetworks(networksResponse);
+    store.setProviderAccounts(accountResponse);
   }
 };
 

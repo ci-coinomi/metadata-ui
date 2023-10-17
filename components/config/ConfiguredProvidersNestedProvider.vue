@@ -1,5 +1,5 @@
 <template>
-  <modalConfiguredProviderNetwork
+  <ModalConfiguredProviderNetwork
     v-if="isNetworkModalVisible"
     :blockchain="blockchain"
     @is-modal-confirmed="(data) => onNetworkModalConfirmHandler(data)"
@@ -62,6 +62,7 @@
             :update-memo="configUpdateTrigger"
             :is-memo="true"
             :blockchain="blockchain"
+            :isFieldNew="isFieldNew(key)"
             :fullConfigObject="fullConfigObject"
             :isObjectDeletable="isNextLevelObjectDeletable(configFieldType)"
             @delete-config-field="() => onDeleteNestedLineHandler(key)"
