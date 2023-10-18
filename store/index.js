@@ -27,7 +27,8 @@ export const useStore = defineStore("app-store", {
       this.configTypes = typesArray.filter(
         (item) =>
           item !== "CONFIGURED_PROVIDER_NETWORKS" &&
-          item !== "CONFIGURED_PROVIDER_GROUPS",
+          item !== "CONFIGURED_PROVIDER_GROUPS" &&
+          item !== "CONFIGURED_PROVIDER_ACCOUNTS",
       );
     },
 
@@ -35,7 +36,8 @@ export const useStore = defineStore("app-store", {
       this.configsList = configsArray.filter(
         (item) =>
           item.configType !== "CONFIGURED_PROVIDER_NETWORKS" &&
-          item.configType !== "CONFIGURED_PROVIDER_GROUPS",
+          item.configType !== "CONFIGURED_PROVIDER_GROUPS" &&
+          item !== "CONFIGURED_PROVIDER_ACCOUNTS",
       );
     },
 
