@@ -83,7 +83,7 @@
             v-if="selectedAccounts.length === 0"
             class="py-10 text-center text-lg"
           >
-            No selected accounts
+            Select at least one account
           </p>
           <div v-else class="flex flex-col items-center justify-center gap-4">
             <article
@@ -95,7 +95,6 @@
                 <p>Name: {{ selectedAccount.name }}</p>
                 <UiButton
                   class="danger"
-                  :disabled="isApiKeyDeletable(selectedAccount.name)"
                   @click="onRemoveAccountClick(selectedAccount)"
                 >
                   Remove
@@ -173,10 +172,10 @@ const selectedAccounts = ref([]);
 
 const storedAccounts = computed(() => store.providerAccounts);
 
-const isApiKeyDeletable = (name) => {
-  if (props.defaultList.find((item) => item === name) && !props.isFieldNew)
-    return true;
-};
+// const isApiKeyDeletable = (name) => {
+//   if (props.defaultList.find((item) => item === name) && !props.isFieldNew)
+//     return true;
+// };
 
 const onAddAccountClick = (acc) => {
   const newArray = availableAccounts.value.filter(
