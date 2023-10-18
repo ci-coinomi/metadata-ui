@@ -1,6 +1,6 @@
 <template>
   <main
-    class="flex flex-col justify-center items-center gap-6 bg-white p-4 mt-3 shadow-md rounded"
+    class="mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
     <configIndexSkeleton v-if="isLoading" />
 
@@ -8,24 +8,23 @@
       v-else-if="
         !isLoading && (!storedConfigList || storedConfigList.length === 0)
       "
-      class="text-xl flex justify-center items-center"
+      class="flex items-center justify-center text-xl"
     >
       Configs were not recieved
     </h2>
 
-    <div v-else class="flex flex-col justify-center items-center gap-6 w-full">
-      <div
-        class="w-11/12 shadow-md p-4 rounded-md flex flex-col items-center gap-4"
-      >
+    <div v-else class="flex w-full flex-col items-center justify-center gap-6">
+      <div class="flex flex-col items-center gap-4 rounded-md p-4 shadow-md">
         <div class="w-full">
           <div v-if="configTypes.length === 0">
-            <h2 class="text-xl text-center">Config types were not recieved</h2>
+            <h2 class="text-center text-xl">Config types were not recieved</h2>
           </div>
-          <div v-else class="grid gap-4 grid-rows-2 grid-cols-4 w-full">
+          <div v-else class="grid w-full grid-cols-4 grid-rows-2 gap-4">
             <uiButton
               v-for="typeItem in configTypes"
               :key="typeItem"
               :value="typeItem"
+              class="small"
               :class="typeItem === selectedType ? 'primary' : ''"
               @click="onTypesSelectHandler(typeItem)"
               >{{ typeItem }}</uiButton
@@ -34,7 +33,7 @@
         </div>
         <div
           v-if="!isBlockchainBlockHidden"
-          class="flex gap-4 w-full justify-center"
+          class="flex w-full justify-center gap-4"
         >
           <UiButton
             v-for="chain in blockchains"
@@ -48,9 +47,9 @@
           </UiButton>
         </div>
       </div>
-      <div class="flex flex-col gap-2 w-11/12 justify-center items-center">
-        <div class="flex w-full justify-between items-center gap-4">
-          <div class="py-2 mr-aut flex gap-4">
+      <div class="flex w-full flex-col items-center justify-center gap-2">
+        <div class="flex w-full items-center justify-between gap-4">
+          <div class="mr-aut flex gap-4 py-2">
             <p class="w-[135px]">
               <span class="text-gray-500">Total count: </span
               >{{ storedConfigList.length }}
@@ -66,7 +65,7 @@
             :type="'text'"
           />
           <UiButton
-            v-if="!isCreateEmptyConfigHidden"
+            v-if="isCreateEmptyConfigVisible"
             class="success whitespace-nowrap"
             @click="onCreateEmptyCloneHandler"
           >
@@ -88,7 +87,13 @@
 
 <script setup>
 import { createEmptyConfigFileClone } from "~/utils/utilfunc";
-import { getConfigs, getConfigsTypes } from "~/api/configs";
+import {
+  getConfigs,
+  getConfigsTypes,
+  getProviderGroup,
+  getProviderNetworks,
+  getProvidersAccounts,
+} from "~/api/configs";
 import { useStore } from "~/store";
 
 definePageMeta({
@@ -109,33 +114,50 @@ const searchValue = ref("");
 
 const configTypes = computed(() => store.configTypes);
 const storedConfigList = computed(() => store.configsList);
+const providersGroups = computed(() => store.providersGroups);
+const providersNetworks = computed(() => store.providersNetworks);
 
 /*
 Filtering configs by configType - by Chain - by Name and sorting by id.
 Filter depends on selectedType, selectedChain, searchValue and configs
 */
-const filtredConfigs = computed(() =>
-  storedConfigList.value
-    .filter((item) =>
-      selectedType.value ? item.configType === selectedType.value : item,
+
+const filtredConfigs = computed(() => {
+  return storedConfigList.value
+    .filter(
+      (item) => !selectedType.value || item.configType === selectedType.value,
     )
     .filter((item) => {
-      if (selectedChain.value && selectedChain.value !== "All") {
-        const configChainName = getChainNameFromConfigItem(item);
-        return configChainName === selectedChain.value;
-      } else {
-        return item;
+      if (
+        (selectedType.value === "BANNER" ||
+          selectedType.value === "DAPP" ||
+          selectedType.value === "NFT_COLLECTION") &&
+        selectedChain.value
+      ) {
+        if (selectedChain.value === "All") return true;
+        if (selectedChain.value === "koala") return !item.parentConfig;
+        return item.parentConfig?.configName === selectedChain.value;
       }
+      if (selectedType.value === "ASSET" && selectedChain.value) {
+        if (selectedChain.value === "All") return true;
+        const configChainName = getChainNameFromConfigItem(item, "eucId");
+        return configChainName === selectedChain.value;
+      }
+      if (selectedType.value === "PARTNER" && selectedChain.value) {
+        if (selectedChain.value === "All") return true;
+
+        const configChainName = getChainNameFromConfigItem(item, "name");
+        return configChainName === selectedChain.value;
+      }
+      return true;
     })
-    .filter((item) =>
-      searchValue.value
-        ? item.configName
-            .toLowerCase()
-            .includes(searchValue.value.toLowerCase())
-        : item,
+    .filter(
+      (item) =>
+        !searchValue.value ||
+        item.configName.toLowerCase().includes(searchValue.value.toLowerCase()),
     )
-    .sort((a, b) => b.configId - a.configId),
-);
+    .sort((a, b) => b.configId - a.configId);
+});
 
 /*
 Lazy-load, works with handleScroll().
@@ -148,13 +170,17 @@ const visibleConfigs = computed(() =>
 /*
 Shown only for config types without parentConfig
 */
-const isCreateEmptyConfigHidden = computed(
-  () =>
-    isLoading.value ||
-    filtredConfigs.value.length === 0 ||
-    visibleConfigs.value.some((el) => el.parentConfig),
-);
+const isCreateEmptyConfigVisible = computed(() => {
+  if (selectedType.value === "CONFIGURED_PROVIDERS") return true;
+  if (selectedType.value === "CONFIGURED_PROVIDER_ACCOUNTS") return false;
 
+  if (
+    filtredConfigs.value.length === 0 ||
+    visibleConfigs.value.some((el) => el.parentConfig)
+  )
+    return false;
+  return true;
+});
 const isBlockchainBlockHidden = computed(
   () => isLoading.value || blockchains.value.length === 0,
 );
@@ -172,7 +198,7 @@ const onChainClickHandler = (chain) => {
   updateQueryParams();
 };
 
-/* 
+/*
 Set all values to default (accept selectedType) and get chains list as well.
 */
 const onTypesSelectHandler = (type) => {
@@ -186,7 +212,7 @@ const onTypesSelectHandler = (type) => {
   updateQueryParams();
 };
 
-/* 
+/*
 Print more configs (+30) after scrolling to the bottom of the page by increasing visibleItemsCount.
 */
 const handleScroll = () => {
@@ -201,19 +227,19 @@ const handleScroll = () => {
   }
 };
 
-/* 
-Awailable for configTypes were configs have no parentConfig. 
+/*
+Awailable for configTypes were configs have no parentConfig.
 Setting all fields of visibleConfigs.value[0] as empty and redirect to /configs/create
 */
 const onCreateEmptyCloneHandler = () => {
-  const firstConfigInList = visibleConfigs.value[0];
-  const emptyConfigFile = createEmptyConfigFileClone(
-    firstConfigInList.configFile,
+  const configToBePassed = visibleConfigs.value[0];
+  const configFileToBePassed = createEmptyConfigFileClone(
+    configToBePassed.configFile,
   );
 
   const cloneData = {
-    config: firstConfigInList,
-    configFile: emptyConfigFile,
+    config: configToBePassed,
+    configFile: configFileToBePassed,
     configImages: [],
   };
 
@@ -228,7 +254,7 @@ const onCreateEmptyCloneHandler = () => {
 
 // Requests
 
-/* 
+/*
 Fetch config types if store.configTypes is empty
 */
 const fetchConfigTypes = async () => {
@@ -242,7 +268,7 @@ const fetchConfigTypes = async () => {
   }
 };
 
-/* 
+/*
 Fetch configs if store.configsList is empty.
 */
 const fetchConfigs = async () => {
@@ -259,12 +285,28 @@ const fetchConfigs = async () => {
   isLoading.value = false;
 };
 
-onMounted(() => {
+const getProvidersData = async () => {
+  if (
+    providersGroups.value.length === 0 ||
+    providersNetworks.value.length === 0 ||
+    providersNetworks.value.length === 0
+  ) {
+    const networksResponse = await getProviderNetworks();
+    const groupResponse = await getProviderGroup();
+    const accountResponse = await getProvidersAccounts();
+    store.setProvidersGroups(groupResponse);
+    store.setProvidersNetworks(networksResponse);
+    store.setProviderAccounts(accountResponse);
+  }
+};
+
+onMounted(async () => {
   window.addEventListener("scroll", handleScroll);
   store.setHeaderTitle("Select config type");
-  fetchConfigTypes();
-  fetchConfigs();
+  await fetchConfigTypes();
+  await fetchConfigs();
   filterListByQuery();
+  await getProvidersData();
 });
 
 onUnmounted(() => {
@@ -307,7 +349,7 @@ watch(
   },
 );
 
-/* 
+/*
 For updating query params after changing searchValue.
 */
 watch(searchValue, () => {
@@ -356,7 +398,7 @@ const filterListByQuery = () => {
   if (query.chain) selectedChain.value = query.chain;
 };
 
-/* 
+/*
 Push selectedChain and selectedType to query.
 */
 const updateQueryParams = async () => {
@@ -374,7 +416,7 @@ const updateQueryParams = async () => {
   });
 };
 
-/* 
+/*
 Remove the passed parameter from query
 */
 const removeUnusedRouterQuery = (queryToRemove) => {
@@ -388,18 +430,36 @@ const removeUnusedRouterQuery = (queryToRemove) => {
   });
 };
 
-/* 
+/*
 Getting every unique chain name from config.configFile.eucId's in configs array.
 If we have no chain names in eucId after '@' - hide chainsBlock
 If we have only one chain type in filtredConfigs - show chainsBlock and select this chain
 If there are more than 1 chain in filtredConfigs - add 'All' (selected by default) and show chains in chainsBlock
+
+For BANNER - search for parentConfig name (blockchains) or 'koala' if !parentConfig
 */
 const getChainsFromFiltredConfigs = (configs) => {
   const chainsSet = new Set();
-  configs.forEach((item) => {
-    const chainItem = getChainNameFromConfigItem(item);
-    if (chainItem) chainsSet.add(chainItem);
-  });
+  if (
+    selectedType.value === "BANNER" ||
+    selectedType.value === "DAPP" ||
+    selectedType.value === "NFT_COLLECTION"
+  ) {
+    configs.forEach((item) => {
+      const chainItem = item.parentConfig?.configName || "koala";
+      if (chainItem) chainsSet.add(chainItem);
+    });
+  } else if (selectedType.value === "ASSET") {
+    configs.forEach((item) => {
+      const chainItem = getChainNameFromConfigItem(item, "eucId");
+      if (chainItem) chainsSet.add(chainItem);
+    });
+  } else if (selectedType.value === "PARTNER") {
+    configs.forEach((item) => {
+      const chainItem = getChainNameFromConfigItem(item, "name");
+      if (chainItem) chainsSet.add(chainItem);
+    });
+  }
   const chainsArray = Array.from(chainsSet);
 
   if (chainsArray.length === 0) {
@@ -414,12 +474,12 @@ const getChainsFromFiltredConfigs = (configs) => {
   }
 };
 
-/* 
+/*
 Get chain name from passed config.
 Specifically from config.configFile.eucId, (value after '@')
 */
-const getChainNameFromConfigItem = (config) => {
-  try {
+const getChainNameFromConfigItem = (config, searchPlace) => {
+  if (searchPlace === "eucId") {
     const configObj = JSON.parse(config.configFile);
     const eucId = configObj.eucId;
     if (eucId && eucId.includes("@")) {
@@ -427,9 +487,9 @@ const getChainNameFromConfigItem = (config) => {
       const chainName = splitValues[1];
       if (chainName) return chainName;
     }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("JSON error:", config, error);
+  }
+  if (searchPlace === "name") {
+    return config.configChain.configName;
   }
 };
 </script>

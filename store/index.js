@@ -4,17 +4,41 @@ export const useStore = defineStore("app-store", {
   state: () => ({
     configTypes: [],
     configsList: [],
+    providersGroups: [],
+    providersNetworks: [],
+    providerAccounts: [],
     headerTitle: "",
     currentUser: null,
     cloneConfigData: null,
   }),
   actions: {
-    setConfigTypes(payload) {
-      this.configTypes = payload;
+    setProvidersGroups(payload) {
+      this.providersGroups = payload;
     },
 
-    setConfigsList(payload) {
-      this.configsList = payload;
+    setProvidersNetworks(payload) {
+      this.providersNetworks = payload;
+    },
+    setProviderAccounts(payload) {
+      this.providerAccounts = payload;
+    },
+
+    setConfigTypes(typesArray) {
+      this.configTypes = typesArray.filter(
+        (item) =>
+          item !== "CONFIGURED_PROVIDER_NETWORKS" &&
+          item !== "CONFIGURED_PROVIDER_GROUPS" &&
+          item !== "CONFIGURED_PROVIDER_ACCOUNTS",
+      );
+    },
+
+    setConfigsList(configsArray) {
+      this.configsList = configsArray.filter(
+        (item) =>
+          item.configType !== "CONFIGURED_PROVIDER_NETWORKS" &&
+          item.configType !== "CONFIGURED_PROVIDER_GROUPS" &&
+          item !== "CONFIGURED_PROVIDER_ACCOUNTS",
+      );
     },
 
     setHeaderTitle(payload) {

@@ -1,24 +1,40 @@
 <template>
   <article
-    class="flex flex-col border rounded-md"
+    class="flex flex-col rounded-md border"
     :class="isConfigUpdated ? 'border-[#d38b32]' : 'border-gray-400'"
   >
     <div
-      class="cursor-pointer flex gap-3 items-center justify-between w-full p-2 rounded-md"
+      class="flex w-full cursor-pointer items-center justify-between gap-3 rounded-md p-2"
       :class="listItemClass"
       @click="toggleListItem()"
     >
-      <p class="overflow-x-auto">
-        <span class="text-gray-500">Name:</span>
-        {{ props.config.configName }}
-      </p>
-      <p class="min-w-[175px] ml-auto">
+      <div class="flex items-center gap-2 overflow-x-auto p-1">
+        <p>
+          <span class="text-gray-500">Name:</span>
+          {{ props.config.configName }}
+        </p>
+        <UiButton class="smallPaddings" @click.stop="onCopyNameClick">
+          <img
+            v-if="!copied"
+            src="~/assets/icons/icon-copy.svg"
+            class="h-4 w-4"
+            alt="copy"
+          />
+          <img
+            v-else
+            src="~/assets/icons/icon-check.svg"
+            class="h-4 w-4"
+            alt="copy"
+          />
+        </UiButton>
+      </div>
+      <p class="ml-auto min-w-[175px]">
         <span class="text-gray-500">Type:</span>
         {{ props.config.configType }}
       </p>
       <img
         src="~/assets/icons/icon-arrow-right.svg"
-        class="w-4 h-4 duration-150"
+        class="h-4 w-4 duration-150"
         :class="isOpened ? 'rotate-90' : ''"
         alt="add"
       />
@@ -39,6 +55,7 @@ const props = defineProps({
 
 const isOpened = ref(false);
 const isConfigUpdated = ref(false);
+const copied = ref(false);
 
 const listItemClass = computed(() => {
   const zebra = props.configIndex % 2 ? "bg-white" : "bg-gray-100";
@@ -49,6 +66,16 @@ const listItemClass = computed(() => {
     : (listItemClassValue = "border-b border-gray-400");
   return `${zebra} ${listItemClassValue}`;
 });
+
+const onCopyNameClick = () => {
+  if (!copied.value) {
+    navigator.clipboard.writeText(props.config.configName);
+    copied.value = true;
+    setTimeout(() => {
+      copied.value = false;
+    }, 800);
+  }
+};
 
 const toggleListItem = () => {
   isOpened.value = !isOpened.value;

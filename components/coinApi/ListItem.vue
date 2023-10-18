@@ -1,6 +1,6 @@
 <template>
-  <article class="border border-black p-6 rounded-xl items-start w-full">
-    <div class="flex items-center gap-3 w-full">
+  <article class="w-full items-start rounded-xl border border-black p-6">
+    <div class="flex w-full items-center gap-3">
       <h2 class="w-1/5">{{ chain.name }}</h2>
 
       <div class="flex flex-1 flex-col">
@@ -48,13 +48,13 @@
           <div
             v-for="chainItem in chainsHeight"
             :key="chainItem.chainId"
-            class="flex gap-1 w-full"
+            class="flex w-full gap-1"
           >
-            <p class="w-2/5 flex gap-1">
+            <p class="flex w-2/5 gap-1">
               <span class="text-gray-400">ChainId:</span
               >{{ chainItem.chainId }},
             </p>
-            <p class="w-3/5 flex gap-1">
+            <p class="flex w-3/5 gap-1">
               <span class="text-gray-400">Height:</span>{{ chainItem.height }}
             </p>
           </div>
@@ -63,7 +63,7 @@
           v-if="
             chainsHeight && chainsHeight.length > 0 && chainsHeight.length > 3
           "
-          class="w-full flex justify-center"
+          class="flex w-full justify-center"
         >
           <UiButton @click="onShowMoreChainsClick">
             <span v-if="!showChains">Show chains</span>
@@ -72,13 +72,13 @@
         </div>
         <div
           v-if="!chainsHeight && zoneData"
-          class="w-full flex gap-1 justify-center"
+          class="flex w-full justify-center gap-1"
         >
           <span class="text-gray-400">ZoneId:</span> {{ zoneData }}
         </div>
         <div
           v-if="(!chainsHeight || chainsHeight.length === 0) && !zoneData"
-          class="text-gray-400 text-center"
+          class="text-center text-gray-400"
         >
           ZoneId or Chain IDs were not recieved
         </div>
@@ -94,13 +94,13 @@
             <div
               v-for="chainItem in chainsHeight"
               :key="chainItem.chainId"
-              class="w-full flex gap-1"
+              class="flex w-full gap-1"
             >
-              <p class="w-2/5 flex gap-1">
+              <p class="flex w-2/5 gap-1">
                 <span class="text-gray-400">ChainId:</span
                 >{{ chainItem.chainId }},
               </p>
-              <p class="w-3/5 flex gap-1">
+              <p class="flex w-3/5 gap-1">
                 <span class="text-gray-400">Height:</span>{{ chainItem.height }}
               </p>
             </div>

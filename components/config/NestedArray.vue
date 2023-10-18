@@ -4,9 +4,9 @@
     @modal-handler="addConfigFieldModalHandler"
   />
 
-  <div class="relative inline-block text-left w-full">
-    <div class="flex gap-2 w-full justify-between">
-      <p class="flex justify-center items-center text-gray-600 z-0">
+  <div class="relative inline-block w-full text-left">
+    <div class="flex w-full justify-between gap-2">
+      <p class="z-0 flex items-center justify-center text-gray-600">
         <span class="mr-1">Array</span>
         <span v-if="configNestedObject.length === 0">(empty)</span>
       </p>
@@ -23,13 +23,13 @@
 
     <div
       v-if="isButtonsBlockVisible"
-      class="absolute p-4 right-0 z-[5] mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      class="absolute right-0 z-[5] mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white p-4 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
       role="menu"
       aria-orientation="vertical"
       aria-labelledby="menu-button"
       tabindex="-1"
     >
-      <div class="w-full flex gap-2 flex-col" role="none">
+      <div class="flex w-full flex-col gap-2" role="none">
         <uiButton
           class="success h-[34px] min-w-[34px]"
           @click="onAddNewFieldHandler('text')"
@@ -64,11 +64,11 @@
     :class="
       isObject(value) || Array.isArray(value) ? 'items-start' : 'items-center'
     "
-    class="flex gap-4 rounded-sm w-full items-start"
+    class="flex w-full items-start gap-4 rounded-sm"
   >
     <div
       v-if="isObject(value)"
-      class="flex p-2 flex-row-reverse gap-2 border w-full"
+      class="flex w-full flex-row-reverse gap-2 border p-2"
       :class="isFieldNew(key) ? 'border-[#33a370]' : 'border-gray-500'"
     >
       <uiButton
@@ -78,11 +78,11 @@
       >
         <img
           src="~/assets/icons/icon-trash.svg"
-          class="w-6 h-6 icon-trash"
+          class="icon-trash h-6 w-6"
           alt="delete field"
         />
       </uiButton>
-      <div class="flex flex-col gap-2 w-full rounded-sm">
+      <div class="flex w-full flex-col gap-2 rounded-sm">
         <configNestedLine
           :isCloned="isCloned"
           :configNestedObject="value"
@@ -93,7 +93,7 @@
 
     <div
       v-if="Array.isArray(value)"
-      class="flex flex-row-reverse gap-2 p-2 border rounded-sm w-full justify-between"
+      class="flex w-full flex-row-reverse justify-between gap-2 rounded-sm border p-2"
       :class="isFieldNew(key) ? 'border-[#33a370]' : 'border-gray-500'"
     >
       <uiButton
@@ -103,11 +103,11 @@
       >
         <img
           src="~/assets/icons/icon-trash.svg"
-          class="w-6 h-6 icon-trash"
+          class="icon-trash h-6 w-6"
           alt="delete field"
         />
       </uiButton>
-      <div class="flex flex-col gap-1 w-full">
+      <div class="flex w-full flex-col gap-1">
         <configNestedArray
           :isCloned="isCloned"
           :configNestedObject="value"
@@ -118,8 +118,8 @@
 
     <div
       v-else-if="typeof value === 'boolean'"
-      class="flex justify-between items-center gap-2 w-full p-2"
-      :class="isFieldNew(key) ? 'border border-[#33a370] rounded-md' : ''"
+      class="flex w-full items-center justify-between gap-2 p-2"
+      :class="isFieldNew(key) ? 'rounded-md border border-[#33a370]' : ''"
     >
       <UiSwitcher
         :value="configNestedObject[key]"
@@ -132,7 +132,7 @@
       >
         <img
           src="~/assets/icons/icon-trash.svg"
-          class="w-6 h-6 icon-trash"
+          class="icon-trash h-6 w-6"
           alt="delete field"
         />
       </uiButton>
@@ -140,8 +140,8 @@
 
     <div
       v-else-if="typeof value === 'string' || typeof value === 'number'"
-      class="flex justify-center items-center gap-2 w-full"
-      :class="isFieldNew(key) ? 'border border-[#33a370] p-2 rounded-md' : ''"
+      class="flex w-full items-center justify-center gap-2"
+      :class="isFieldNew(key) ? 'rounded-md border border-[#33a370] p-2' : ''"
     >
       <UiInputField
         v-model="configNestedObject[key]"
@@ -155,7 +155,7 @@
       >
         <img
           src="~/assets/icons/icon-trash.svg"
-          class="w-6 h-6 icon-trash"
+          class="icon-trash h-6 w-6"
           alt="delete field"
         />
       </uiButton>

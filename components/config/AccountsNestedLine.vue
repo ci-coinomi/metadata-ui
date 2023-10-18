@@ -48,7 +48,7 @@
       </p>
 
       <template v-if="isObject(value)">
-        <configNestedLine
+        <ConfigAccountsNestedLine
           :isCloned="isCloned"
           :configNestedObject="value"
           :configUpdateTrigger="configUpdateTrigger"
@@ -60,11 +60,12 @@
         :value="configNestedObject[key]"
         :update-memo="configUpdateTrigger"
         :is-memo="true"
+        :disabled="true"
         @update:value="(data) => (configNestedObject[key] = data)"
       />
 
       <template v-else-if="Array.isArray(value)">
-        <configNestedProvider
+        <ConfigAccountsNestedArray
           v-if="isNestedArrayVisible(key)"
           :isCloned="isCloned"
           :configNestedObject="value"
@@ -77,6 +78,7 @@
           type="text"
           :update-memo="configUpdateTrigger"
           :is-memo="true"
+          :disabled="true"
           @input="
             (data) => (configNestedObject[key] = data.target.value.split(','))
           "
@@ -126,14 +128,15 @@ const configBorderStyle = computed(() => {
   return "border border-gray-400";
 });
 
-const isFieldDisabled = (key) => {
-  if (key === "@type") {
-    return true;
-  } else if (!props.isCloned && key === "eucId") {
-    return true;
-  } else {
-    return false;
-  }
+const isFieldDisabled = () => {
+  return true;
+  // if (key === "@type") {
+  //   return true;
+  // } else if (!props.isCloned && key === "eucId") {
+  //   return true;
+  // } else {
+  //   return false;
+  // }
 };
 
 const isObject = (value) => {

@@ -17,7 +17,8 @@ const api = async (endpoint, method, payload) => {
 export const getConfigs = async () => {
   const response = await api(`v1/admin/configs`, "GET");
   if (response._data) {
-    return response._data;
+    const serializedConfigs = serializeConfigs(response._data);
+    return serializedConfigs;
   } else if (response.status) {
     return response.status;
   } else {
@@ -48,12 +49,13 @@ export const getConfigsTypes = async () => {
 };
 
 export const updateConfig = async (previousConfig, updatedConfigFile) => {
-  const { configId, configName, configType } = previousConfig;
+  const { configId, configName, configType, parentConfig } = previousConfig;
   const response = await api(`v1/admin/configs/${configId}`, "PUT", {
     configId,
     configName,
     configType,
     configFile: updatedConfigFile,
+    parentConfig,
   });
   if (response._data) {
     return response._data;
@@ -78,6 +80,39 @@ export const cloneConfig = async (configData) => {
 export const deleteConfig = async (configId) => {
   const response = await api(`v1/admin/configs/${configId}`, "DELETE");
   if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
+};
+
+export const getProviderGroup = async () => {
+  const response = await api(`/admin/v2/provider/groups`, "GET");
+  if (response._data) {
+    return response._data;
+  } else if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
+};
+
+export const getProviderNetworks = async () => {
+  const response = await api(`/admin/v2/provider/networks`, "GET");
+  if (response._data) {
+    return response._data;
+  } else if (response.status) {
+    return response.status;
+  } else {
+    return "Cors Error";
+  }
+};
+
+export const getProvidersAccounts = async () => {
+  const response = await api(`/admin/v2/provider/accounts`, "GET");
+  if (response._data) {
+    return response._data;
+  } else if (response.status) {
     return response.status;
   } else {
     return "Cors Error";

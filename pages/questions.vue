@@ -1,10 +1,10 @@
 <template>
   <main
-    class="flex flex-col justify-center items-center gap-6 m-auto bg-white p-4 shadow-md mt-3 rounded"
+    class="m-auto mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
-    <section class="flex flex-col justify-center items-center gap-6 w-11/12">
+    <section class="flex flex-col items-center justify-center gap-6">
       <article
-        class="flex flex-col gap-3 items-center ring-1 ring-inset ring-gray-400 rounded-md p-3 w-full"
+        class="flex w-full flex-col items-center gap-3 rounded-md p-3 ring-1 ring-inset ring-gray-400"
       >
         <h2 class="text-lg font-bold">
           The APP_SETTING type controls NFT marketplace links, Buy and Swap
@@ -40,7 +40,7 @@
       </article>
 
       <article
-        class="flex flex-col gap-3 items-center ring-1 ring-inset ring-gray-400 rounded-md p-3 w-full"
+        class="flex w-full flex-col items-center gap-3 rounded-md p-3 ring-1 ring-inset ring-gray-400"
       >
         <h2 class="text-lg font-bold">PARTNER type</h2>
         <div>
@@ -54,7 +54,7 @@
       </article>
 
       <article
-        class="flex flex-col gap-3 items-center ring-1 ring-inset ring-gray-400 rounded-md p-3 w-full"
+        class="flex w-full flex-col items-center gap-3 rounded-md p-3 ring-1 ring-inset ring-gray-400"
       >
         <h2 class="text-lg font-bold">ASSET type</h2>
         <div>
@@ -96,7 +96,7 @@
       </article>
 
       <article
-        class="flex flex-col gap-3 items-center ring-1 ring-inset ring-gray-400 rounded-md p-3 w-full"
+        class="flex w-full flex-col items-center gap-3 rounded-md p-3 ring-1 ring-inset ring-gray-400"
       >
         <h2 class="text-lg font-bold">BANNER type</h2>
         <div>
@@ -110,7 +110,7 @@
       </article>
 
       <article
-        class="flex flex-col gap-3 items-center ring-1 ring-inset ring-gray-400 rounded-md p-3 w-full"
+        class="flex w-full flex-col items-center gap-3 rounded-md p-3 ring-1 ring-inset ring-gray-400"
       >
         <h2 class="text-lg font-bold">General</h2>
         <div>

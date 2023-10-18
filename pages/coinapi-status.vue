@@ -1,8 +1,8 @@
 <template>
   <main
-    class="flex flex-col justify-center items-center gap-6 m-auto bg-white p-4 shadow-md mt-3 rounded"
+    class="m-auto mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
-    <section class="flex flex-col justify-center items-center gap-6 w-11/12">
+    <section class="flex w-full flex-col items-center justify-center gap-6">
       <CoinApiSkeleton v-if="isLoading" />
       <template v-else-if="chainsList.length === 0">
         <h2 class="text-2xl">Data was not recieved</h2>

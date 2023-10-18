@@ -1,9 +1,9 @@
 <template>
   <div
-    class="popup fixed inset-0 z-30 bg-[#0D0D0D]/[.9] flex justify-center items-center p-32"
+    class="popup fixed inset-0 z-30 flex items-center justify-center bg-[#0D0D0D]/[.9] p-32"
   >
     <section
-      class="bg-white p-10 rounded-md flex flex-col items-center gap-6 min-h-[40vh] max-w-[900px]"
+      class="flex min-h-[40vh] max-w-[900px] flex-col items-center gap-6 rounded-md bg-white p-10"
     >
       <ModalAddConfigField
         v-if="isAddFieldConfigVisible"
@@ -12,7 +12,7 @@
 
       <h2 class="text-xl font-bold">Configure the new object:</h2>
 
-      <article class="flex flex-col gap-2 w-full">
+      <article class="flex w-full flex-col gap-2">
         <p v-if="configuredObject.length === 0" class="text-center">
           Select field type below:
         </p>
@@ -20,7 +20,7 @@
           <div
             v-for="(line, index) in configuredObject"
             :key="index"
-            class="flex gap-2 w-full"
+            class="flex w-full gap-2"
           >
             <UiInputField
               v-model="line[0]"
@@ -37,21 +37,21 @@
             />
             <div
               v-else-if="typeof line[1] === 'boolean'"
-              class="w-[44%] flex justify-center items-center"
+              class="flex w-[44%] items-center justify-center"
             >
               <UiSwitcher v-model="line[1]" :value="line[1]" />
             </div>
 
             <p
               v-else-if="Array.isArray(line[1])"
-              class="w-[44%] flex justify-center text-center text-gray-400"
+              class="flex w-[44%] justify-center text-center text-gray-400"
             >
               Configuration is on the main page
             </p>
 
             <div
               v-else-if="isObject(line[1])"
-              class="flex gap-2 w-[44%] justify-center"
+              class="flex w-[44%] justify-center gap-2"
             >
               <uiButton
                 v-if="Object.keys(line[1]).length === 0"
@@ -60,7 +60,7 @@
               >
                 Add object
               </uiButton>
-              <p v-else class="flex justify-center items-center text-gray-400">
+              <p v-else class="flex items-center justify-center text-gray-400">
                 Object was configured
               </p>
             </div>
@@ -71,7 +71,7 @@
             >
               <img
                 src="~/assets/icons/icon-trash.svg"
-                class="w-6 h-6 icon-trash"
+                class="icon-trash h-6 w-6"
                 alt="delete field"
               />
             </uiButton>
@@ -94,7 +94,7 @@
         >
       </div>
 
-      <div class="flex gap-4 justify-between mt-auto">
+      <div class="mt-auto flex justify-between gap-4">
         <UiButton class="danger w-2/5" @click="onCanselHandler"
           >Cancel</UiButton
         >

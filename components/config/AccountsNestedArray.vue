@@ -25,7 +25,7 @@
           </uiButton>
         </div>
         <div class="flex w-full flex-col gap-2 rounded-sm">
-          <configNestedLine
+          <ConfigAccountsNestedLine
             :isCloned="isCloned"
             :configNestedObject="value"
             :configUpdateTrigger="configUpdateTrigger"
