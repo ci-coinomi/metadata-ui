@@ -144,7 +144,7 @@
         v-for="additionalDataItem in additionalData"
         :key="additionalDataItem.id"
       >
-        <h3 class="text-center">Provider details</h3>
+        <h3 class="text-center">Network details</h3>
         <div
           v-for="(value, key) in additionalDataItem"
           :key="key"
