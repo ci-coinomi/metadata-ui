@@ -44,15 +44,18 @@
       class="flex w-full items-start gap-4 rounded-sm"
     >
       <div class="flex w-full flex-col gap-2">
-        <div v-if="isFieldNew(key)" class="flex items-center justify-between">
-          <h2 class="text-gray-600">New provider</h2>
+        <div
+          v-if="isFieldNew(key)"
+          class="flex w-full items-center justify-between"
+        >
+          <h2 class="w-full text-center text-lg font-bold">New provider</h2>
 
-          <uiButton
+          <!-- <uiButton
             class="danger h-[34px] min-w-[34px]"
             @click="onDeleteClickHandler(key)"
           >
             Delete
-          </uiButton>
+          </uiButton> -->
         </div>
         <div class="flex w-full flex-col gap-2 rounded-sm">
           <configConfiguredProvidersNestedLine
@@ -103,8 +106,8 @@ const onAddChainFromParent = () => {
   emit("setBlockchain", chainConfigFileObj.eucId);
 };
 
-const isNextLevelObjectDeletable = () => {
-  return false;
+const isNextLevelObjectDeletable = (type) => {
+  return type === "providers";
 };
 
 const onAddGroupClickHandler = () => {
@@ -161,9 +164,9 @@ const isFieldNew = (key) => {
   return !defaultNestedObject.value[key];
 };
 
-const onDeleteClickHandler = (key) => {
-  props.configNestedObject.splice(key, 1);
-};
+// const onDeleteClickHandler = (key) => {
+//   props.configNestedObject.splice(key, 1);
+// };
 
 watch(
   () => props.configUpdateTrigger,

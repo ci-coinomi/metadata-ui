@@ -172,6 +172,8 @@ Shown only for config types without parentConfig
 */
 const isCreateEmptyConfigVisible = computed(() => {
   if (selectedType.value === "CONFIGURED_PROVIDERS") return true;
+  if (selectedType.value === "CONFIGURED_PROVIDER_ACCOUNTS") return false;
+
   if (
     filtredConfigs.value.length === 0 ||
     visibleConfigs.value.some((el) => el.parentConfig)

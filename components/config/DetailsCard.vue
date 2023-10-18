@@ -36,6 +36,13 @@
             :configUpdateTrigger="configUpdateTrigger"
             :fullConfigObject="config"
           />
+          <ConfigAccountsNestedLine
+            v-else-if="config.configType === 'CONFIGURED_PROVIDER_ACCOUNTS'"
+            :configNestedObject="configFileObj"
+            :is-cloned="false"
+            :configUpdateTrigger="configUpdateTrigger"
+            :fullConfigObject="config"
+          />
           <configNestedLine
             v-else
             :configNestedObject="configFileObj"
@@ -159,7 +166,8 @@ const currentItemInStoreIndex = computed(() =>
 const isConfigEditable = (currentConfigType) =>
   !(
     currentConfigType === "CONFIGURED_PROVIDER_NETWORKS" ||
-    currentConfigType === "CONFIGURED_PROVIDER_GROUPS"
+    currentConfigType === "CONFIGURED_PROVIDER_GROUPS" ||
+    currentConfigType === "CONFIGURED_PROVIDER_ACCOUNTS"
   );
 
 // Modal handlers
