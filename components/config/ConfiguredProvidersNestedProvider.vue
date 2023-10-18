@@ -1,5 +1,5 @@
 <template>
-  <modalConfiguredProviderNetwork
+  <ModalConfiguredProviderNetwork
     v-if="isNetworkModalVisible"
     :blockchain="blockchain"
     @is-modal-confirmed="(data) => onNetworkModalConfirmHandler(data)"
@@ -16,18 +16,26 @@
         Select parent to provide blockchain
       </p>
       <UiButton
+        v-if="blockchain"
         class="success ml-auto"
-        :disabled="!blockchain"
         @click="onAddNetworkHandler"
       >
         Add network
       </UiButton>
       <UiButton
+        v-if="blockchain"
         class="success"
-        :disabled="!blockchain"
         @click="onAddGroupClickHandler"
       >
         Add group
+      </UiButton>
+
+      <UiButton
+        v-if="!blockchain && fullConfigObject.configChain"
+        class="success ml-auto"
+        @click="onAddChainFromParent"
+      >
+        Get chain from parent
       </UiButton>
     </div>
     <div
@@ -36,15 +44,18 @@
       class="flex w-full items-start gap-4 rounded-sm"
     >
       <div class="flex w-full flex-col gap-2">
-        <div v-if="isFieldNew(key)" class="flex items-center justify-between">
-          <h2 class="text-gray-600">New provider</h2>
+        <div
+          v-if="isFieldNew(key)"
+          class="flex w-full items-center justify-between"
+        >
+          <h2 class="w-full text-center text-lg font-bold">New provider</h2>
 
-          <uiButton
+          <!-- <uiButton
             class="danger h-[34px] min-w-[34px]"
             @click="onDeleteClickHandler(key)"
           >
             Delete
-          </uiButton>
+          </uiButton> -->
         </div>
         <div class="flex w-full flex-col gap-2 rounded-sm">
           <configConfiguredProvidersNestedLine
@@ -54,6 +65,8 @@
             :update-memo="configUpdateTrigger"
             :is-memo="true"
             :blockchain="blockchain"
+            :isFieldNew="isFieldNew(key)"
+            :fullConfigObject="fullConfigObject"
             :isObjectDeletable="isNextLevelObjectDeletable(configFieldType)"
             @delete-config-field="() => onDeleteNestedLineHandler(key)"
           />
@@ -64,21 +77,37 @@
 </template>
 
 <script setup>
+import { useStore } from "~/store";
+
+const store = useStore();
+
 const props = defineProps({
   configNestedObject: Object,
   isCloned: Boolean,
   configUpdateTrigger: Number,
   configFieldType: String,
   blockchain: String,
+  fullConfigObject: Object,
 });
+
+const emit = defineEmits(["setBlockchain"]);
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
 const isConfigUpdated = ref(false);
 const isNetworkModalVisible = ref(false);
 const isGroupModalVisible = ref(false);
 
-const isNextLevelObjectDeletable = () => {
-  return false;
+const onAddChainFromParent = () => {
+  const chain = store.configsList.find(
+    (item) => item.configId === props.fullConfigObject.configChain.configId,
+  );
+  const chainConfigFileObj = JSON.parse(chain.configFile);
+
+  emit("setBlockchain", chainConfigFileObj.eucId);
+};
+
+const isNextLevelObjectDeletable = (type) => {
+  return type === "providers";
 };
 
 const onAddGroupClickHandler = () => {
@@ -96,13 +125,19 @@ const onDeleteNestedLineHandler = (idx) => {
 const onGroupModalConfirmHandler = (selectedGroup) => {
   isGroupModalVisible.value = false;
   if (!selectedGroup) return;
-
-  const newNetworkObjects = selectedGroup.networks.map((item) => ({
-    enabled: false,
-    priority: "",
-    providerName: item.providerName,
-    networkIds: [item.id],
-  }));
+  const newNetworkObjects = selectedGroup.networks.map((item) => {
+    const networkObject = {
+      enabled: false,
+      priority: "",
+      accountApiKeyNames: [],
+      providerName: item.providerName,
+      networkIds: [item.id],
+    };
+    if (item.accountApiKeyNames) {
+      networkObject.accountApiKeyNames = [...item.accountApiKeyNames];
+    }
+    return networkObject;
+  });
 
   props.configNestedObject.push(...newNetworkObjects);
 };
@@ -116,6 +151,11 @@ const onNetworkModalConfirmHandler = (selectedNetwork) => {
       providerName: selectedNetwork.providerName,
       networkIds: [selectedNetwork.id],
     };
+    if (selectedNetwork.accountApiKeyNames) {
+      addedNetworkObject.accountApiKeyNames = [
+        ...selectedNetwork.accountApiKeyNames,
+      ];
+    }
     props.configNestedObject.push(addedNetworkObject);
   }
 };
@@ -124,9 +164,9 @@ const isFieldNew = (key) => {
   return !defaultNestedObject.value[key];
 };
 
-const onDeleteClickHandler = (key) => {
-  props.configNestedObject.splice(key, 1);
-};
+// const onDeleteClickHandler = (key) => {
+//   props.configNestedObject.splice(key, 1);
+// };
 
 watch(
   () => props.configUpdateTrigger,

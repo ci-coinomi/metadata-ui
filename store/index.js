@@ -6,6 +6,7 @@ export const useStore = defineStore("app-store", {
     configsList: [],
     providersGroups: [],
     providersNetworks: [],
+    providerAccounts: [],
     headerTitle: "",
     currentUser: null,
     cloneConfigData: null,
@@ -18,12 +19,16 @@ export const useStore = defineStore("app-store", {
     setProvidersNetworks(payload) {
       this.providersNetworks = payload;
     },
+    setProviderAccounts(payload) {
+      this.providerAccounts = payload;
+    },
 
     setConfigTypes(typesArray) {
       this.configTypes = typesArray.filter(
         (item) =>
           item !== "CONFIGURED_PROVIDER_NETWORKS" &&
-          item !== "CONFIGURED_PROVIDER_GROUPS",
+          item !== "CONFIGURED_PROVIDER_GROUPS" &&
+          item !== "CONFIGURED_PROVIDER_ACCOUNTS",
       );
     },
 
@@ -31,7 +36,8 @@ export const useStore = defineStore("app-store", {
       this.configsList = configsArray.filter(
         (item) =>
           item.configType !== "CONFIGURED_PROVIDER_NETWORKS" &&
-          item.configType !== "CONFIGURED_PROVIDER_GROUPS",
+          item.configType !== "CONFIGURED_PROVIDER_GROUPS" &&
+          item !== "CONFIGURED_PROVIDER_ACCOUNTS",
       );
     },
 

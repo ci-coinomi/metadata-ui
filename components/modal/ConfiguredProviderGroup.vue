@@ -15,12 +15,11 @@
           v-for="group in groups"
           :key="group.providerGroupName"
           :groupItem="group"
+          :blockchain="blockchain"
           :isSelected="
             selectedGroup?.providerGroupName === group.providerGroupName
           "
-          @on-group-item-click="
-            (selectedItem) => onGroupClickHandler(selectedItem)
-          "
+          @on-group-item-click="onGroupClickHandler"
         />
       </template>
 
@@ -41,6 +40,8 @@ import { useStore } from "~/store";
 
 const store = useStore();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = defineProps(["blockchain"]);
 const emit = defineEmits(["isModalConfirmed"]);
 
 const modalRef = ref();
@@ -51,8 +52,9 @@ const onCanselClickHandler = () => {
   emit("isModalConfirmed", false);
 };
 
-const onGroupClickHandler = (group) => {
-  selectedGroup.value = group;
+const onGroupClickHandler = (modalData) => {
+  if (!modalData) return;
+  selectedGroup.value = modalData;
 };
 
 const onConfirmHandler = () => {
