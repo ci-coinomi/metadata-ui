@@ -118,7 +118,13 @@
 
 <script setup>
 import { addNewImage, getImagesByConfigId } from "~/api/images";
-import { cloneConfig, getConfigs } from "~/api/configs";
+import {
+  cloneConfig,
+  getConfigs,
+  getProviderGroup,
+  getProviderNetworks,
+  getProvidersAccounts,
+} from "~/api/configs";
 import { createEmptyConfigFileClone } from "~/utils/utilfunc";
 import { useStore } from "~/store";
 
@@ -144,8 +150,10 @@ const addImageModalType = ref(null);
 const addImageModalPayload = ref(null);
 const isTextModalVisible = ref(null);
 
-const storedConfigList = computed(() => store.configsList);
 const cloneConfigData = computed(() => store.cloneConfigData);
+const storedConfigList = computed(() => store.configsList);
+const providersGroups = computed(() => store.providersGroups);
+const providersNetworks = computed(() => store.providersNetworks);
 const nameInputClass = computed(() =>
   !currentConfig.value.configName && isNameFieldUnderlined.value
     ? "warning"
@@ -438,18 +446,22 @@ const moveParentOnTheFirstPlace = (parentConfig, configList) => {
 const getProvidersData = async () => {
   if (
     providersGroups.value.length === 0 ||
+    providersNetworks.value.length === 0 ||
     providersNetworks.value.length === 0
   ) {
     const networksResponse = await getProviderNetworks();
     const groupResponse = await getProviderGroup();
+    const accountResponse = await getProvidersAccounts();
     store.setProvidersGroups(groupResponse);
     store.setProvidersNetworks(networksResponse);
+    store.setProviderAccounts(accountResponse);
   }
 };
 
 onMounted(async () => {
   store.setHeaderTitle("Create config");
   isLoading.value = true;
+  getProvidersData();
 
   if (cloneConfigData.value) {
     getParentConfigFromStore(cleared(cloneConfigData.value));
@@ -472,7 +484,6 @@ onMounted(async () => {
     setInitParentForConfiguredProviders();
     isLoading.value = false;
   }
-  getProvidersData();
 });
 
 const setInitParentForConfiguredProviders = () => {

@@ -29,7 +29,7 @@
         v-if="
           !configNestedObject.accountApiKeyNames && additionalData.length > 0
         "
-        class="success"
+        class="success smallPaddings ml-auto mr-5"
         @click="() => (configNestedObject.accountApiKeyNames = [])"
       >
         Create ApiKeys Field
@@ -55,88 +55,90 @@
         isObject(value) || Array.isArray(value) ? 'items-start' : 'items-center'
       "
     >
-      <p
-        :class="
-          isObject(value) || Array.isArray(value)
-            ? 'text-gray-600'
-            : 'text-gray-400'
-        "
-      >
-        {{ key }}
-      </p>
+      <template v-if="key !== 'networkIds'">
+        <p
+          :class="
+            isObject(value) || Array.isArray(value)
+              ? 'text-gray-600'
+              : 'text-gray-400'
+          "
+        >
+          {{ key }}
+        </p>
 
-      <template v-if="isObject(value)">
-        <ConfigConfiguredProvidersNestedLine
-          :isCloned="isCloned"
-          :configNestedObject="value"
-          :configUpdateTrigger="props.configUpdateTrigger"
+        <template v-if="isObject(value)">
+          <ConfigConfiguredProvidersNestedLine
+            :isCloned="isCloned"
+            :configNestedObject="value"
+            :configUpdateTrigger="props.configUpdateTrigger"
+          />
+        </template>
+
+        <UiSwitcher
+          v-else-if="typeof value === 'boolean'"
+          :value="configNestedObject[key]"
+          :update-memo="configUpdateTrigger"
+          :is-memo="true"
+          @update:value="(data) => (configNestedObject[key] = data)"
         />
-      </template>
 
-      <UiSwitcher
-        v-else-if="typeof value === 'boolean'"
-        :value="configNestedObject[key]"
-        :update-memo="configUpdateTrigger"
-        :is-memo="true"
-        @update:value="(data) => (configNestedObject[key] = data)"
-      />
+        <template v-else-if="Array.isArray(value)">
+          <div v-if="key === 'accountApiKeyNames'" class="flex w-full gap-2">
+            <UiInputField
+              :model-value="configNestedObject.accountApiKeyNames"
+              type="text"
+              disabled
+              :update-memo="configUpdateTrigger"
+              :is-memo="true"
+            />
+            <UiButton
+              :disabled="isManageAccountBtnDisabled"
+              @click="isAddAcountModalVisible = !isAddAcountModalVisible"
+            >
+              Manage
+            </UiButton>
+          </div>
 
-      <template v-else-if="Array.isArray(value)">
-        <div v-if="key === 'accountApiKeyNames'" class="flex w-full gap-2">
+          <ConfigConfiguredProvidersNestedProvider
+            v-else-if="isNestedArrayVisible(key)"
+            :isCloned="isCloned"
+            :configNestedObject="value"
+            :configFieldType="key"
+            :configUpdateTrigger="configUpdateTrigger"
+            :blockchain="configNestedObject['blockchain']"
+            :fullConfigObject="fullConfigObject"
+            @set-blockchain="(data) => (configNestedObject.blockchain = data)"
+          />
           <UiInputField
-            :model-value="configNestedObject.accountApiKeyNames"
+            v-else
+            :model-value="configNestedObject[key]"
             type="text"
-            disabled
+            :disabled="isFieldDisabled(key)"
             :update-memo="configUpdateTrigger"
             :is-memo="true"
+            @input="
+              (data) => (configNestedObject[key] = data.target.value.split(','))
+            "
           />
-          <UiButton
-            :disabled="isManageAccountBtnDisabled"
-            @click="isAddAcountModalVisible = !isAddAcountModalVisible"
-          >
-            Manage
-          </UiButton>
-        </div>
-
-        <ConfigConfiguredProvidersNestedProvider
-          v-else-if="isNestedArrayVisible(key)"
-          :isCloned="isCloned"
-          :configNestedObject="value"
-          :configFieldType="key"
-          :configUpdateTrigger="configUpdateTrigger"
-          :blockchain="configNestedObject['blockchain']"
-          :fullConfigObject="fullConfigObject"
-          @set-blockchain="(data) => (configNestedObject.blockchain = data)"
+        </template>
+        <UiInputField
+          v-else-if="key === 'blockchain'"
+          :model-value="configNestedObject[key]"
+          type="text"
+          :placeholder="'Select parent...'"
+          :update-memo="configUpdateTrigger"
+          :is-memo="true"
+          :disabled="isFieldDisabled(key)"
         />
         <UiInputField
           v-else
-          :model-value="configNestedObject[key]"
+          v-model="configNestedObject[key]"
           type="text"
-          :disabled="isFieldDisabled(key)"
           :update-memo="configUpdateTrigger"
           :is-memo="true"
-          @input="
-            (data) => (configNestedObject[key] = data.target.value.split(','))
-          "
+          :disabled="isFieldDisabled(key)"
         />
       </template>
-      <UiInputField
-        v-else-if="key === 'blockchain'"
-        :model-value="configNestedObject[key]"
-        type="text"
-        :placeholder="'Select parent...'"
-        :update-memo="configUpdateTrigger"
-        :is-memo="true"
-        :disabled="isFieldDisabled(key)"
-      />
-      <UiInputField
-        v-else
-        v-model="configNestedObject[key]"
-        type="text"
-        :update-memo="configUpdateTrigger"
-        :is-memo="true"
-        :disabled="isFieldDisabled(key)"
-      />
     </div>
 
     <article v-if="additionalData.length > 0" class="flex flex-col gap-2">
