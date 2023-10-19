@@ -127,7 +127,6 @@ const onGroupModalConfirmHandler = (selectedGroup) => {
   if (!selectedGroup) return;
   const newNetworkObjects = selectedGroup.networks.map((item) => {
     const networkObject = {
-      enabled: false,
       priority: "",
       accountApiKeyNames: [],
       providerName: item.providerName,
@@ -146,7 +145,6 @@ const onNetworkModalConfirmHandler = (selectedNetwork) => {
   isNetworkModalVisible.value = false;
   if (selectedNetwork) {
     const addedNetworkObject = {
-      enabled: false,
       priority: "",
       providerName: selectedNetwork.providerName,
       networkIds: [selectedNetwork.id],
