@@ -83,7 +83,7 @@
             v-if="selectedAccounts.length === 0"
             class="py-10 text-center text-lg"
           >
-            Select at least one account
+            No selected accounts
           </p>
           <div v-else class="flex flex-col items-center justify-center gap-4">
             <article
@@ -156,7 +156,6 @@
 import { useStore } from "~/store";
 
 const store = useStore();
-const { $toast } = useNuxtApp();
 
 const props = defineProps([
   "currentProviderList",
@@ -198,13 +197,6 @@ const onCanselClickHandler = () => {
 };
 
 const onConfirmHandler = () => {
-  if (
-    selectedAccounts.value.length === 0 &&
-    availableAccounts.value.length > 0
-  ) {
-    $toast.warning("You need to select at least one account");
-    return;
-  }
   const newSelectedAccounts = selectedAccounts.value.map(
     (account) => account.name,
   );
