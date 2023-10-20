@@ -258,14 +258,8 @@ const blockchainsList = computed(() =>
 );
 
 const isManageAccountBtnDisabled = computed(() => {
-  const defaultArray = defaultNestedObject.value.accountApiKeyNames;
-
+  if (!availableAccountApiKeyNamesForSelect.value) return true;
   if (availableAccountApiKeyNamesForSelect.value.length === 0) return true;
-  if (
-    defaultArray.length === 1 &&
-    availableAccountApiKeyNamesForSelect.value.length === 1
-  )
-    return true;
 });
 
 const configBorderStyle = computed(() => {
