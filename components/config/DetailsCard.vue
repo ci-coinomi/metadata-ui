@@ -114,6 +114,7 @@
 </template>
 
 <script setup>
+import { storeToRefs } from "pinia";
 import {
   getImagesByConfigId,
   deleteImageById,
@@ -121,19 +122,19 @@ import {
   addNewImage,
 } from "~/api/images";
 import { deleteConfig, updateConfig } from "~/api/configs";
-import { useStore } from "~/store";
+import { useConfigStore } from "@/stores/configs";
 
 const { $toast } = useNuxtApp();
-const store = useStore();
+const configStore = useConfigStore();
 const router = useRouter();
 
 const props = defineProps({
   config: Object,
 });
 const emit = defineEmits(["configUpdateEmit"]);
+const { storedConfigList } = storeToRefs(configStore);
 
 const configUpdateTrigger = ref(1);
-
 const currentConfig = ref(props.config);
 const configImages = ref([]);
 const configFileObj = ref(null);
@@ -153,7 +154,6 @@ const isParentModalVisible = ref(null);
 const isParentUpdated = ref(false);
 const defaultParentConfig = ref(props.config.parentConfig);
 
-const storedConfigList = computed(() => store.configsList);
 const currentItemInStoreIndex = computed(() =>
   storedConfigList.value.findIndex(
     (item) => item.configId === currentConfig.value.configId,
@@ -248,7 +248,7 @@ const onCloneConfigHandler = () => {
     parentConfig: currentConfig.value.parentConfig,
   };
 
-  store.setCloneConfigData(cloneData);
+  configStore.setCloneConfigData(cloneData);
   router.push({
     path: "/configs/create",
     query: {
@@ -309,7 +309,7 @@ const updateConfigRequest = async () => {
       // Update store.configList by adding updated config...
       const updatedConfigsList = [...storedConfigList.value];
       updatedConfigsList[currentItemInStoreIndex.value] = currentConfig.value;
-      store.setConfigsList(updatedConfigsList);
+      configStore.setConfigList(updatedConfigsList);
 
       configUpdateTrigger.value += 1;
 
@@ -393,7 +393,7 @@ const deleteConfigRequest = async () => {
       ...storedConfigList.value.slice(0, currentItemInStoreIndex.value),
       ...storedConfigList.value.slice(currentItemInStoreIndex.value + 1),
     ];
-    store.setConfigsList(updatedConfigsList);
+    configStore.setConfigList(updatedConfigsList);
   } else {
     $toast.error(`Deleting config error, status: ${response}`);
   }

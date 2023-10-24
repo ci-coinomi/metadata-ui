@@ -1,4 +1,5 @@
-import { useStore } from "~/store";
+import { storeToRefs } from "pinia";
+import { useAppStore } from "@/stores/app";
 import { getMe } from "~/api/user";
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
@@ -6,12 +7,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return;
   }
 
-  const store = useStore();
+  const appStore = useAppStore();
+  const { currentUser } = storeToRefs(appStore);
 
-  if (!store.currentUser) {
+  if (!currentUser.value) {
     const response = await getMe();
     if (response.status === 200) {
-      store.setCurrentUser(response._data);
+      appStore.setCurrentUser(response._data);
     } else {
       return navigateTo("/");
     }

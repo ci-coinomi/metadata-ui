@@ -194,9 +194,11 @@
 </template>
 
 <script setup>
-import { useStore } from "~/store";
+import { storeToRefs } from "pinia";
+import { useConfigStore } from "@/stores/configs";
 
-const store = useStore();
+const configStore = useConfigStore();
+const { storedConfigList, providerNetworks } = storeToRefs(configStore);
 
 const props = defineProps({
   configNestedObject: Object,
@@ -217,7 +219,7 @@ const availableAccountApiKeyNamesForSelect = ref([]);
 const additionalData = computed(() => {
   const additionalDataArray = [];
   defaultNestedObject.value?.networkIds?.forEach((networkId) => {
-    const itemInResponse = store.providersNetworks.find(
+    const itemInResponse = providerNetworks.value.find(
       (item) => item.id === networkId,
     );
     if (itemInResponse) {
@@ -246,7 +248,7 @@ const onAddAccountModalConfirmHandler = (data) => {
 };
 
 const blockchainsList = computed(() =>
-  store.configsList
+  storedConfigList.value
     .filter((item) => item.configType === "BLOCKCHAIN")
     .map((item) => {
       const configFileObj = JSON.parse(item.configFile);

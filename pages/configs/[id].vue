@@ -7,37 +7,41 @@
   </main>
 </template>
 <script setup>
+import { storeToRefs } from "pinia";
 import { getConfigs } from "~/api/configs";
-import { useStore } from "~/store";
+import { useAppStore } from "@/stores/app";
+import { useConfigStore } from "@/stores/config";
 
 definePageMeta({
   layout: "signedin",
 });
 
 const route = useRoute();
-const store = useStore();
+const appStore = useAppStore();
+const configStore = useConfigStore();
 
+const { storedConfigList } = storeToRefs(configStore);
 const config = ref(null);
 const isLoading = ref(true);
 
 const fetchConfigs = async () => {
-  if (store.configsList.length === 0) {
+  if (storedConfigList.value.length === 0) {
     const response = await getConfigs();
     if (!Array.isArray(response)) {
       $toast.error(`Fetching configs error, status: ${response}`);
       isLoading.value = false;
-      store.setHeaderTitle("Fetching configs error");
+      appStore.setHeaderTitle("Fetching configs error");
       return null;
     }
     const configsList = response.sort((a, b) => b.configId - a.configId);
-    store.setConfigsList(configsList);
+    configStore.setConfigList(configsList);
   }
   config.value = cleared(
-    store.configsList.find(
+    storedConfigList.value.find(
       (config) => config.configId === Number(route.params.id),
     ),
   );
-  store.setHeaderTitle(`Config ${config.value.configName}`);
+  appStore.setHeaderTitle(`Config ${config.value.configName}`);
   return null;
 };
 

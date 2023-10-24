@@ -86,6 +86,7 @@
 </template>
 
 <script setup>
+import { storeToRefs } from "pinia";
 import { createEmptyConfigFileClone } from "~/utils/utilfunc";
 import {
   getConfigs,
@@ -94,13 +95,15 @@ import {
   getProviderNetworks,
   getProvidersAccounts,
 } from "~/api/configs";
-import { useStore } from "~/store";
+import { useAppStore } from "@/stores/app";
+import { useConfigStore } from "@/stores/configs";
 
 definePageMeta({
   layout: "signedin",
 });
 
-const store = useStore();
+const appStore = useAppStore();
+const configStore = useConfigStore();
 const { $toast } = useNuxtApp();
 const router = useRouter();
 const route = useRoute();
@@ -112,10 +115,13 @@ const blockchains = ref([]);
 const selectedChain = ref(null);
 const searchValue = ref("");
 
-const configTypes = computed(() => store.configTypes);
-const storedConfigList = computed(() => store.configsList);
-const providersGroups = computed(() => store.providersGroups);
-const providersNetworks = computed(() => store.providersNetworks);
+const {
+  configTypes,
+  storedConfigList,
+  providerGroups,
+  providerNetworks,
+  providerAccounts,
+} = storeToRefs(configStore);
 
 /*
 Filtering configs by configType - by Chain - by Name and sorting by id.
@@ -191,8 +197,8 @@ const onChainClickHandler = (chain) => {
   selectedChain.value = chain;
   visibleItemsCount.value = 30;
   selectedChain.value === "All"
-    ? store.setHeaderTitle(`${selectedType.value}`)
-    : store.setHeaderTitle(
+    ? appStore.setHeaderTitle(`${selectedType.value}`)
+    : appStore.setHeaderTitle(
         `${selectedType.value}, chain ${selectedChain.value}`,
       );
   updateQueryParams();
@@ -206,7 +212,7 @@ const onTypesSelectHandler = (type) => {
   selectedChain.value = null;
   selectedType.value = type;
   visibleItemsCount.value = 30;
-  store.setHeaderTitle(type);
+  appStore.setHeaderTitle(type);
 
   getChainsFromFiltredConfigs(filtredConfigs.value);
   updateQueryParams();
@@ -243,7 +249,7 @@ const onCreateEmptyCloneHandler = () => {
     configImages: [],
   };
 
-  store.setCloneConfigData(cloneData);
+  configStore.setCloneConfigData(cloneData);
   router.push({
     path: "/configs/create",
     query: {
@@ -258,10 +264,10 @@ const onCreateEmptyCloneHandler = () => {
 Fetch config types if store.configTypes is empty
 */
 const fetchConfigTypes = async () => {
-  if (store.configTypes.length === 0) {
+  if (configTypes.value.length === 0) {
     const response = await getConfigsTypes();
     if (Array.isArray(response)) {
-      store.setConfigTypes(response);
+      configStore.setConfigTypes(response);
     } else {
       $toast.error(`Fetching config types error, status: ${response}`);
     }
@@ -273,11 +279,11 @@ Fetch configs if store.configsList is empty.
 */
 const fetchConfigs = async () => {
   isLoading.value = true;
-  if (store.configsList.length === 0) {
+  if (storedConfigList.value.length === 0) {
     const response = await getConfigs();
     if (Array.isArray(response)) {
       const configs = response.sort((a, b) => b.configId - a.configId);
-      store.setConfigsList(configs);
+      configStore.setConfigList(configs);
     } else {
       $toast.error(`Fetching configs error, status: ${response}`);
     }
@@ -287,22 +293,22 @@ const fetchConfigs = async () => {
 
 const getProvidersData = async () => {
   if (
-    providersGroups.value.length === 0 ||
-    providersNetworks.value.length === 0 ||
-    providersNetworks.value.length === 0
+    providerGroups.value.length === 0 ||
+    providerNetworks.value.length === 0 ||
+    providerAccounts.value.length === 0
   ) {
     const networksResponse = await getProviderNetworks();
-    const groupResponse = await getProviderGroup();
-    const accountResponse = await getProvidersAccounts();
-    store.setProvidersGroups(groupResponse);
-    store.setProvidersNetworks(networksResponse);
-    store.setProviderAccounts(accountResponse);
+    const groupsResponse = await getProviderGroup();
+    const accountsResponse = await getProvidersAccounts();
+    configStore.setProviderGroups(groupsResponse);
+    configStore.setProviderNetworks(networksResponse);
+    configStore.setProviderAccounts(accountsResponse);
   }
 };
 
 onMounted(async () => {
   window.addEventListener("scroll", handleScroll);
-  store.setHeaderTitle("Select config type");
+  appStore.setHeaderTitle("Select config type");
   await fetchConfigTypes();
   await fetchConfigs();
   filterListByQuery();
@@ -388,7 +394,7 @@ const filterListByQuery = () => {
 
   if (query.type) {
     selectedType.value = query.type;
-    store.setHeaderTitle(query.type);
+    appStore.setHeaderTitle(query.type);
     const configsToBeFiltred = storedConfigList.value.filter(
       (item) => item.configType === query.type,
     );

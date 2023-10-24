@@ -20,13 +20,13 @@
 </template>
 <script setup>
 import { getBlockchains, getProviders } from "~/api/coinapi";
-import { useStore } from "~/store";
+import { useAppStore } from "@/stores/app";
 
 definePageMeta({
   layout: "signedin",
 });
 
-const store = useStore();
+const appStore = useAppStore();
 const { $toast } = useNuxtApp();
 
 const chainsList = ref([]);
@@ -54,7 +54,7 @@ const getCoinApiData = async () => {
 };
 
 onMounted(async () => {
-  store.setHeaderTitle(`CoinApi Status`);
+  appStore.setHeaderTitle("CoinApi Status");
   await getCoinApiData();
 });
 </script>

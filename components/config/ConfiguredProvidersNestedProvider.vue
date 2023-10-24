@@ -77,9 +77,10 @@
 </template>
 
 <script setup>
-import { useStore } from "~/store";
+import { storeToRefs } from "pinia";
+import { useConfigStore } from "@/stores/configs";
 
-const store = useStore();
+const configStore = useConfigStore();
 
 const props = defineProps({
   configNestedObject: Object,
@@ -91,6 +92,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["setBlockchain"]);
+const { storedConfigList } = storeToRefs(configStore);
 
 const defaultNestedObject = ref(cleared(props.configNestedObject));
 const isConfigUpdated = ref(false);
@@ -98,7 +100,7 @@ const isNetworkModalVisible = ref(false);
 const isGroupModalVisible = ref(false);
 
 const onAddChainFromParent = () => {
-  const chain = store.configsList.find(
+  const chain = storedConfigList.value.find(
     (item) => item.configId === props.fullConfigObject.configChain.configId,
   );
   const chainConfigFileObj = JSON.parse(chain.configFile);

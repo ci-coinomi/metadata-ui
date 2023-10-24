@@ -130,15 +130,15 @@
   </main>
 </template>
 <script setup>
-import { useStore } from "~/store";
+import { useAppStore } from "@/stores/app";
 
 definePageMeta({
   layout: "signedin",
 });
 
-const store = useStore();
+const appStore = useAppStore();
 
 onMounted(() => {
-  store.setHeaderTitle(`FAQ`);
+  appStore.setHeaderTitle("FAQ");
 });
 </script>

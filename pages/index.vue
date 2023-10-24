@@ -22,18 +22,18 @@
 </template>
 
 <script setup>
-import { useStore } from "~/store";
+import { useAppStore } from "@/stores/app";
 import { signin } from "~/api/user";
 
 const router = useRouter();
-const store = useStore();
+const appStore = useAppStore();
 
 const loginData = ref("");
 const passwordData = ref("");
 const isAuthMessage = ref("");
 
 const formSubmitHandler = async () => {
-  store.setCurrentUser(null);
+  appStore.setCurrentUser(null);
   isAuthMessage.value = "";
 
   if (loginData.value && passwordData.value) {

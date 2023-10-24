@@ -40,16 +40,19 @@
 </template>
 
 <script setup>
-import { useStore } from "~/store";
+import { storeToRefs } from "pinia";
+import { useConfigStore } from "@/stores/configs";
 
-const store = useStore();
+const configStore = useConfigStore();
 
 const props = defineProps(["blockchain"]);
 const emit = defineEmits(["isModalConfirmed"]);
 
+const { providerNetworks } = storeToRefs(configStore);
+
 const modalRef = ref();
 const networks = computed(() =>
-  store.providersNetworks.filter((item) => item.network === props.blockchain),
+  providerNetworks.value.filter((item) => item.network === props.blockchain),
 );
 
 const onCanselClickHandler = () => {

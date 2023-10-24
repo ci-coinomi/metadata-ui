@@ -153,9 +153,10 @@
 </template>
 
 <script setup>
-import { useStore } from "~/store";
+import { storeToRefs } from "pinia";
+import { useConfigStore } from "@/stores/configs";
 
-const store = useStore();
+const configStore = useConfigStore();
 
 const props = defineProps([
   "currentProviderList",
@@ -165,11 +166,10 @@ const props = defineProps([
 ]);
 const emit = defineEmits(["isModalConfirmed"]);
 
+const { providerAccounts } = storeToRefs(configStore);
 const modalRef = ref();
 const availableAccounts = ref([]);
 const selectedAccounts = ref([]);
-
-const storedAccounts = computed(() => store.providerAccounts);
 
 // const isApiKeyDeletable = (name) => {
 //   if (props.defaultList.find((item) => item === name) && !props.isFieldNew)
@@ -211,7 +211,7 @@ const handleClickOutside = (event) => {
 
 const serializeAccouts = () => {
   const totalAccounts = props.accountList.map((acc) => {
-    const fullAccountObject = storedAccounts.value.find(
+    const fullAccountObject = providerAccounts.value.find(
       (item) => item.keyName === acc,
     );
     return {

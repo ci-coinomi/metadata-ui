@@ -117,6 +117,7 @@
 </template>
 
 <script setup>
+import { storeToRefs } from "pinia";
 import { addNewImage, getImagesByConfigId } from "~/api/images";
 import {
   cloneConfig,
@@ -126,16 +127,26 @@ import {
   getProvidersAccounts,
 } from "~/api/configs";
 import { createEmptyConfigFileClone } from "~/utils/utilfunc";
-import { useStore } from "~/store";
+import { useAppStore } from "@/stores/app";
+import { useConfigStore } from "@/stores/configs";
 
 definePageMeta({
   layout: "signedin",
 });
 
 const { $toast } = useNuxtApp();
-const store = useStore();
+const appStore = useAppStore();
+const configStore = useConfigStore();
 const router = useRouter();
 const route = useRoute();
+
+const {
+  cloneConfigData,
+  storedConfigList,
+  providerGroups,
+  providerNetworks,
+  providerAccounts,
+} = storeToRefs(configStore);
 
 const currentConfig = ref(null);
 const configFileObj = ref(null);
@@ -150,10 +161,6 @@ const addImageModalType = ref(null);
 const addImageModalPayload = ref(null);
 const isTextModalVisible = ref(null);
 
-const cloneConfigData = computed(() => store.cloneConfigData);
-const storedConfigList = computed(() => store.configsList);
-const providersGroups = computed(() => store.providersGroups);
-const providersNetworks = computed(() => store.providersNetworks);
 const nameInputClass = computed(() =>
   !currentConfig.value.configName && isNameFieldUnderlined.value
     ? "warning"
@@ -246,7 +253,7 @@ const onSaveCloneHandler = () => {
 };
 
 const onReturnHandler = () => {
-  store.setCloneConfigData(null);
+  configStore.setCloneConfigData(null);
   router.push("/configs");
 };
 
@@ -279,7 +286,7 @@ const cloneConfigRequest = async () => {
   currentConfig.value.configFile = updatedConfigString;
   const updatedConfigsList = [...storedConfigList.value];
   updatedConfigsList.unshift(currentConfig.value);
-  store.setConfigsList(updatedConfigsList);
+  configStore.setConfigList(updatedConfigsList);
 
   $toast.success(`New config ${currentConfig.value.configName} was created`);
 
@@ -317,12 +324,12 @@ const fetchConfigs = async () => {
   const response = await getConfigs();
   if (!Array.isArray(response)) {
     $toast.error(`Fetching configs error, status: ${response}`);
-    store.setHeaderTitle(`Fetching configs error`);
+    appStore.setHeaderTitle("Fetching configs error");
     isLoading.value = false;
     return null;
   }
   const configsList = response.sort((a, b) => b.configId - a.configId);
-  store.setConfigsList(configsList);
+  configStore.setConfigList(configsList);
   return null;
 };
 
@@ -439,27 +446,27 @@ const moveParentOnTheFirstPlace = (parentConfig, configList) => {
     ...configList.slice(0, parentIndexInStore),
     ...configList.slice(parentIndexInStore + 1),
   ];
-  store.setConfigsList(updatedConfigsList);
+  configStore.setConfigList(updatedConfigsList);
   return null;
 };
 
 const getProvidersData = async () => {
   if (
-    providersGroups.value.length === 0 ||
-    providersNetworks.value.length === 0 ||
-    providersNetworks.value.length === 0
+    providerGroups.value.length === 0 ||
+    providerNetworks.value.length === 0 ||
+    providerAccounts.value.length === 0
   ) {
     const networksResponse = await getProviderNetworks();
     const groupResponse = await getProviderGroup();
     const accountResponse = await getProvidersAccounts();
-    store.setProvidersGroups(groupResponse);
-    store.setProvidersNetworks(networksResponse);
-    store.setProviderAccounts(accountResponse);
+    configStore.setProviderGroups(groupResponse);
+    configStore.setProviderNetworks(networksResponse);
+    configStore.setProviderAccounts(accountResponse);
   }
 };
 
 onMounted(async () => {
-  store.setHeaderTitle("Create config");
+  appStore.setHeaderTitle("Create config");
   isLoading.value = true;
   getProvidersData();
 

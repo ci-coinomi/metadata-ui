@@ -40,14 +40,14 @@
   </main>
 </template>
 <script setup>
-import { useStore } from "~/store";
+import { useAppStore } from "@/stores/app";
 import { addUser, deleteUser, getUsers, updateUser } from "~/api/user";
 
 definePageMeta({
   layout: "signedin",
 });
 
-const store = useStore();
+const appStore = useAppStore();
 const { $toast } = useNuxtApp();
 
 const isLoading = ref(true);
@@ -156,7 +156,7 @@ const getUsersList = async () => {
 };
 
 onMounted(() => {
-  store.setHeaderTitle(`Users`);
+  appStore.setHeaderTitle("Users");
   getUsersList();
 });
 </script>

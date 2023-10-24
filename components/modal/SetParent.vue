@@ -72,18 +72,21 @@
 </template>
 
 <script setup>
-import { useStore } from "~/store";
+import { storeToRefs } from "pinia";
+import { useConfigStore } from "@/stores/configs";
 
-const store = useStore();
+const configStore = useConfigStore();
 const { $toast } = useNuxtApp();
 
 const emit = defineEmits(["isModalConfirmed"]);
 const props = defineProps(["configs", "currentConfig"]);
 
+const { storedConfigList } = storeToRefs(configStore);
+
 const textInputValue = ref("");
 
 const blockchainsArray = computed(() =>
-  store.configsList
+  storedConfigList.value
     .filter((item) => item.configType === "BLOCKCHAIN")
     .map((item) => {
       const configNestedObject = JSON.parse(item.configFile);

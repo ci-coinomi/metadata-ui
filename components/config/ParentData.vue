@@ -48,9 +48,10 @@
 </template>
 
 <script setup>
-import { useStore } from "~/store";
+import { storeToRefs } from "pinia";
+import { useConfigStore } from "@/stores/configs";
 
-const store = useStore();
+const configStore = useConfigStore();
 const route = useRoute();
 
 const props = defineProps([
@@ -59,6 +60,7 @@ const props = defineProps([
   "parentUpdateTrigger",
 ]);
 
+const { storedConfigList } = storeToRefs(configStore);
 const children = ref([]);
 const isChildrenConfigVisible = ref(false);
 const defaultParentId = ref(props.parentData?.configId);
@@ -84,7 +86,7 @@ const getChildConfigs = (configs, id) => {
 
 onMounted(() => {
   const childConfigsArray = getChildConfigs(
-    store.configsList,
+    storedConfigList.value,
     props.currentConfigData.configId,
   );
   children.value = childConfigsArray;
