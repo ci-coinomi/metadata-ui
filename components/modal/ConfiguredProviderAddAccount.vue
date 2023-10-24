@@ -210,6 +210,11 @@ const handleClickOutside = (event) => {
 };
 
 const serializeAccouts = () => {
+  if (!providerAccounts) {
+    // eslint-disable-next-line no-console
+    console.error("providerAccounts were not received");
+    return;
+  }
   const totalAccounts = props.accountList.map((acc) => {
     const fullAccountObject = providerAccounts.value.find(
       (item) => item.keyName === acc,

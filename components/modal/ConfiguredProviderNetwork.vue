@@ -51,9 +51,17 @@ const emit = defineEmits(["isModalConfirmed"]);
 const { providerNetworks } = storeToRefs(configStore);
 
 const modalRef = ref();
-const networks = computed(() =>
-  providerNetworks.value.filter((item) => item.network === props.blockchain),
-);
+const networks = computed(() => {
+  if (!providerNetworks.value) {
+    // eslint-disable-next-line no-console
+    console.error("providerNetworks were not recieved");
+    return [];
+  }
+
+  return providerNetworks.value.filter(
+    (item) => item.network === props.blockchain,
+  );
+});
 
 const onCanselClickHandler = () => {
   emit("isModalConfirmed", false);

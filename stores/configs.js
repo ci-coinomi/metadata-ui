@@ -5,9 +5,9 @@ export const useConfigStore = defineStore("config", () => {
   const configTypes = ref([]);
   const cloneConfigData = ref(null);
 
-  const providerGroups = ref([]);
-  const providerNetworks = ref([]);
-  const providerAccounts = ref([]);
+  const providerGroups = ref(null);
+  const providerNetworks = ref(null);
+  const providerAccounts = ref(null);
 
   const setConfigList = (configsArray) => {
     storedConfigList.value = configsArray.filter(

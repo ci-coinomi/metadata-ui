@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 const api = async (endpoint, method, payload) => {
   try {
     const app = useNuxtApp();
@@ -16,13 +14,9 @@ const api = async (endpoint, method, payload) => {
 
 export const getImagesByConfigId = async (configId) => {
   const response = await api(`v1/admin/configs/${configId}/images`, "GET");
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const addNewImage = async ({ imageName, imageData }, parentConfig) => {
@@ -36,13 +30,9 @@ export const addNewImage = async ({ imageName, imageData }, parentConfig) => {
       parentConfig,
     },
   );
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const updateImageById = async (image, imageId, parentConfig) => {
@@ -57,13 +47,9 @@ export const updateImageById = async (image, imageId, parentConfig) => {
       parentConfig,
     },
   );
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const deleteImageById = async (imageId, parentConfigId) => {
@@ -71,9 +57,9 @@ export const deleteImageById = async (imageId, parentConfigId) => {
     `v1/admin/configs/${parentConfigId}/images/${imageId}`,
     "DELETE",
   );
-  if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response && response.status === 204)
+    return { success: true, status: response.status };
+  if (response && response.status !== 204)
+    return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };

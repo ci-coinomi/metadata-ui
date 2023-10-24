@@ -12,8 +12,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   if (!currentUser.value) {
     const response = await getMe();
-    if (response.status === 200) {
-      appStore.setCurrentUser(response._data);
+    if (response.success) {
+      appStore.setCurrentUser(response.data);
     } else {
       return navigateTo("/");
     }

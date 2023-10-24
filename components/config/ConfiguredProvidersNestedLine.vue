@@ -217,7 +217,14 @@ const isAddAcountModalVisible = ref(false);
 const availableAccountApiKeyNamesForSelect = ref([]);
 
 const additionalData = computed(() => {
+  if (!providerNetworks.value) {
+    // eslint-disable-next-line no-console
+    console.error("providerNetworks were not found");
+    return [];
+  }
+
   const additionalDataArray = [];
+
   defaultNestedObject.value?.networkIds?.forEach((networkId) => {
     const itemInResponse = providerNetworks.value.find(
       (item) => item.id === networkId,

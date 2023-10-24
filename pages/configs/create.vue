@@ -122,9 +122,9 @@ import { addNewImage, getImagesByConfigId } from "~/api/images";
 import {
   cloneConfig,
   getConfigs,
-  getProviderGroup,
+  getProviderGroups,
   getProviderNetworks,
-  getProvidersAccounts,
+  getProviderAccounts,
 } from "~/api/configs";
 import { createEmptyConfigFileClone } from "~/utils/utilfunc";
 import { useAppStore } from "@/stores/app";
@@ -274,15 +274,15 @@ const cloneConfigRequest = async () => {
 
   const response = await cloneConfig(cloneConfigPayload);
 
-  if (!response.configId) {
-    $toast.error(`Creating clone error, status: ${response}`);
+  if (!response.success) {
+    $toast.error(`Creating clone error, status: ${response.status}`);
     router.push("/configs");
     isLoading.value = false;
     return null;
   }
 
   // Adding new config to configList
-  currentConfig.value.configId = response.configId;
+  currentConfig.value.configId = response.data.configId;
   currentConfig.value.configFile = updatedConfigString;
   const updatedConfigsList = [...storedConfigList.value];
   updatedConfigsList.unshift(currentConfig.value);
@@ -302,33 +302,35 @@ const cloneConfigRequest = async () => {
 
 const uploadImageRequest = async (image) => {
   const response = await addNewImage(image, currentConfig.value);
-  if (response?.imageName === image.imageName) {
+  if (response.success) {
     $toast.success(`Image ${image.imageName} was added`);
   } else {
-    $toast.error(`Uploading image error, status: ${response}`);
+    $toast.error(`Uploading image error, status: ${response.status}`);
   }
 };
 
 const getConfigImageRequest = async (id) => {
   isLoading.value = true;
   const response = await getImagesByConfigId(id);
-  if (Array.isArray(response)) {
-    configImages.value = response;
+  if (response.success) {
+    configImages.value = response.data;
   } else {
-    $toast.error(`Getting config ${id} images error, status: ${response}`);
+    $toast.error(
+      `Getting config ${id} images error, status: ${response.status}`,
+    );
   }
   isLoading.value = false;
 };
 
 const fetchConfigs = async () => {
   const response = await getConfigs();
-  if (!Array.isArray(response)) {
-    $toast.error(`Fetching configs error, status: ${response}`);
+  if (!response.success) {
+    $toast.error(`Fetching configs error, status: ${response.status}`);
     appStore.setHeaderTitle("Fetching configs error");
     isLoading.value = false;
     return null;
   }
-  const configsList = response.sort((a, b) => b.configId - a.configId);
+  const configsList = response.data.sort((a, b) => b.configId - a.configId);
   configStore.setConfigList(configsList);
   return null;
 };
@@ -451,17 +453,37 @@ const moveParentOnTheFirstPlace = (parentConfig, configList) => {
 };
 
 const getProvidersData = async () => {
-  if (
-    providerGroups.value.length === 0 ||
-    providerNetworks.value.length === 0 ||
-    providerAccounts.value.length === 0
-  ) {
+  if (!providerGroups.value) {
+    const groupResponse = await getProviderGroups();
+    if (groupResponse.success) {
+      configStore.setProviderGroups(groupResponse.data);
+    } else {
+      $toast.error(
+        `Getting provider groups error, status: ${groupResponse.status}`,
+      );
+    }
+  }
+
+  if (!providerNetworks.value) {
     const networksResponse = await getProviderNetworks();
-    const groupResponse = await getProviderGroup();
-    const accountResponse = await getProvidersAccounts();
-    configStore.setProviderGroups(groupResponse);
-    configStore.setProviderNetworks(networksResponse);
-    configStore.setProviderAccounts(accountResponse);
+    if (networksResponse.success) {
+      configStore.setProviderNetworks(networksResponse.data);
+    } else {
+      $toast.error(
+        `Getting provider networks error, status: ${networksResponse.status}`,
+      );
+    }
+  }
+
+  if (!providerAccounts.value) {
+    const accountsResponse = await getProviderAccounts();
+    if (accountsResponse.success) {
+      configStore.setProviderAccounts(accountsResponse.data);
+    } else {
+      $toast.error(
+        `Getting provider accounts error, status: ${accountsResponse.status}`,
+      );
+    }
   }
 };
 

@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 const api = async (endpoint, method, payload) => {
   try {
     const app = useNuxtApp();
@@ -19,20 +17,21 @@ export const signin = async (username, password) => {
     username,
     password,
   });
-  if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+
+  if (response && response.status === 204)
+    return { success: true, status: response.status };
+  if (response && response.status !== 204)
+    return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const signout = async () => {
   const response = await api("admin/auth/logout", "POST");
-  if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response && response.status === 204)
+    return { success: true, status: response.status };
+  if (response && response.status !== 204)
+    return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const addUser = async (username, password, roles, enabled) => {
@@ -42,11 +41,11 @@ export const addUser = async (username, password, roles, enabled) => {
     roles,
     enabled,
   });
-  if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response && response.status === 201)
+    return { success: true, status: response.status };
+  if (response && response.status !== 201)
+    return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const updateUser = async (username, roles, enabled) => {
@@ -55,34 +54,35 @@ export const updateUser = async (username, roles, enabled) => {
     roles,
     enabled,
   });
-  if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response && response.status === 200)
+    return { success: true, status: response.status };
+  if (response && response.status !== 200)
+    return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const deleteUser = async (login) => {
   const response = await api(`admin/users/${login}`, "DELETE");
-  if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response && response.status === 204)
+    return { success: true, status: response.status };
+  if (response && response.status !== 204)
+    return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const getUsers = async () => {
   const response = await api(`admin/users`, "GET");
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const getMe = async () => {
   const response = await api(`admin/users/me`, "GET");
-  return response;
+  if (response && response.status === 200)
+    return { success: true, data: response._data };
+
+  if (response && response.status !== 200)
+    return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };

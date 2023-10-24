@@ -47,26 +47,19 @@ const formSubmitHandler = async () => {
       токена авторизации нет и мы пытаемся войти впервые.
     */
 
-    const res = await signin(loginData.value, passwordData.value);
+    const response = await signin(loginData.value, passwordData.value);
 
-    if (res === 403) {
-      isAuthMessage.value = "User login or password is incorrect";
-      return;
-    }
-
-    if (res === 204) {
+    if (response.success) {
       router.push({
         path: `/configs`,
       });
-      return;
-    }
-    if (res === "Cors Error") {
-      isAuthMessage.value = "CORS Error";
-      return;
     }
 
-    loginData.value = "";
-    passwordData.value = "";
+    if (response.status === 403) {
+      isAuthMessage.value = "User login or password is incorrect";
+    } else {
+      isAuthMessage.value = response.status;
+    }
   } else {
     isAuthMessage.value = "Login and password required";
   }

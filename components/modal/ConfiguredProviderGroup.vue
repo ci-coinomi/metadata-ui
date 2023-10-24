@@ -7,7 +7,10 @@
       class="box-border flex max-h-[75vh] flex-col items-center gap-2 overflow-x-auto rounded-md bg-white px-14 py-7"
     >
       <h2 class="text-center text-lg font-bold">Select group:</h2>
-      <div v-if="providerGroups.length === 0" class="text-red-600">
+      <div
+        v-if="!providerGroups || providerGroups.length === 0"
+        class="text-red-600"
+      >
         Groups were not found
       </div>
       <template v-else>

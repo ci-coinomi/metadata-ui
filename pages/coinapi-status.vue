@@ -34,22 +34,27 @@ const isLoading = ref(true);
 
 const getCoinApiData = async () => {
   isLoading.value = true;
+
   const blockchainsResponse = await getBlockchains();
-  if (!Array.isArray(blockchainsResponse?.blockchains)) {
-    $toast.error(`Fetching blockchains error, status: ${blockchainsResponse}`);
+  if (!blockchainsResponse.success) {
+    $toast.error(
+      `Fetching blockchains error, status: ${blockchainsResponse.status}`,
+    );
   }
 
   const providersResponse = await getProviders();
-  if (!Array.isArray(providersResponse?.settings)) {
-    $toast.error(`Fetching providers error, status: ${providersResponse}`);
+  if (!providersResponse.success) {
+    $toast.error(
+      `Fetching providers error, status: ${providersResponse.status}`,
+    );
   }
 
   const chains = serializeCoinApi(
-    blockchainsResponse?.blockchains,
-    providersResponse?.settings,
+    blockchainsResponse.data.blockchains,
+    providersResponse.data.settings,
   );
-  isLoading.value = false;
 
+  isLoading.value = false;
   chainsList.value = chains;
 };
 

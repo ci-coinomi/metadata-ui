@@ -88,8 +88,8 @@ const onCoinApiStatusNavigateHandler = () => {
 
 const onLogoutHandler = async () => {
   const response = await signout();
-  if (response !== 204) {
-    $toast.error(`Logout request error, status: ${response}`);
+  if (!response.success) {
+    $toast.error(`Logout request error, status: ${response.status}`);
   }
   router.push({
     path: `/`,

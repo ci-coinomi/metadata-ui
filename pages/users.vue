@@ -110,11 +110,11 @@ const deleteUserByLogin = async (userName) => {
   const response = await deleteUser(userName);
   isLoading.value = false;
 
-  if (response === 204) {
-    $toast.success(`User was deleted`);
+  if (response.success) {
+    $toast.success("User was deleted");
     getUsersList();
   } else {
-    $toast.error(`Deleting user error, status: ${response}`);
+    $toast.error(`Deleting user error, status: ${response.status}`);
   }
 };
 
@@ -123,11 +123,11 @@ const addNewUser = async ({ username, password, role, enabled }) => {
   const response = await addUser(username, password, role, enabled);
   isLoading.value = false;
 
-  if (response === 201) {
+  if (response.success) {
     $toast.success(`User was added`);
     getUsersList();
   } else {
-    $toast.error(`Adding new user error, status: ${response}`);
+    $toast.error(`Adding new user error, status: ${response.status}`);
   }
 };
 
@@ -136,21 +136,21 @@ const updateExistedUser = async (username, { role, enabled }) => {
   const response = await updateUser(username, role, enabled);
   isLoading.value = false;
 
-  if (response === 200) {
-    $toast.success(`User was updated`);
+  if (response.success) {
+    $toast.success("User was updated");
     getUsersList();
   } else {
-    $toast.error(`Updating user error, status: ${response}`);
+    $toast.error(`Updating user error, status: ${response.status}`);
   }
 };
 
 const getUsersList = async () => {
   isLoading.value = true;
   const response = await getUsers();
-  if (response && Array.isArray(response)) {
-    usersList.value = response;
+  if (response.success) {
+    usersList.value = response.data;
   } else {
-    $toast.error(`Fetching user error, status: ${response}`);
+    $toast.error(`Fetching user error, status: ${response.status}`);
   }
   isLoading.value = false;
 };

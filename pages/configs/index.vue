@@ -90,10 +90,10 @@ import { storeToRefs } from "pinia";
 import { createEmptyConfigFileClone } from "~/utils/utilfunc";
 import {
   getConfigs,
-  getConfigsTypes,
-  getProviderGroup,
+  getConfigTypes,
+  getProviderGroups,
   getProviderNetworks,
-  getProvidersAccounts,
+  getProviderAccounts,
 } from "~/api/configs";
 import { useAppStore } from "@/stores/app";
 import { useConfigStore } from "@/stores/configs";
@@ -265,11 +265,11 @@ Fetch config types if store.configTypes is empty
 */
 const fetchConfigTypes = async () => {
   if (configTypes.value.length === 0) {
-    const response = await getConfigsTypes();
-    if (Array.isArray(response)) {
-      configStore.setConfigTypes(response);
+    const response = await getConfigTypes();
+    if (response.success) {
+      configStore.setConfigTypes(response.data);
     } else {
-      $toast.error(`Fetching config types error, status: ${response}`);
+      $toast.error(`Fetching config types error, status: ${response.status}`);
     }
   }
 };
@@ -281,28 +281,48 @@ const fetchConfigs = async () => {
   isLoading.value = true;
   if (storedConfigList.value.length === 0) {
     const response = await getConfigs();
-    if (Array.isArray(response)) {
-      const configs = response.sort((a, b) => b.configId - a.configId);
+    if (response.success) {
+      const configs = response.data.sort((a, b) => b.configId - a.configId);
       configStore.setConfigList(configs);
     } else {
-      $toast.error(`Fetching configs error, status: ${response}`);
+      $toast.error(`Fetching configs error, status: ${response.status}`);
     }
   }
   isLoading.value = false;
 };
 
 const getProvidersData = async () => {
-  if (
-    providerGroups.value.length === 0 ||
-    providerNetworks.value.length === 0 ||
-    providerAccounts.value.length === 0
-  ) {
+  if (!providerGroups.value) {
+    const groupResponse = await getProviderGroups();
+    if (groupResponse.success) {
+      configStore.setProviderGroups(groupResponse.data);
+    } else {
+      $toast.error(
+        `Getting provider groups error, status: ${groupResponse.status}`,
+      );
+    }
+  }
+
+  if (!providerNetworks.value) {
     const networksResponse = await getProviderNetworks();
-    const groupsResponse = await getProviderGroup();
-    const accountsResponse = await getProvidersAccounts();
-    configStore.setProviderGroups(groupsResponse);
-    configStore.setProviderNetworks(networksResponse);
-    configStore.setProviderAccounts(accountsResponse);
+    if (networksResponse.success) {
+      configStore.setProviderNetworks(networksResponse.data);
+    } else {
+      $toast.error(
+        `Getting provider networks error, status: ${networksResponse.status}`,
+      );
+    }
+  }
+
+  if (!providerAccounts.value) {
+    const accountsResponse = await getProviderAccounts();
+    if (accountsResponse.success) {
+      configStore.setProviderAccounts(accountsResponse.data);
+    } else {
+      $toast.error(
+        `Getting provider accounts error, status: ${accountsResponse.status}`,
+      );
+    }
   }
 };
 

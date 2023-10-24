@@ -10,7 +10,7 @@
 import { storeToRefs } from "pinia";
 import { getConfigs } from "~/api/configs";
 import { useAppStore } from "@/stores/app";
-import { useConfigStore } from "@/stores/config";
+import { useConfigStore } from "@/stores/configs";
 
 definePageMeta({
   layout: "signedin",
@@ -27,13 +27,13 @@ const isLoading = ref(true);
 const fetchConfigs = async () => {
   if (storedConfigList.value.length === 0) {
     const response = await getConfigs();
-    if (!Array.isArray(response)) {
-      $toast.error(`Fetching configs error, status: ${response}`);
+    if (!response.success) {
+      $toast.error(`Fetching configs error, status: ${response.status}`);
       isLoading.value = false;
       appStore.setHeaderTitle("Fetching configs error");
       return null;
     }
-    const configsList = response.sort((a, b) => b.configId - a.configId);
+    const configsList = response.data.sort((a, b) => b.configId - a.configId);
     configStore.setConfigList(configsList);
   }
   config.value = cleared(

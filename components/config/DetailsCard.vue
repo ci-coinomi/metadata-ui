@@ -297,13 +297,13 @@ const updateConfigRequest = async () => {
       updatedConfigString,
     );
 
-    if (!response.configFile) {
+    if (!response.success) {
       $toast.error(
-        `Updating config ${currentConfig.value.configName} error, status: ${response}`,
+        `Updating config ${currentConfig.value.configName} error, status: ${response.status}`,
       );
     } else {
       $toast.success(`Config ${currentConfig.value.configName} was updated`);
-      currentConfig.value.configFile = response.configFile;
+      currentConfig.value.configFile = response.data.configFile;
       defaultParentConfig.value = currentConfig.value.parentConfig;
 
       // Update store.configList by adding updated config...
@@ -331,11 +331,12 @@ const updateImageRequest = async (newImageData, oldImage) => {
     oldImage.imageId,
     currentConfig.value,
   );
-  if (response.imageId === oldImage.imageId) {
+
+  if (response.success) {
     $toast.success(`Image was updated`);
     await getConfigImageRequest();
   } else {
-    $toast.error(`Updating image error, status: ${response}`);
+    $toast.error(`Updating image error, status: ${response.status}`);
   }
   isLoading.value = false;
 };
@@ -347,11 +348,11 @@ const deleteImageRequest = async (image) => {
     image.imageId,
     currentConfig.value.configId,
   );
-  if (response === 204) {
-    $toast.success(`Image was deleted`);
+  if (response.success) {
+    $toast.success("Image was deleted");
     await getConfigImageRequest();
   } else {
-    $toast.error(`Deleting image error, status: ${response}`);
+    $toast.error(`Deleting image error, status: ${response.status}`);
   }
   isLoading.value = false;
 };
@@ -359,11 +360,11 @@ const deleteImageRequest = async (image) => {
 const uploadNewImageRequest = async (image) => {
   isLoading.value = true;
   const response = await addNewImage(image, currentConfig.value);
-  if (response?.imageName === image.imageName) {
+  if (response.success) {
     $toast.success(`Image was added`);
     await getConfigImageRequest();
   } else {
-    $toast.error(`Uploading image error, status: ${response}`);
+    $toast.error(`Uploading image error, status: ${response.status}`);
   }
   isLoading.value = false;
 };
@@ -371,11 +372,11 @@ const uploadNewImageRequest = async (image) => {
 const getConfigImageRequest = async () => {
   isLoading.value = true;
   const response = await getImagesByConfigId(currentConfig.value.configId);
-  if (Array.isArray(response)) {
-    configImages.value = response;
+  if (response.success) {
+    configImages.value = response.data;
   } else {
     $toast.error(
-      `Getting config ${currentConfig.value.configId} images error, status: ${response}`,
+      `Getting config ${currentConfig.value.configId} images error, status: ${response.status}`,
     );
   }
   isLoading.value = false;
@@ -384,7 +385,7 @@ const getConfigImageRequest = async () => {
 const deleteConfigRequest = async () => {
   isLoading.value = true;
   const response = await deleteConfig(currentConfig.value.configId);
-  if (response === 204) {
+  if (response.success) {
     $toast.success(`Config was successfully deleted`);
 
     // Updating configsList in store.
@@ -395,7 +396,7 @@ const deleteConfigRequest = async () => {
     ];
     configStore.setConfigList(updatedConfigsList);
   } else {
-    $toast.error(`Deleting config error, status: ${response}`);
+    $toast.error(`Deleting config error, status: ${response.status}`);
   }
 
   isLoading.value = false;
