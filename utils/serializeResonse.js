@@ -27,6 +27,13 @@ export const serializeCoinApi = (blockchains, providers) => {
 export const serializeConfigs = (allConfigs) => {
   const serializedConfigs = allConfigs.map((config) => {
     const parentConfigChain = getClosestChain(config, allConfigs);
+    if (parentConfigChain) {
+      const shortString = parentConfigChain.configName.replace(
+        /^blockchain_/,
+        "",
+      );
+      parentConfigChain.shortChainName = shortString;
+    }
     return { ...config, configChain: parentConfigChain };
   });
   return serializedConfigs;
