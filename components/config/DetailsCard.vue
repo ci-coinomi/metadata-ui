@@ -18,7 +18,7 @@
   />
 
   <div class="flex items-center justify-center p-4">
-    <configBannerSkeleton v-if="isLoading" />
+    <DesignConfigBannerSkeleton v-if="isLoading" />
 
     <div v-else class="flex w-full flex-col items-center justify-center gap-4">
       <div class="flex w-full items-start justify-between gap-4">
@@ -241,14 +241,6 @@ const changeParentHandler = () => {
 };
 
 const onCloneConfigHandler = () => {
-  const cloneData = {
-    config: currentConfig.value,
-    configFile: currentConfig.value.configFile,
-    configImages: configImages.value,
-    parentConfig: currentConfig.value.parentConfig,
-  };
-
-  configStore.setCloneConfigData(cloneData);
   router.push({
     path: "/configs/create",
     query: {

@@ -15,8 +15,6 @@ export const useConfigStore = defineStore("config", () => {
   const storedSearch = ref(null);
   const visibleItemsCount = ref(30);
 
-  const cloneConfigData = ref(null);
-
   /* RESPONSES */
   const setConfigList = (configsArray) => {
     storedConfigList.value = configsArray.filter(
@@ -62,10 +60,6 @@ export const useConfigStore = defineStore("config", () => {
     selectedChain.value = null;
     storedSearch.value = null;
     visibleItemsCount.value = 30;
-  };
-
-  const setCloneConfigData = (payload) => {
-    cloneConfigData.value = payload;
   };
 
   /* GETTERS */
@@ -158,7 +152,6 @@ export const useConfigStore = defineStore("config", () => {
     selectedChain,
     storedSearch,
     visibleItemsCount,
-    cloneConfigData,
     setConfigList,
     setConfigTypes,
     setProviderGroups,
@@ -169,7 +162,6 @@ export const useConfigStore = defineStore("config", () => {
     setStoredSearch,
     setVisibleItemsCount,
     setDefaultFilters,
-    setCloneConfigData,
     visibleConfigs,
     filtredConfigs,
     blockchains,

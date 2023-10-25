@@ -33,13 +33,8 @@ const configStore = useConfigStore();
 const router = useRouter();
 const route = useRoute();
 
-const {
-  storedConfigList,
-  visibleConfigs,
-  selectedType,
-  storedSearch,
-  filtredConfigs,
-} = storeToRefs(configStore);
+const { storedConfigList, selectedType, storedSearch, filtredConfigs } =
+  storeToRefs(configStore);
 
 const search = ref(null);
 
@@ -56,21 +51,8 @@ const isCreateEmptyConfigVisible = computed(() => {
 
 /**
  * Create clone handler.
- * For creating empty clone the cleared fields of the first visible config are used.
  */
 const onCreateEmptyCloneHandler = () => {
-  const configToBePassed = visibleConfigs.value[0];
-  const configFileToBePassed = createEmptyConfigFileClone(
-    configToBePassed.configFile,
-  );
-
-  const cloneData = {
-    config: configToBePassed,
-    configFile: configFileToBePassed,
-    configImages: [],
-  };
-
-  configStore.setCloneConfigData(cloneData);
   router.push({
     path: "/configs/create",
     query: {

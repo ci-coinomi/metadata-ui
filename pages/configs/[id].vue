@@ -1,7 +1,7 @@
 <template>
   <main class="relative mt-3 bg-white p-4">
     <div v-if="isLoading" class="flex items-center justify-center">
-      <ConfigBannerSkeleton />
+      <DesignConfigBannerSkeleton />
     </div>
     <ConfigDetailsCard v-else :config="config" />
   </main>

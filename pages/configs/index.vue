@@ -64,6 +64,7 @@ const {
   selectedChain,
   storedSearch,
   visibleItemsCount,
+  filtredConfigs,
 } = storeToRefs(configStore);
 
 /**
@@ -83,15 +84,14 @@ const handleScroll = () => {
 };
 
 /**
- * Get configs if they doesn't exist in store
+ * Get configs if they don't exist in store
  */
 const fetchConfigs = async () => {
   isLoading.value = true;
   if (storedConfigList.value.length === 0) {
     const response = await getConfigs();
     if (response.success) {
-      const configs = response.data.sort((a, b) => b.configId - a.configId);
-      configStore.setConfigList(configs);
+      configStore.setConfigList(response.data);
     } else {
       $toast.error(`Fetching configs error, status: ${response.status}`);
     }
@@ -100,9 +100,9 @@ const fetchConfigs = async () => {
 };
 
 /**
- * Get all providers data in one place
+ * Get all providers data in one place if they don't exist in store.
  */
-const getProvidersData = async () => {
+const fetchProvidersData = async () => {
   if (!providerGroups.value) {
     const groupResponse = await getProviderGroups();
     if (groupResponse.success) {
@@ -142,7 +142,7 @@ onMounted(async () => {
   appStore.setHeaderTitle("Select config type");
   await fetchConfigs();
   filterListByQuery();
-  await getProvidersData();
+  await fetchProvidersData();
 });
 
 onUnmounted(() => {
