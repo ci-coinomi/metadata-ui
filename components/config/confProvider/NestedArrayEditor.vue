@@ -1,11 +1,11 @@
 <template>
-  <ModalConfiguredProviderNetwork
+  <ModalConfProviderNetwork
     v-if="isNetworkModalVisible"
     :blockchain="blockchain"
     @is-modal-confirmed="(data) => onNetworkModalConfirmHandler(data)"
   />
 
-  <ModalConfiguredProviderGroup
+  <ModalConfProviderGroup
     v-if="isGroupModalVisible"
     :blockchain="blockchain"
     @is-modal-confirmed="(data) => onGroupModalConfirmHandler(data)"
@@ -58,7 +58,7 @@
           </uiButton> -->
         </div>
         <div class="flex w-full flex-col gap-2 rounded-sm">
-          <configConfiguredProvidersNestedLine
+          <ConfigConfProviderNestedObjectEditor
             :isCloned="isCloned"
             :configNestedObject="value"
             :configUpdateTrigger="configUpdateTrigger"

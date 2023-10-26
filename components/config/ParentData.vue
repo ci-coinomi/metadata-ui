@@ -1,11 +1,11 @@
 <template>
   <ModalChildrenConfigs
     v-if="isChildrenConfigVisible"
-    :childConfigs="children"
+    :child-configs="children"
     @close-modal="toggleChildrenModal(false)"
   />
 
-  <section
+  <div
     class="mb-4 w-full rounded-md border p-4"
     :class="isParentUpdated ? 'border-[#d38b32]' : 'border-gray-300'"
   >
@@ -15,36 +15,37 @@
           <span class="text-gray-400">Parent id: </span>
           {{ props.parentData.configId }}
         </p>
-        <div class="hideExtraText">
+        <p class="hideExtraText">
           <span class="text-gray-400">Parent name: </span>
           {{ props.parentData.configName }}
-        </div>
+        </p>
         <p>
           <span class="text-gray-400">Parent type: </span>
           {{ props.parentData.configType }}
         </p>
       </div>
+
       <div v-else class="w-full text-center text-gray-400">
         Config has no parent
       </div>
-      <div class="flex flex-col gap-2">
-        <uiButton
+      <fieldset class="flex flex-col gap-2">
+        <UiButton
           v-if="props.parentData"
           class="primary w-full whitespace-nowrap text-center"
           @click="toParentNavigateHandler"
         >
           To parent
-        </uiButton>
-        <uiButton
+        </UiButton>
+        <UiButton
           v-if="children.length > 0 && route.name !== 'configs-create'"
           class="info w-full whitespace-nowrap"
           @click="toggleChildrenModal(true)"
         >
           Show children ({{ children.length }})
-        </uiButton>
-      </div>
+        </UiButton>
+      </fieldset>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup>
@@ -54,16 +55,17 @@ import { useConfigStore } from "@/stores/configs";
 const configStore = useConfigStore();
 const route = useRoute();
 
-const props = defineProps([
-  "parentData",
-  "currentConfigData",
-  "parentUpdateTrigger",
-]);
+const props = defineProps({
+  parentData: Object,
+  currentConfigData: Object,
+  parentUpdateTrigger: Number,
+});
 
 const { storedConfigList } = storeToRefs(configStore);
 const children = ref([]);
 const isChildrenConfigVisible = ref(false);
 const defaultParentId = ref(props.parentData?.configId);
+
 const isParentUpdated = computed(
   () => defaultParentId.value !== props.parentData?.configId,
 );

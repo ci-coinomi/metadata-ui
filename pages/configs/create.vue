@@ -2,23 +2,23 @@
   <main
     class="mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
-    <modalConfirm
+    <ModalConfirm
       v-if="isConfirmModalVisible"
-      @is-modal-confirmed="modalConfirmHandler"
+      @is-modal-confirmed="modalHandler.confirm"
     >
       {{ confirmModalText }}
-    </modalConfirm>
+    </ModalConfirm>
 
-    <modalAddImage
+    <ModalAddImage
       v-if="isAddImageModalVisibe"
-      @modal-handler="modalAddImageHandler"
+      @modal-handler="modalHandler.addImage"
     />
 
-    <ModalSetParent
+    <ModalChangeParent
       v-if="isParentModalVisible"
       :configs="storedConfigList"
       :current-config="editingConfig"
-      @is-modal-confirmed="modalParentHandler"
+      @is-modal-confirmed="modalHandler.parent"
     />
 
     <DesignConfigBannerSkeleton v-if="isLoading" />
@@ -38,13 +38,13 @@
               :class="nameInputClass"
             />
           </div>
-          <ConfigConfiguredProvidersNestedLine
+          <ConfigConfProviderNestedObjectEditor
             v-if="editingConfig.configType === 'CONFIGURED_PROVIDERS'"
             :config-nested-object="fileObject"
             :is-cloned="true"
             :full-config-object="editingConfig"
           />
-          <configNestedLine
+          <ConfigDefaultNestedObjectEditor
             v-else
             :config-nested-object="fileObject"
             :is-cloned="true"
@@ -192,65 +192,67 @@ const btnHandler = {
   },
 };
 
-/* MODAL HANDLERS */
-const modalParentHandler = (payload) => {
-  isParentModalVisible.value = false;
-  if (!payload) return;
+/* Modal handlers */
+const modalHandler = {
+  parent: (payload) => {
+    isParentModalVisible.value = false;
+    if (!payload) return;
 
-  if (payload === "SET_NULL") {
-    editingConfig.value.parentConfig = null;
-    return;
-  }
+    if (payload === "SET_NULL") {
+      editingConfig.value.parentConfig = null;
+      return;
+    }
 
-  const { configId, configType, configName } = payload;
-  const newParentConfig = {
-    configId,
-    configType,
-    configName,
-  };
-  editingConfig.value.parentConfig = newParentConfig;
-};
-
-const modalConfirmHandler = (payload) => {
-  isConfirmModalVisible.value = false;
-  confirmModalText.value = null;
-
-  if (!payload) return;
-
-  if (!editingConfig.value.configName) {
-    $toast.warning(`Config name is required`);
-    isNameFieldUnderlined.value = true;
-    window.scrollTo(0, 0);
-    return null;
-  }
-
-  cloneConfigRequest();
-};
-
-const modalAddImageHandler = (payload) => {
-  isAddImageModalVisibe.value = false;
-
-  if (payload && addImageModalType.value === "ADD_NEW_IMAGE") {
-    const newImageItem = {
-      imageData: payload.data,
-      imageName: payload.name,
+    const { configId, configType, configName } = payload;
+    const newParentConfig = {
+      configId,
+      configType,
+      configName,
     };
-    configImages.value.push(newImageItem);
-  }
+    editingConfig.value.parentConfig = newParentConfig;
+  },
 
-  if (payload && addImageModalType.value === "UPDATE_IMAGE") {
-    const newImageItem = {
-      imageData: payload.data,
-      imageName: payload.name,
-    };
-    const updatedImageIndex = configImages.value.indexOf(
-      addImageOldValue.value,
-    );
-    configImages.value[updatedImageIndex] = newImageItem;
-  }
+  confirm: (payload) => {
+    isConfirmModalVisible.value = false;
+    confirmModalText.value = null;
 
-  addImageModalType.value = null;
-  addImageOldValue.value = null;
+    if (!payload) return;
+
+    if (!editingConfig.value.configName) {
+      $toast.warning(`Config name is required`);
+      isNameFieldUnderlined.value = true;
+      window.scrollTo(0, 0);
+      return null;
+    }
+
+    cloneConfigRequest();
+  },
+
+  addImage: (payload) => {
+    isAddImageModalVisibe.value = false;
+
+    if (payload && addImageModalType.value === "ADD_NEW_IMAGE") {
+      const newImageItem = {
+        imageData: payload.data,
+        imageName: payload.name,
+      };
+      configImages.value.push(newImageItem);
+    }
+
+    if (payload && addImageModalType.value === "UPDATE_IMAGE") {
+      const newImageItem = {
+        imageData: payload.data,
+        imageName: payload.name,
+      };
+      const updatedImageIndex = configImages.value.indexOf(
+        addImageOldValue.value,
+      );
+      configImages.value[updatedImageIndex] = newImageItem;
+    }
+
+    addImageModalType.value = null;
+    addImageOldValue.value = null;
+  },
 };
 
 /* REQUESTS */
@@ -428,11 +430,6 @@ const createDefaultCurrentConfig = (config) => {
  */
 const processConfig = (configFile) => {
   const serializedConfigFile = JSON.parse(configFile);
-  /**
-   * Removing apiVersion
-   */
-  if (serializedConfigFile.apiVersion) delete serializedConfigFile.apiVersion;
-
   /**
    * Only for configuredProviders.
    * createEmptyConfigFileClone clears all arrays and add empty string to them.

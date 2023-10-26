@@ -19,7 +19,7 @@
       <div class="flex w-full flex-col items-center justify-center gap-2">
         <ConfigSearchSection />
 
-        <ConfigListItem
+        <ConfigToggleListItem
           v-for="(config, index) in visibleConfigs"
           :key="config.configId"
           :config="config"

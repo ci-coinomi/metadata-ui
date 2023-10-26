@@ -53,6 +53,7 @@ const formSubmitHandler = async () => {
       router.push({
         path: `/configs`,
       });
+      return;
     }
 
     if (response.status === 403) {

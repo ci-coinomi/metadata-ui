@@ -36,14 +36,15 @@ export const addNewImage = async ({ imageName, imageData }, parentConfig) => {
 };
 
 export const updateImageById = async (image, imageId, parentConfig) => {
+  const { imageName, imageData } = image;
   const response = await api(
     `v1/admin/configs/${parentConfig.configId}/images/${imageId}`,
     "PUT",
     {
       configId: parentConfig.configId,
       imageId,
-      imageName: image.name,
-      imageData: image.data,
+      imageName,
+      imageData,
       parentConfig,
     },
   );

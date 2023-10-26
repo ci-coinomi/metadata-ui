@@ -25,18 +25,34 @@ export const serializeCoinApi = (blockchains, providers) => {
 };
 
 export const serializeConfigs = (allConfigs) => {
-  const serializedConfigs = allConfigs.map((config) => {
+  return allConfigs.map((config) => {
+    /**
+     * Deleting top level apiVersion field from configFile.
+     */
+    const fileObject = JSON.parse(config.configFile);
+    if (fileObject.apiVersion) delete fileObject.apiVersion;
+    const newConfigFile = JSON.stringify(fileObject);
+    config.configFile = newConfigFile;
+
+    /**
+     * Adding configChain field with information about closest blockchain parent.
+     */
     const parentConfigChain = getClosestChain(config, allConfigs);
-    if (parentConfigChain) {
-      const shortString = parentConfigChain.configName.replace(
-        /^blockchain_/,
-        "",
-      );
-      parentConfigChain.shortChainName = shortString;
+    if (!parentConfigChain) {
+      return { ...config, configChain: null };
     }
-    return { ...config, configChain: parentConfigChain };
+
+    const shortChainName = parentConfigChain.configName.replace(
+      /^blockchain_/,
+      "",
+    );
+    const closestChainObject = {
+      ...parentConfigChain,
+      shortChainName,
+    };
+
+    return { ...config, configChain: closestChainObject };
   });
-  return serializedConfigs;
 };
 
 const getClosestChain = (config, allConfigs, depth = 0) => {

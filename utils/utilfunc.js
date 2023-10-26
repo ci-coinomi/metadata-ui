@@ -29,7 +29,8 @@ export const createEmptyConfigFileClone = (configFile) => {
 };
 
 export const cleared = (data) => {
-  return JSON.parse(JSON.stringify(data));
+  if (data) return JSON.parse(JSON.stringify(data));
+  return null;
 };
 
 export const isObject = (value) => {

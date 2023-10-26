@@ -3,7 +3,7 @@
     class="flex w-full flex-col gap-2 rounded-sm p-2"
     :class="configBorderStyle"
   >
-    <ModalConfiguredProviderAddAccount
+    <ModalConfProviderAddAccount
       v-if="configNestedObject?.accountApiKeyNames && isAddAcountModalVisible"
       :accountList="availableAccountApiKeyNamesForSelect"
       :currentProviderList="configNestedObject?.accountApiKeyNames"
@@ -67,7 +67,7 @@
         </p>
 
         <template v-if="isObject(value)">
-          <ConfigConfiguredProvidersNestedLine
+          <ConfigConfProviderNestedObjectEditor
             :isCloned="isCloned"
             :configNestedObject="value"
             :configUpdateTrigger="props.configUpdateTrigger"
@@ -99,7 +99,7 @@
             </UiButton>
           </div>
 
-          <ConfigConfiguredProvidersNestedProvider
+          <ConfigConfProviderNestedArrayEditor
             v-else-if="isNestedArrayVisible(key)"
             :isCloned="isCloned"
             :configNestedObject="value"

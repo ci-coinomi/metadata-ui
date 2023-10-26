@@ -14,7 +14,7 @@
         Groups were not found
       </div>
       <template v-else>
-        <ConfigConfiguredProvidersGroupModalItem
+        <ConfigConfProviderGroupModalItem
           v-for="group in providerGroups"
           :key="group.providerGroupName"
           :groupItem="group"
