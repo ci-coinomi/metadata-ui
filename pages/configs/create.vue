@@ -232,17 +232,18 @@ const modalHandler = {
     isAddImageModalVisibe.value = false;
 
     if (payload && addImageModalType.value === "ADD_NEW_IMAGE") {
+      const { imageData, imageName } = payload;
       const newImageItem = {
-        imageData: payload.data,
-        imageName: payload.name,
+        imageData,
+        imageName,
       };
       configImages.value.push(newImageItem);
     }
 
     if (payload && addImageModalType.value === "UPDATE_IMAGE") {
       const newImageItem = {
-        imageData: payload.data,
-        imageName: payload.name,
+        imageData,
+        imageName,
       };
       const updatedImageIndex = configImages.value.indexOf(
         addImageOldValue.value,
