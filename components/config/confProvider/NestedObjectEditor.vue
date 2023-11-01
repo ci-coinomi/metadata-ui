@@ -3,7 +3,7 @@
     class="flex w-full flex-col gap-2 rounded-sm p-2"
     :class="configBorderStyle"
   >
-    <ModalConfiguredProviderAddAccount
+    <ModalConfProviderAddAccount
       v-if="configNestedObject?.accountApiKeyNames && isAddAcountModalVisible"
       :accountList="availableAccountApiKeyNamesForSelect"
       :currentProviderList="configNestedObject?.accountApiKeyNames"
@@ -67,7 +67,7 @@
         </p>
 
         <template v-if="isObject(value)">
-          <ConfigConfiguredProvidersNestedLine
+          <ConfigConfProviderNestedObjectEditor
             :isCloned="isCloned"
             :configNestedObject="value"
             :configUpdateTrigger="props.configUpdateTrigger"
@@ -99,7 +99,7 @@
             </UiButton>
           </div>
 
-          <ConfigConfiguredProvidersNestedProvider
+          <ConfigConfProviderNestedArrayEditor
             v-else-if="isNestedArrayVisible(key)"
             :isCloned="isCloned"
             :configNestedObject="value"
@@ -194,9 +194,11 @@
 </template>
 
 <script setup>
-import { useStore } from "~/store";
+import { storeToRefs } from "pinia";
+import { useConfigStore } from "@/stores/configs";
 
-const store = useStore();
+const configStore = useConfigStore();
+const { storedConfigList, providerNetworks } = storeToRefs(configStore);
 
 const props = defineProps({
   configNestedObject: Object,
@@ -215,9 +217,16 @@ const isAddAcountModalVisible = ref(false);
 const availableAccountApiKeyNamesForSelect = ref([]);
 
 const additionalData = computed(() => {
+  if (!providerNetworks.value) {
+    // eslint-disable-next-line no-console
+    console.error("providerNetworks were not found");
+    return [];
+  }
+
   const additionalDataArray = [];
+
   defaultNestedObject.value?.networkIds?.forEach((networkId) => {
-    const itemInResponse = store.providersNetworks.find(
+    const itemInResponse = providerNetworks.value.find(
       (item) => item.id === networkId,
     );
     if (itemInResponse) {
@@ -246,7 +255,7 @@ const onAddAccountModalConfirmHandler = (data) => {
 };
 
 const blockchainsList = computed(() =>
-  store.configsList
+  storedConfigList.value
     .filter((item) => item.configType === "BLOCKCHAIN")
     .map((item) => {
       const configFileObj = JSON.parse(item.configFile);

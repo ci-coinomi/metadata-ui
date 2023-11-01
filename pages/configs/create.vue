@@ -2,143 +2,135 @@
   <main
     class="mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
-    <modalConfirm
+    <ModalConfirm
       v-if="isConfirmModalVisible"
-      @is-modal-confirmed="modalConfirmHandler"
-      >{{ confirmModalText }}</modalConfirm
+      @is-modal-confirmed="modalHandler.confirm"
     >
+      {{ confirmModalText }}
+    </ModalConfirm>
 
-    <modalAddImage
+    <ModalAddImage
       v-if="isAddImageModalVisibe"
-      @modal-handler="addImageModalHandler"
+      @modal-handler="modalHandler.addImage"
     />
 
-    <modalSetParent
-      v-if="isTextModalVisible"
+    <ModalChangeParent
+      v-if="isParentModalVisible"
       :configs="storedConfigList"
-      :current-config="currentConfig"
-      @is-modal-confirmed="modalTextHandler"
+      :current-config="editingConfig"
+      @is-modal-confirmed="modalHandler.parent"
     />
 
-    <div class="flex w-full items-center justify-center">
-      <configBannerSkeleton v-if="isLoading" />
+    <DesignConfigBannerSkeleton v-if="isLoading" />
 
-      <div
-        v-else
-        class="flex w-full flex-col items-center justify-center gap-4"
-      >
-        <div class="flex w-full items-start justify-between gap-4">
-          <div class="w-full">
-            <ConfigParentData
-              :parent-data="currentConfig.parentConfig"
-              :current-config-data="currentConfig"
-            />
-            <div
-              v-if="currentConfig"
-              class="flex items-center justify-center gap-4 p-2"
-            >
-              <p class="flex-none text-gray-400">Name:</p>
-              <UiInputField
-                v-model="currentConfig.configName"
-                :type="'text'"
-                :class="nameInputClass"
-              />
-            </div>
-            <ConfigConfiguredProvidersNestedLine
-              v-if="currentConfig.configType === 'CONFIGURED_PROVIDERS'"
-              :configNestedObject="configFileObj"
-              :is-cloned="true"
-              :full-config-object="currentConfig"
-            />
-            <configNestedLine
-              v-else
-              :configNestedObject="configFileObj"
-              :is-cloned="true"
+    <div v-else class="flex w-full flex-col items-center justify-center gap-4">
+      <div class="flex w-full items-start justify-between gap-4">
+        <section v-if="editingConfig" class="w-full">
+          <ConfigParentData
+            :parent-data="editingConfig.parentConfig"
+            :current-config-data="editingConfig"
+          />
+          <div class="flex items-center justify-center gap-4 p-2">
+            <p class="flex-none text-gray-400">Name:</p>
+            <UiInputField
+              v-model="editingConfig.configName"
+              :type="'text'"
+              :class="nameInputClass"
             />
           </div>
-          <div class="flex flex-col items-center justify-center gap-4">
-            <div
-              v-if="configImages.length === 0"
-              class="flex h-[323px] w-[250px] items-center justify-center rounded-md border shadow-md"
-            >
-              <UiButton class="success" @click="onAddNewImageHandler">
-                <img
-                  src="~/assets/icons/icon-add.svg"
-                  class="icon-add h-6 w-6"
-                  alt="add"
-                />
-              </UiButton>
-            </div>
-            <div v-else class="flex flex-col items-center justify-center gap-4">
-              <configImageCard
-                v-for="image in configImages"
-                :key="image.imageId"
-                :image="image"
-                class="w-[250px]"
-                @on-update-click="onUpdateImageHandler(image)"
-                @on-delete-click="onDeleteImageHandler(image)"
-              />
-              <UiButton class="success" @click="onAddNewImageHandler">
-                <img
-                  src="~/assets/icons/icon-add.svg"
-                  class="icon-add h-6 w-6"
-                  alt="add"
-                />
-              </UiButton>
-            </div>
-          </div>
-        </div>
+          <ConfigConfProviderNestedObjectEditor
+            v-if="editingConfig.configType === 'CONFIGURED_PROVIDERS'"
+            :config-nested-object="fileObject"
+            :is-cloned="true"
+            :full-config-object="editingConfig"
+          />
+          <ConfigDefaultNestedObjectEditor
+            v-else
+            :config-nested-object="fileObject"
+            :is-cloned="true"
+          />
+        </section>
 
-        <div class="flex w-2/5 justify-between gap-4">
-          <uiButton
-            v-if="
-              currentConfig.configType === 'PARTNER' ||
-              currentConfig.configType === 'PROVIDERS' ||
-              currentConfig.configType === 'BANNER' ||
-              currentConfig.configType === 'ECO_SETTING' ||
-              currentConfig.configType === 'DAPP' ||
-              currentConfig.configType === 'CONFIGURED_PROVIDERS'
-            "
-            class="primary w-1/3"
-            @click="changeParentHandler"
+        <section class="flex flex-col items-center justify-center gap-4">
+          <div
+            v-if="configImages.length === 0"
+            class="flex h-[323px] w-[250px] items-center justify-center rounded-md border shadow-md"
           >
-            Change parent
-          </uiButton>
-          <UiButton class="success w-1/3" @click="onSaveCloneHandler">
-            Save
-          </UiButton>
-          <UiButton class="danger w-1/3" @click="onReturnHandler">
-            Cancel
-          </UiButton>
-        </div>
+            <UiButton class="success" @click="btnHandler.onAddNewImage">
+              <img
+                src="~/assets/icons/icon-add.svg"
+                class="icon-add h-6 w-6"
+                alt="add"
+              />
+            </UiButton>
+          </div>
+          <div v-else class="flex flex-col items-center justify-center gap-4">
+            <configImageCard
+              v-for="image in configImages"
+              :key="image.imageId"
+              :image="image"
+              class="w-[250px]"
+              @on-update-click="btnHandler.onUpdateImage"
+              @on-delete-click="btnHandler.onDeleteImage"
+            />
+            <UiButton class="success" @click="btnHandler.onAddNewImage">
+              <img
+                src="~/assets/icons/icon-add.svg"
+                class="icon-add h-6 w-6"
+                alt="add"
+              />
+            </UiButton>
+          </div>
+        </section>
       </div>
+
+      <fieldset class="flex w-2/5 justify-between gap-4">
+        <uiButton
+          v-if="isChangeParentButtonVisible"
+          class="primary w-1/3"
+          @click="btnHandler.onChangeParent"
+        >
+          Change parent
+        </uiButton>
+        <UiButton class="success w-1/3" @click="btnHandler.onSaveClone">
+          Save
+        </UiButton>
+        <UiButton class="danger w-1/3" @click="btnHandler.onReturn">
+          Cancel
+        </UiButton>
+      </fieldset>
     </div>
   </main>
 </template>
 
 <script setup>
-import { addNewImage, getImagesByConfigId } from "~/api/images";
+import { storeToRefs } from "pinia";
+import { useAppStore } from "@/stores/app";
+import { useConfigStore } from "@/stores/configs";
+import { addNewImage, getImagesByConfigId } from "@/api/images";
 import {
   cloneConfig,
   getConfigs,
-  getProviderGroup,
+  getProviderGroups,
   getProviderNetworks,
-  getProvidersAccounts,
-} from "~/api/configs";
-import { createEmptyConfigFileClone } from "~/utils/utilfunc";
-import { useStore } from "~/store";
+  getProviderAccounts,
+} from "@/api/configs";
 
 definePageMeta({
   layout: "signedin",
 });
 
 const { $toast } = useNuxtApp();
-const store = useStore();
+const appStore = useAppStore();
+const configStore = useConfigStore();
 const router = useRouter();
 const route = useRoute();
 
-const currentConfig = ref(null);
-const configFileObj = ref(null);
+const { storedConfigList, providerGroups, providerNetworks, providerAccounts } =
+  storeToRefs(configStore);
+
+const editingConfig = ref(null);
+const fileObject = ref(null);
 const configImages = ref([]);
 const isLoading = ref(true);
 const isNameFieldUnderlined = ref(null);
@@ -147,354 +139,347 @@ const isConfirmModalVisible = ref(false);
 const confirmModalText = ref(null);
 const isAddImageModalVisibe = ref(false);
 const addImageModalType = ref(null);
-const addImageModalPayload = ref(null);
-const isTextModalVisible = ref(null);
+const addImageOldValue = ref(null);
+const isParentModalVisible = ref(false);
 
-const cloneConfigData = computed(() => store.cloneConfigData);
-const storedConfigList = computed(() => store.configsList);
-const providersGroups = computed(() => store.providersGroups);
-const providersNetworks = computed(() => store.providersNetworks);
+const isChangeParentButtonVisible = computed(() => {
+  const validConfigTypes = [
+    "PARTNER",
+    "PROVIDERS",
+    "BANNER",
+    "ECO_SETTING",
+    "DAPP",
+    "CONFIGURED_PROVIDERS",
+  ];
+  return validConfigTypes.includes(editingConfig.value.configType);
+});
+
 const nameInputClass = computed(() =>
-  !currentConfig.value.configName && isNameFieldUnderlined.value
+  !editingConfig.value.configName && isNameFieldUnderlined.value
     ? "warning"
     : "",
 );
 
-// Modal handlers
-const modalTextHandler = (value) => {
-  isTextModalVisible.value = null;
-  if (value && value === "SET_NULL") {
-    currentConfig.value.parentConfig = null;
-    return;
-  }
+/* Button click handlers */
+const btnHandler = {
+  onChangeParent: () => {
+    isParentModalVisible.value = true;
+  },
 
-  if (value) {
-    const { configId, configType, configName } = value;
+  onUpdateImage: (image) => {
+    addImageModalType.value = "UPDATE_IMAGE";
+    addImageOldValue.value = image;
+    isAddImageModalVisibe.value = true;
+  },
+
+  onDeleteImage: (image) => {
+    const deletedImageIndex = configImages.value.indexOf(image);
+    configImages.value.splice(deletedImageIndex, 1);
+  },
+
+  onAddNewImage: () => {
+    addImageModalType.value = "ADD_NEW_IMAGE";
+    isAddImageModalVisibe.value = true;
+  },
+
+  onSaveClone: () => {
+    isConfirmModalVisible.value = true;
+    confirmModalText.value = `Are you sure you want to create clone ${editingConfig.value.configName}?`;
+  },
+
+  onReturn: () => {
+    router.push("/configs");
+  },
+};
+
+/* Modal handlers */
+const modalHandler = {
+  parent: (payload) => {
+    isParentModalVisible.value = false;
+    if (!payload) return;
+
+    if (payload === "SET_NULL") {
+      editingConfig.value.parentConfig = null;
+      return;
+    }
+
+    const { configId, configType, configName } = payload;
     const newParentConfig = {
       configId,
       configType,
       configName,
     };
-    currentConfig.value.parentConfig = newParentConfig;
-  }
+    editingConfig.value.parentConfig = newParentConfig;
+  },
+
+  confirm: (payload) => {
+    isConfirmModalVisible.value = false;
+    confirmModalText.value = null;
+
+    if (!payload) return;
+
+    if (!editingConfig.value.configName) {
+      $toast.warning(`Config name is required`);
+      isNameFieldUnderlined.value = true;
+      window.scrollTo(0, 0);
+      return null;
+    }
+
+    cloneConfigRequest();
+  },
+
+  addImage: (payload) => {
+    isAddImageModalVisibe.value = false;
+
+    if (payload && addImageModalType.value === "ADD_NEW_IMAGE") {
+      const { imageData, imageName } = payload;
+      const newImageItem = {
+        imageData,
+        imageName,
+      };
+      configImages.value.push(newImageItem);
+    }
+
+    if (payload && addImageModalType.value === "UPDATE_IMAGE") {
+      const newImageItem = {
+        imageData,
+        imageName,
+      };
+      const updatedImageIndex = configImages.value.indexOf(
+        addImageOldValue.value,
+      );
+      configImages.value[updatedImageIndex] = newImageItem;
+    }
+
+    addImageModalType.value = null;
+    addImageOldValue.value = null;
+  },
 };
 
-const modalConfirmHandler = (isConfirmed) => {
-  isConfirmModalVisible.value = false;
-  confirmModalText.value = null;
-
-  if (isConfirmed && !currentConfig.value.configName) {
-    $toast.warning(`Config name is required`);
-    isNameFieldUnderlined.value = true;
-    window.scrollTo(0, 0);
-    return null;
-  }
-
-  if (isConfirmed && currentConfig.value.configName) cloneConfigRequest();
-};
-
-const addImageModalHandler = (newImage) => {
-  isAddImageModalVisibe.value = false;
-
-  if (newImage && addImageModalType.value === "ADDNEWIMAGE") {
-    const newImageItem = {
-      imageData: newImage.data,
-      imageName: newImage.name,
-    };
-    configImages.value.push(newImageItem);
-  }
-
-  if (newImage && addImageModalType.value === "UPDATEIMAGE") {
-    const newImageItem = {
-      imageData: newImage.data,
-      imageName: newImage.name,
-    };
-    const updatedImageIndex = configImages.value.indexOf(
-      addImageModalPayload.value,
-    );
-    configImages.value[updatedImageIndex] = newImageItem;
-  }
-  addImageModalType.value = null;
-  addImageModalPayload.value = null;
-};
-
-// Button handlers
-
-const changeParentHandler = () => {
-  isTextModalVisible.value = true;
-};
-
-const onUpdateImageHandler = (image) => {
-  addImageModalType.value = "UPDATEIMAGE";
-  addImageModalPayload.value = image;
-  isAddImageModalVisibe.value = true;
-};
-
-const onDeleteImageHandler = (image) => {
-  const deletedImageIndex = configImages.value.indexOf(image);
-  configImages.value.splice(deletedImageIndex, 1);
-};
-
-const onAddNewImageHandler = () => {
-  addImageModalType.value = "ADDNEWIMAGE";
-  isAddImageModalVisibe.value = true;
-};
-
-const onSaveCloneHandler = () => {
-  isConfirmModalVisible.value = true;
-  confirmModalText.value = `Are you sure you want to create clone ${currentConfig.value.configName}?`;
-};
-
-const onReturnHandler = () => {
-  store.setCloneConfigData(null);
-  router.push("/configs");
-};
-
-// Requests
+/* REQUESTS */
 
 const cloneConfigRequest = async () => {
   isNameFieldUnderlined.value = null;
   isLoading.value = true;
 
-  const updatedConfigString = JSON.stringify(configFileObj.value);
-  const cloneConfigPayload = {
-    configName: currentConfig.value.configName,
-    configFile: updatedConfigString,
-    configType: currentConfig.value.configType,
-  };
-  if (currentConfig.value.parentConfig)
-    cloneConfigPayload.parentConfig = currentConfig.value.parentConfig;
+  const newConfigObject = createNewConfigObject();
+  const response = await cloneConfig(newConfigObject);
 
-  const response = await cloneConfig(cloneConfigPayload);
-
-  if (!response.configId) {
-    $toast.error(`Creating clone error, status: ${response}`);
+  if (!response.success) {
+    $toast.error(`Creating clone error, status: ${response.status}`);
     router.push("/configs");
     isLoading.value = false;
-    return null;
+    return;
   }
 
-  // Adding new config to configList
-  currentConfig.value.configId = response.configId;
-  currentConfig.value.configFile = updatedConfigString;
-  const updatedConfigsList = [...storedConfigList.value];
-  updatedConfigsList.unshift(currentConfig.value);
-  store.setConfigsList(updatedConfigsList);
+  editingConfig.value.configId = response.data.configId;
+  editingConfig.value.configFile = newConfigObject.configFile;
 
-  $toast.success(`New config ${currentConfig.value.configName} was created`);
+  updateConfigList(editingConfig.value);
+  $toast.success(`New config ${editingConfig.value.configName} was created`);
 
-  // Upload all images
-  if (configImages.value.length > 0) {
-    for (const image of configImages.value) {
-      await uploadImageRequest(image);
-    }
+  if (configImages.value.length) {
+    await uploadConfigImages();
   }
+
   router.push("/configs");
   isLoading.value = false;
 };
 
-const uploadImageRequest = async (image) => {
-  const response = await addNewImage(image, currentConfig.value);
-  if (response?.imageName === image.imageName) {
-    $toast.success(`Image ${image.imageName} was added`);
-  } else {
-    $toast.error(`Uploading image error, status: ${response}`);
-  }
-};
-
-const getConfigImageRequest = async (id) => {
-  isLoading.value = true;
-  const response = await getImagesByConfigId(id);
-  if (Array.isArray(response)) {
-    configImages.value = response;
-  } else {
-    $toast.error(`Getting config ${id} images error, status: ${response}`);
-  }
-  isLoading.value = false;
-};
-
-const fetchConfigs = async () => {
-  const response = await getConfigs();
-  if (!Array.isArray(response)) {
-    $toast.error(`Fetching configs error, status: ${response}`);
-    store.setHeaderTitle(`Fetching configs error`);
-    isLoading.value = false;
-    return null;
-  }
-  const configsList = response.sort((a, b) => b.configId - a.configId);
-  store.setConfigsList(configsList);
-  return null;
-};
-
-// Utils
-
-const getParentCategoryFromQuery = (queryType) => {
-  const firstOfType = storedConfigList.value.filter(
-    (item) => item.configType === queryType,
-  )[0];
-
-  const emptyConfigFIle = createEmptyConfigFileClone(firstOfType.configFile);
-
-  // Deleting apiVersion...
-  const defaultConfigFile = JSON.parse(emptyConfigFIle);
-  if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
-  /**
-   * createEmptyConfigFileClone in index clears all arrays and add empty string to them.
-   * Empty string as value of providers array in configuredProviders is invalid.
-   */
-  if (
-    defaultConfigFile["@type"] === "configuredProviders" &&
-    defaultConfigFile.providers?.length === 1 &&
-    defaultConfigFile.providers?.[0] === ""
-  ) {
-    defaultConfigFile.providers = [];
-  }
-
-  const updatedConfigFile = JSON.stringify(defaultConfigFile);
-
-  const newConfigObject = {
-    configName: "",
-    configType: firstOfType.configType,
-    configFile: updatedConfigFile,
-    parentConfig: firstOfType.parentConfig,
-  };
-  currentConfig.value = newConfigObject;
-  configFileObj.value = JSON.parse(currentConfig.value.configFile);
-};
-
-const getParentConfigFormQuery = (queryParentId) => {
-  const parentConfig = storedConfigList.value.filter(
-    (item) => item.configId === Number(queryParentId),
-  )[0];
-
-  // Deleting apiVersion...
-  const defaultConfigFile = JSON.parse(parentConfig.configFile);
-  if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
-
-  /**
-   * createEmptyConfigFileClone in index clears all arrays and add empty string to them.
-   * Empty string as value of providers array in configuredProviders is invalid.
-   */
-  if (
-    defaultConfigFile["@type"] === "configuredProviders" &&
-    defaultConfigFile.providers?.length === 1 &&
-    defaultConfigFile.providers?.[0] === ""
-  ) {
-    defaultConfigFile.providers = [];
-  }
-  const updatedConfigFile = JSON.stringify(defaultConfigFile);
-
-  const newConfigObject = {
-    configName: "",
-    configType: parentConfig.configType,
-    configFile: updatedConfigFile,
-    parentConfig: parentConfig.parentConfig,
-  };
-  currentConfig.value = newConfigObject;
-  configFileObj.value = JSON.parse(currentConfig.value.configFile);
-
-  moveParentOnTheFirstPlace(parentConfig, storedConfigList.value);
-  getConfigImageRequest(queryParentId);
-};
-
-const getParentConfigFromStore = (cloneData) => {
-  // Deleting apiVersion...
-  const defaultConfigFile = JSON.parse(cloneData.configFile);
-  if (defaultConfigFile.apiVersion) delete defaultConfigFile.apiVersion;
-  /**
-   * createEmptyConfigFileClone in index clears all arrays and add empty string to them.
-   * Empty string as value of providers array in configuredProviders is invalid.
-   */
-  if (
-    defaultConfigFile["@type"] === "configuredProviders" &&
-    defaultConfigFile.providers?.length === 1 &&
-    defaultConfigFile.providers?.[0] === ""
-  ) {
-    defaultConfigFile.providers = [];
-  }
-
-  const updatedConfigFile = JSON.stringify(defaultConfigFile);
-
-  const newConfigObject = {
-    configName: "",
-    configType: cloneData.config.configType,
-    configFile: updatedConfigFile,
-    parentConfig: cloneData.parentConfig,
-  };
-
-  currentConfig.value = newConfigObject;
-  configFileObj.value = JSON.parse(currentConfig.value.configFile);
-  configImages.value = cloneData.configImages;
-
-  moveParentOnTheFirstPlace(cloneData.config, storedConfigList.value);
-  return null;
-};
-
-const moveParentOnTheFirstPlace = (parentConfig, configList) => {
-  const parentIndexInStore = configList.findIndex(
-    (item) => item.configId === parentConfig.configId,
+/**
+ * Uploading array of images with Promise.all + uploadSingleImageRequest and handling errors.
+ */
+const uploadConfigImages = async () => {
+  const uploadPromises = configImages.value.map((img) =>
+    uploadSingleImageRequest(img),
   );
-  const updatedConfigsList = [
-    parentConfig,
-    ...configList.slice(0, parentIndexInStore),
-    ...configList.slice(parentIndexInStore + 1),
-  ];
-  store.setConfigsList(updatedConfigsList);
-  return null;
+  const imageResponses = await Promise.all(uploadPromises);
+
+  const failedUploads = imageResponses.filter((res) => !res.success);
+
+  if (!failedUploads.length) {
+    $toast.success("All images were added successfully");
+  } else {
+    const uniqueStatuses = [
+      ...new Set(failedUploads.map((failed) => failed.status)),
+    ];
+    const message = `${failedUploads.length}/${
+      configImages.value.length
+    } images were not loaded with statuses: ${uniqueStatuses.join(", ")}`;
+    $toast.error(message);
+  }
 };
 
-const getProvidersData = async () => {
-  if (
-    providersGroups.value.length === 0 ||
-    providersNetworks.value.length === 0 ||
-    providersNetworks.value.length === 0
-  ) {
+const uploadSingleImageRequest = async (image) => {
+  const response = await addNewImage(image, editingConfig.value);
+  return { ...response, imageName: image.imageName };
+};
+
+const fetchConfigImages = async (id) => {
+  const response = await getImagesByConfigId(id);
+  if (response.success) {
+    configImages.value = response.data;
+  } else {
+    $toast.error(
+      `Getting config ${id} images error, status: ${response.status}`,
+    );
+  }
+};
+
+/**
+ * Get configs if they don't exist in store
+ */
+const fetchConfigs = async () => {
+  if (storedConfigList.value.length === 0) {
+    const response = await getConfigs();
+    if (response.success) {
+      configStore.setConfigList(response.data);
+    } else {
+      $toast.error(`Fetching configs error, status: ${response.status}`);
+    }
+  }
+};
+
+/**
+ * Get all providers data in one place if they don't exist in store.
+ */
+const fetchProvidersData = async () => {
+  if (!providerGroups.value) {
+    const groupResponse = await getProviderGroups();
+    if (groupResponse.success) {
+      configStore.setProviderGroups(groupResponse.data);
+    } else {
+      $toast.error(
+        `Getting provider groups error, status: ${groupResponse.status}`,
+      );
+    }
+  }
+
+  if (!providerNetworks.value) {
     const networksResponse = await getProviderNetworks();
-    const groupResponse = await getProviderGroup();
-    const accountResponse = await getProvidersAccounts();
-    store.setProvidersGroups(groupResponse);
-    store.setProvidersNetworks(networksResponse);
-    store.setProviderAccounts(accountResponse);
+    if (networksResponse.success) {
+      configStore.setProviderNetworks(networksResponse.data);
+    } else {
+      $toast.error(
+        `Getting provider networks error, status: ${networksResponse.status}`,
+      );
+    }
+  }
+
+  if (!providerAccounts.value) {
+    const accountsResponse = await getProviderAccounts();
+    if (accountsResponse.success) {
+      configStore.setProviderAccounts(accountsResponse.data);
+    } else {
+      $toast.error(
+        `Getting provider accounts error, status: ${accountsResponse.status}`,
+      );
+    }
   }
 };
 
 onMounted(async () => {
-  store.setHeaderTitle("Create config");
+  appStore.setHeaderTitle("Create config");
   isLoading.value = true;
-  getProvidersData();
 
-  if (cloneConfigData.value) {
-    getParentConfigFromStore(cleared(cloneConfigData.value));
-    isLoading.value = false;
-    setInitParentForConfiguredProviders();
-    return;
-  }
+  await fetchConfigs();
+  await fetchProvidersData();
 
-  if (storedConfigList.value.length === 0) await fetchConfigs();
-
+  /**
+   * We can reach this page by cloning exact config or by "Create Clone" button near search bar.
+   * In first case we are searching for parent in storedConfigList by configId from query.
+   * In second - for first element in storedConfigList with configType from query.
+   */
   if (route.query.parent) {
-    getParentConfigFormQuery(route.query.parent);
-    isLoading.value = false;
-    setInitParentForConfiguredProviders();
-    return;
+    const parentConfig = storedConfigList.value.find(
+      (item) => item.configId === Number(route.query.parent),
+    );
+    createDefaultCurrentConfig(parentConfig);
+    fetchConfigImages(route.query.parent);
+  } else if (route.query.type) {
+    const firstOfType = storedConfigList.value.find(
+      (item) => item.configType === route.query.type,
+    );
+    const emptyConfigFile = createEmptyConfigFileClone(firstOfType.configFile);
+    createDefaultCurrentConfig({ ...firstOfType, configFile: emptyConfigFile });
   }
 
-  if (route.query.type) {
-    getParentCategoryFromQuery(route.query.type);
-    setInitParentForConfiguredProviders();
-    isLoading.value = false;
-  }
+  setInitParentForConfiguredProviders();
+  isLoading.value = false;
 });
 
-const setInitParentForConfiguredProviders = () => {
+/* UTILS */
+
+/**
+ * Creating object we will work with. Some kind of serialization.
+ */
+const createDefaultCurrentConfig = (config) => {
+  const processedConfigFile = processConfig(config.configFile);
+  const newConfigObject = {
+    configName: "",
+    configType: config.configType,
+    configFile: processedConfigFile,
+    parentConfig: config.parentConfig,
+  };
+
+  editingConfig.value = newConfigObject;
+  fileObject.value = JSON.parse(editingConfig.value.configFile);
+};
+
+/**
+ * Edit configFile.
+ */
+const processConfig = (configFile) => {
+  const serializedConfigFile = JSON.parse(configFile);
   /**
-   * If we creating CONFIGURED_PROVIDERS and we don't have blockchain - open modal and make user to choose blockchain
+   * Only for configuredProviders.
+   * createEmptyConfigFileClone clears all arrays and add empty string to them.
+   * Empty string as value of providers array in configuredProviders is invalid.
    */
   if (
-    currentConfig.value.configType === "CONFIGURED_PROVIDERS" &&
-    !configFileObj.value.blockchain
+    serializedConfigFile["@type"] === "configuredProviders" &&
+    serializedConfigFile.providers?.length === 1 &&
+    serializedConfigFile.providers?.[0] === ""
   ) {
-    isTextModalVisible.value = true;
+    serializedConfigFile.providers = [];
   }
+  return JSON.stringify(serializedConfigFile);
+};
+
+/**
+ * If we are creating CONFIGURED_PROVIDERS and we don't have blockchain - open modal and make user to choose blockchain.
+ */
+const setInitParentForConfiguredProviders = () => {
+  if (
+    editingConfig.value.configType === "CONFIGURED_PROVIDERS" &&
+    !fileObject.value.blockchain
+  ) {
+    isParentModalVisible.value = true;
+  }
+};
+
+/**
+ * Create payload to pass it to api.cloneConfig - request.
+ */
+const createNewConfigObject = () => {
+  const newConfigObject = {
+    configName: editingConfig.value.configName,
+    configFile: JSON.stringify(fileObject.value),
+    configType: editingConfig.value.configType,
+  };
+
+  if (editingConfig.value.parentConfig) {
+    newConfigObject.parentConfig = editingConfig.value.parentConfig;
+  }
+
+  return newConfigObject;
+};
+
+/**
+ * Update storedConfigList by adding created config.
+ */
+const updateConfigList = (newConfig) => {
+  const updatedConfigsList = [newConfig, ...storedConfigList.value];
+  configStore.setConfigList(updatedConfigsList);
 };
 </script>

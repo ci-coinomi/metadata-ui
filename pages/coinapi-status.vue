@@ -20,13 +20,13 @@
 </template>
 <script setup>
 import { getBlockchains, getProviders } from "~/api/coinapi";
-import { useStore } from "~/store";
+import { useAppStore } from "@/stores/app";
 
 definePageMeta({
   layout: "signedin",
 });
 
-const store = useStore();
+const appStore = useAppStore();
 const { $toast } = useNuxtApp();
 
 const chainsList = ref([]);
@@ -34,27 +34,32 @@ const isLoading = ref(true);
 
 const getCoinApiData = async () => {
   isLoading.value = true;
+
   const blockchainsResponse = await getBlockchains();
-  if (!Array.isArray(blockchainsResponse?.blockchains)) {
-    $toast.error(`Fetching blockchains error, status: ${blockchainsResponse}`);
+  if (!blockchainsResponse.success) {
+    $toast.error(
+      `Fetching blockchains error, status: ${blockchainsResponse.status}`,
+    );
   }
 
   const providersResponse = await getProviders();
-  if (!Array.isArray(providersResponse?.settings)) {
-    $toast.error(`Fetching providers error, status: ${providersResponse}`);
+  if (!providersResponse.success) {
+    $toast.error(
+      `Fetching providers error, status: ${providersResponse.status}`,
+    );
   }
 
   const chains = serializeCoinApi(
-    blockchainsResponse?.blockchains,
-    providersResponse?.settings,
+    blockchainsResponse.data.blockchains,
+    providersResponse.data.settings,
   );
-  isLoading.value = false;
 
+  isLoading.value = false;
   chainsList.value = chains;
 };
 
 onMounted(async () => {
-  store.setHeaderTitle(`CoinApi Status`);
+  appStore.setHeaderTitle("CoinApi Status");
   await getCoinApiData();
 });
 </script>

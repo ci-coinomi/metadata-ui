@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const api = async (endpoint, method, payload) => {
   try {
     const app = useNuxtApp();
@@ -15,22 +14,14 @@ const api = async (endpoint, method, payload) => {
 
 export const getBlockchains = async () => {
   const response = await api(`/v5/blockchains`, "GET");
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const getProviders = async () => {
   const response = await api(`/v1/providersettings`, "GET");
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };

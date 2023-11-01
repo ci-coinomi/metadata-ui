@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 const api = async (endpoint, method, payload) => {
   try {
     const app = useNuxtApp();
@@ -15,37 +13,28 @@ const api = async (endpoint, method, payload) => {
 };
 
 export const getConfigs = async () => {
-  const response = await api(`v1/admin/configs`, "GET");
+  const response = await api("v1/admin/configs", "GET");
   if (response._data) {
     const serializedConfigs = serializeConfigs(response._data);
-    return serializedConfigs;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
+    return { success: true, data: serializedConfigs };
   }
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
+// Not in use
 export const getConfigById = async (id) => {
   const response = await api(`v1/admin/configs/${id}`, "GET");
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
-export const getConfigsTypes = async () => {
-  const response = await api(`v1/admin/configs/types`, "GET");
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+export const getConfigTypes = async () => {
+  const response = await api("v1/admin/configs/types", "GET");
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const updateConfig = async (previousConfig, updatedConfigFile) => {
@@ -57,64 +46,44 @@ export const updateConfig = async (previousConfig, updatedConfigFile) => {
     configFile: updatedConfigFile,
     parentConfig,
   });
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const cloneConfig = async (configData) => {
-  const response = await api(`v1/admin/configs`, "POST", configData);
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  const response = await api("v1/admin/configs", "POST", configData);
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const deleteConfig = async (configId) => {
   const response = await api(`v1/admin/configs/${configId}`, "DELETE");
-  if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  if (response && response.status === 204)
+    return { success: true, status: response.status };
+  if (response && response.status !== 204)
+    return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
-export const getProviderGroup = async () => {
-  const response = await api(`/admin/v2/provider/groups`, "GET");
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+export const getProviderGroups = async () => {
+  const response = await api("admin/v2/provider/groups", "GET");
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
 export const getProviderNetworks = async () => {
-  const response = await api(`/admin/v2/provider/networks`, "GET");
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+  const response = await api("admin/v2/provider/networks", "GET");
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };
 
-export const getProvidersAccounts = async () => {
-  const response = await api(`/admin/v2/provider/accounts`, "GET");
-  if (response._data) {
-    return response._data;
-  } else if (response.status) {
-    return response.status;
-  } else {
-    return "Cors Error";
-  }
+export const getProviderAccounts = async () => {
+  const response = await api("admin/v2/provider/accounts", "GET");
+  if (response._data) return { success: true, data: response._data };
+  if (response.status) return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
 };

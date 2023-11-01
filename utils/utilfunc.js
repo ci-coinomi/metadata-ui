@@ -29,7 +29,8 @@ export const createEmptyConfigFileClone = (configFile) => {
 };
 
 export const cleared = (data) => {
-  return JSON.parse(JSON.stringify(data));
+  if (data) return JSON.parse(JSON.stringify(data));
+  return null;
 };
 
 export const isObject = (value) => {
@@ -71,4 +72,23 @@ export const areObjectsEqual = (obj1, obj2) => {
   }
 
   return true;
+};
+
+/*
+Get chain name from passed config.
+Specifically from config.configFile.eucId, (value after '@')
+*/
+export const getChainNameFromConfigItem = (config, searchPlace) => {
+  if (searchPlace === "eucId") {
+    const configObj = JSON.parse(config.configFile);
+    const eucId = configObj.eucId;
+    if (eucId && eucId.includes("@")) {
+      const splitValues = eucId.split("@");
+      const chainName = splitValues[1];
+      if (chainName) return chainName;
+    }
+  }
+  if (searchPlace === "name") {
+    return config.configChain.configName;
+  }
 };

@@ -1,16 +1,16 @@
 <template>
-  <article
+  <section
     class="flex flex-col rounded-md border"
     :class="isConfigUpdated ? 'border-[#d38b32]' : 'border-gray-400'"
   >
     <div
       class="flex w-full cursor-pointer items-center justify-between gap-3 rounded-md p-2"
       :class="listItemClass"
-      @click="toggleListItem()"
+      @click="toggleListItem"
     >
       <div class="flex items-center gap-2 overflow-x-auto p-1">
         <p>
-          <span class="text-gray-500">Name:</span>
+          <span class="text-gray-500"> Name: </span>
           {{ props.config.configName }}
         </p>
         <UiButton class="smallPaddings" @click.stop="onCopyNameClick">
@@ -39,12 +39,13 @@
         alt="add"
       />
     </div>
-    <configDetailsCard
-      v-if="isOpened"
-      :config="config"
-      @config-update-emit="configUpdatedHandler"
-    />
-  </article>
+    <template v-if="isOpened">
+      <ConfigEditorContainer
+        :original-config="config"
+        @config-update-emit="configUpdatedHandler"
+      />
+    </template>
+  </section>
 </template>
 
 <script setup>
@@ -60,6 +61,7 @@ const copied = ref(false);
 const listItemClass = computed(() => {
   const zebra = props.configIndex % 2 ? "bg-white" : "bg-gray-100";
   if (!isOpened.value) return zebra;
+
   let listItemClassValue = "";
   isConfigUpdated.value
     ? (listItemClassValue = "border-b border-[#d38b32]")

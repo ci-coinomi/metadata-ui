@@ -7,12 +7,15 @@
       class="box-border flex max-h-[75vh] flex-col items-center gap-2 overflow-x-auto rounded-md bg-white px-14 py-7"
     >
       <h2 class="text-center text-lg font-bold">Select group:</h2>
-      <div v-if="groups.length === 0" class="text-red-600">
+      <div
+        v-if="!providerGroups || providerGroups.length === 0"
+        class="text-red-600"
+      >
         Groups were not found
       </div>
       <template v-else>
-        <ConfigConfiguredProvidersGroupModalItem
-          v-for="group in groups"
+        <ConfigConfProviderGroupModalItem
+          v-for="group in providerGroups"
           :key="group.providerGroupName"
           :groupItem="group"
           :blockchain="blockchain"
@@ -36,17 +39,18 @@
 </template>
 
 <script setup>
-import { useStore } from "~/store";
+import { storeToRefs } from "pinia";
+import { useConfigStore } from "@/stores/configs";
 
-const store = useStore();
+const configStore = useConfigStore();
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps(["blockchain"]);
 const emit = defineEmits(["isModalConfirmed"]);
 
+const { providerGroups } = storeToRefs(configStore);
 const modalRef = ref();
 const selectedGroup = ref(null);
-const groups = computed(() => store.providersGroups);
 
 const onCanselClickHandler = () => {
   emit("isModalConfirmed", false);

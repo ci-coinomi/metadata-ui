@@ -56,20 +56,19 @@
   </header>
 </template>
 <script setup>
+import { storeToRefs } from "pinia";
 import { signout } from "~/api/user";
-import { useStore } from "~/store";
+import { useAppStore } from "@/stores/app";
 
 const router = useRouter();
 const route = useRoute();
-const store = useStore();
+const appStore = useAppStore();
 const { $toast } = useNuxtApp();
 
-const headerTitle = computed(() => store.headerTitle);
-const isSuperAdmin = computed(() =>
-  store.currentUser?.roles?.includes("ROLE_SUPER_ADMIN"),
-);
+const { headerTitle, isSuperAdmin } = storeToRefs(appStore);
 
 const onConfigsNavigateHandler = () => {
+  appStore.setHeaderTitle("Select config type");
   router.push({
     path: `/configs`,
   });
@@ -89,8 +88,8 @@ const onCoinApiStatusNavigateHandler = () => {
 
 const onLogoutHandler = async () => {
   const response = await signout();
-  if (response !== 204) {
-    $toast.error(`Logout request error, status: ${response}`);
+  if (!response.success) {
+    $toast.error(`Logout request error, status: ${response.status}`);
   }
   router.push({
     path: `/`,

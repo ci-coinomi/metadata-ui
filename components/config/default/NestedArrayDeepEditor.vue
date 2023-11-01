@@ -83,7 +83,7 @@
         />
       </uiButton>
       <div class="flex w-full flex-col gap-2 rounded-sm">
-        <configNestedLine
+        <ConfigDefaultNestedObjectEditor
           :isCloned="isCloned"
           :configNestedObject="value"
           :configUpdateTrigger="configUpdateTrigger"
@@ -108,7 +108,7 @@
         />
       </uiButton>
       <div class="flex w-full flex-col gap-1">
-        <configNestedArray
+        <ConfigDefaultNestedArrayDeepEditor
           :isCloned="isCloned"
           :configNestedObject="value"
           :configUpdateTrigger="configUpdateTrigger"

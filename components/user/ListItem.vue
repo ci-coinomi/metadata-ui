@@ -30,7 +30,7 @@
         />
       </uiButton>
       <uiButton
-        :disabled="props.user.username === store.currentUser.username"
+        :disabled="props.user.username === currentUser.username"
         class="danger ml-auto h-[34px] px-2 py-2"
         @click="onDeleteClickHandler"
       >
@@ -44,14 +44,18 @@
   </article>
 </template>
 <script setup>
-import { useStore } from "~/store";
+import { storeToRefs } from "pinia";
+import { useAppStore } from "@/stores/app";
+
+const appStore = useAppStore();
+
 const props = defineProps({
   user: Object,
 });
 
 const emit = defineEmits(["onDeleteClick", "onUpdateClick"]);
 
-const store = useStore();
+const { currentUser } = storeToRefs(appStore);
 
 const onDeleteClickHandler = () => {
   emit("onDeleteClick", props.user.username);
