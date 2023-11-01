@@ -1,3 +1,5 @@
+<!-- Deep configuration of arrays with an opportunity to create an array of object with any keys (strings) / keys (any)-->
+<!-- Not in use for now -->
 <template>
   <ModalAddConfigField
     v-if="isAddFieldConfigVisible"

@@ -32,19 +32,21 @@
           :current-config-data="editingConfig"
           :parent-update-trigger="configUpdateTrigger"
         />
-
         <ConfigConfProviderNestedObjectEditor
           v-if="originalConfig.configType === 'CONFIGURED_PROVIDERS'"
-          :configNestedObject="fileObject"
+          :nested-object="fileObject"
           :is-cloned="false"
           :config-update-trigger="configUpdateTrigger"
-          :full-config-object="originalConfig"
+          :original-config="originalConfig"
+          :is-object-deletable="false"
         />
         <ConfigDefaultNestedObjectEditor
           v-else
-          :configNestedObject="fileObject"
+          :nested-object="fileObject"
           :is-cloned="false"
           :config-update-trigger="configUpdateTrigger"
+          :original-config="originalConfig"
+          :is-object-deletable="false"
         />
       </article>
 
@@ -124,12 +126,13 @@ const props = defineProps({
 const emit = defineEmits(["configUpdateEmit"]);
 const { storedConfigList } = storeToRefs(configStore);
 
-const editingConfig = ref(cleared(props.originalConfig));
-const configImages = ref([]);
-const fileObject = ref(null);
 const isLoading = ref(false);
-const isConfigUpdated = ref(false);
-const configUpdateTrigger = ref(1);
+const editingConfig = ref(cleared(props.originalConfig)); // Original object we are working with
+const configImages = ref([]);
+const fileObject = ref(null); // Config file turned to object which will send to BE
+const isConfigUpdated = ref(false); // For 'No updates' check before updating config
+const isParentUpdated = ref(false); // For 'No updates' check before updating config
+const configUpdateTrigger = ref(1); // For set nested object status as default after saving config
 
 const imageModalVisible = ref(false);
 const imageModalType = ref(null);
@@ -141,7 +144,6 @@ const confirmModalType = ref(null);
 const confirmModalPayload = ref(null);
 
 const changeParentModalVisible = ref(false);
-const isParentUpdated = ref(false);
 const defaultParentConfig = ref(cleared(props.originalConfig?.parentConfig));
 
 const currentItemInStoreIndex = computed(() =>
@@ -149,6 +151,8 @@ const currentItemInStoreIndex = computed(() =>
     (item) => item.configId === editingConfig.value.configId,
   ),
 );
+
+/* List of configTypes we can change parent */
 const isChangeParentButtonVisible = computed(() => {
   const validConfigTypes = [
     "PARTNER",
@@ -161,7 +165,11 @@ const isChangeParentButtonVisible = computed(() => {
   return validConfigTypes.includes(editingConfig.value.configType);
 });
 
-/* MODAL HANDLERS */
+/**
+ * MODAL HANDLERS
+ * Called after modals submitting (or not submitting, when !payload).
+ * Works via modalType for different actions of one modal.
+ */
 
 const modalParentHandler = (payload) => {
   changeParentModalVisible.value = false;
@@ -231,7 +239,8 @@ const modalConfirmHandler = (isConfirmed) => {
   imageModalPayload.value = null;
 };
 
-/* Button handlers */
+/* BUTTON HANDLERS */
+
 const btnHandler = {
   onChangeParent: () => {
     changeParentModalVisible.value = true;
@@ -249,7 +258,7 @@ const btnHandler = {
   onUpdateImage: (image) => {
     imageModalType.value = "UPDATE_IMAGE";
     imageModalVisible.value = true;
-    imageModalPayload.value = image; // To track original image we want to update
+    imageModalPayload.value = image; // To track the original image we want to update
   },
 
   onDeleteImage: (image) => {
@@ -279,6 +288,10 @@ const btnHandler = {
 
 /* REQUESTS */
 
+/**
+ * Update config request with 'no updates' validation wich works via isConfigUpdated and isParentUpdated'.
+ * After successfull configUpdateRequest - updating local variables, set nested object styles and statuses as default and updating config in store.
+ */
 const updateConfigRequest = async () => {
   isLoading.value = true;
 
@@ -316,6 +329,9 @@ const updateConfigRequest = async () => {
   isLoading.value = false;
 };
 
+/**
+ * Delete config and remove it from store
+ */
 const deleteConfigRequest = async () => {
   isLoading.value = true;
 
@@ -336,6 +352,7 @@ const deleteConfigRequest = async () => {
   isLoading.value = false;
 };
 
+/* Uppload new image and refetch images of current config */
 const uploadNewImageRequest = async (image) => {
   isLoading.value = true;
 
@@ -350,6 +367,7 @@ const uploadNewImageRequest = async (image) => {
   isLoading.value = false;
 };
 
+/* Update image and refetch images of current config */
 const updateImageRequest = async (newImageData, oldImage) => {
   isLoading.value = true;
 
@@ -369,6 +387,7 @@ const updateImageRequest = async (newImageData, oldImage) => {
   isLoading.value = false;
 };
 
+/* Delete image and refetch images of current config */
 const deleteImageRequest = async (image) => {
   isLoading.value = true;
 
@@ -387,6 +406,7 @@ const deleteImageRequest = async (image) => {
   isLoading.value = false;
 };
 
+/* Fetch array of config images */
 const fetchConfigImages = async () => {
   isLoading.value = true;
   const response = await getImagesByConfigId(editingConfig.value.configId);
@@ -405,6 +425,7 @@ onMounted(() => {
   fetchConfigImages();
 });
 
+/* isConfigUpdated deep watcher works via comparing old and new config files */
 watch(
   () => fileObject.value,
   (newFileObjectValue) => {
@@ -422,6 +443,7 @@ watch(
   },
 );
 
+/* parentConfigUpdated deep watcher works via comparing old and new config files */
 watch(
   () => editingConfig.value?.parentConfig?.configId,
   (newParentConfigId) => {

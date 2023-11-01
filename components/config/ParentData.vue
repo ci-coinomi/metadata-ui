@@ -1,11 +1,11 @@
 <template>
   <ModalChildrenConfigs
     v-if="isChildrenConfigVisible"
-    :child-configs="children"
+    :child-configs="childConfigList"
     @close-modal="toggleChildrenModal(false)"
   />
 
-  <div
+  <article
     class="mb-4 w-full rounded-md border p-4"
     :class="isParentUpdated ? 'border-[#d38b32]' : 'border-gray-300'"
   >
@@ -37,15 +37,15 @@
           To parent
         </UiButton>
         <UiButton
-          v-if="children.length > 0 && route.name !== 'configs-create'"
+          v-if="childConfigList.length > 0 && route.name !== 'configs-create'"
           class="info w-full whitespace-nowrap"
           @click="toggleChildrenModal(true)"
         >
-          Show children ({{ children.length }})
+          Show children ({{ childConfigList.length }})
         </UiButton>
       </fieldset>
     </div>
-  </div>
+  </article>
 </template>
 
 <script setup>
@@ -62,7 +62,7 @@ const props = defineProps({
 });
 
 const { storedConfigList } = storeToRefs(configStore);
-const children = ref([]);
+const childConfigList = ref([]);
 const isChildrenConfigVisible = ref(false);
 const defaultParentId = ref(props.parentData?.configId);
 
@@ -91,9 +91,12 @@ onMounted(() => {
     storedConfigList.value,
     props.currentConfigData.configId,
   );
-  children.value = childConfigsArray;
+  childConfigList.value = childConfigsArray;
 });
 
+/**
+ * For setting styles and allow sending 'update config' request even there is no other update in config
+ */
 watch(
   () => props.parentUpdateTrigger,
   () => {

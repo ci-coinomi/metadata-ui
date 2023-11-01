@@ -65,17 +65,3 @@ const getImageSrc = (image) => {
   return `${base64Prefix}${image.imageData}`;
 };
 </script>
-
-<style scoped>
-.icon-trash {
-  filter: invert(1) grayscale(100%) brightness(200%);
-  mask: url(~/assets/icons/icon-trash.svg) no-repeat center / contain;
-  background-color: white;
-}
-
-.icon-update {
-  filter: invert(1) grayscale(100%) brightness(200%);
-  mask: url(~/assets/icons/icon-update.svg) no-repeat center / contain;
-  background-color: white;
-}
-</style>

@@ -4,7 +4,6 @@
     :blockchain="blockchain"
     @is-modal-confirmed="(data) => onNetworkModalConfirmHandler(data)"
   />
-
   <ModalConfProviderGroup
     v-if="isGroupModalVisible"
     :blockchain="blockchain"
@@ -59,15 +58,15 @@
         </div>
         <div class="flex w-full flex-col gap-2 rounded-sm">
           <ConfigConfProviderNestedObjectEditor
-            :isCloned="isCloned"
-            :configNestedObject="value"
-            :configUpdateTrigger="configUpdateTrigger"
+            :is-cloned="isCloned"
+            :nested-object="value"
+            :config-update-trigger="configUpdateTrigger"
             :update-memo="configUpdateTrigger"
             :is-memo="true"
             :blockchain="blockchain"
-            :isFieldNew="isFieldNew(key)"
-            :fullConfigObject="fullConfigObject"
-            :isObjectDeletable="isNextLevelObjectDeletable(configFieldType)"
+            :is-field-new="isFieldNew(key)"
+            :original-config="fullConfigObject"
+            :is-object-deletable="isNextLevelObjectDeletable(configFieldType)"
             @delete-config-field="() => onDeleteNestedLineHandler(key)"
           />
         </div>
