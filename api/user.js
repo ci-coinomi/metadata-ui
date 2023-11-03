@@ -12,8 +12,24 @@ const api = async (endpoint, method, payload) => {
   }
 };
 
+/**
+ * This method will be called on login and forbidden-page, so console is excess
+ */
+const loginApi = async (endpoint, method, payload) => {
+  try {
+    const app = useNuxtApp();
+    const response = await app.$loginApi.raw(endpoint, {
+      method: method,
+      body: payload,
+    });
+    return response;
+  } catch (err) {
+    return err;
+  }
+};
+
 export const signin = async (username, password) => {
-  const response = await api(`admin/auth/login`, "POST", {
+  const response = await loginApi(`admin/auth/login`, "POST", {
     username,
     password,
   });
@@ -79,6 +95,16 @@ export const getUsers = async () => {
 
 export const getMe = async () => {
   const response = await api(`admin/users/me`, "GET");
+  if (response && response.status === 200)
+    return { success: true, data: response._data };
+
+  if (response && response.status !== 200)
+    return { success: false, status: response.status };
+  return { success: false, status: "Cors Error" };
+};
+
+export const getLoginMe = async () => {
+  const response = await loginApi(`admin/users/me`, "GET");
   if (response && response.status === 200)
     return { success: true, data: response._data };
 

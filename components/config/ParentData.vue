@@ -2,7 +2,7 @@
   <ModalChildrenConfigs
     v-if="isChildrenConfigVisible"
     :child-configs="childConfigList"
-    @close-modal="toggleChildrenModal(false)"
+    @close-modal="isChildrenConfigVisible = false"
   />
 
   <article
@@ -39,7 +39,7 @@
         <UiButton
           v-if="childConfigList.length > 0 && route.name !== 'configs-create'"
           class="info w-full whitespace-nowrap"
-          @click="toggleChildrenModal(true)"
+          @click="isChildrenConfigVisible = true"
         >
           Show children ({{ childConfigList.length }})
         </UiButton>
@@ -74,10 +74,6 @@ const toParentNavigateHandler = () => {
   if (process.client) {
     window.open(`/configs/${props.parentData.configId}`, "_blank");
   }
-};
-
-const toggleChildrenModal = (value) => {
-  isChildrenConfigVisible.value = value;
 };
 
 const getChildConfigs = (configs, id) => {

@@ -90,10 +90,13 @@ const onLogoutHandler = async () => {
   const response = await signout();
   if (!response.success) {
     $toast.error(`Logout request error, status: ${response.status}`);
+    return;
   }
+
   router.push({
     path: `/`,
   });
+  appStore.setCurrentUser(null);
 };
 
 const onUsersNavigateHandler = () => {

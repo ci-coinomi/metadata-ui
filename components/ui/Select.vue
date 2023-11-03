@@ -27,13 +27,14 @@
 </template>
 
 <script setup>
-const props = defineProps([
-  "selectList",
-  "defaultValue",
-  "disabled",
-  "notSelectable",
-]);
 const emit = defineEmits(["selectHandler"]);
+
+const props = defineProps({
+  selectList: Array,
+  defaultValue: String || Number,
+  disabled: Boolean,
+  notSelectable: Boolean,
+});
 
 const selectedItem = ref(null);
 const isSelectOpen = ref(null);

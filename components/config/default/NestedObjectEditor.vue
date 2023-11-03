@@ -1,7 +1,7 @@
 <template>
   <div
     class="flex w-full flex-col gap-2 rounded-md p-2"
-    :class="configBorderStyle"
+    :class="isDeepNestedObject ? 'border border-gray-400' : ''"
   >
     <div v-if="isDeepNestedObject" class="flex justify-between">
       <p class="text-gray-400">
@@ -60,7 +60,7 @@
       </template>
 
       <template v-else-if="Array.isArray(value)">
-        <configDefaultNestedArrayEditor
+        <ConfigDefaultNestedArrayEditor
           v-if="isPrintedAsArray(key)"
           :is-cloned="isCloned"
           :nested-array="value"
@@ -110,11 +110,6 @@ const isDeepNestedObject = computed(
     !Object.prototype.hasOwnProperty.call(props.nestedObject, "@type"),
 );
 
-const configBorderStyle = computed(() => {
-  if (props.nestedObject?.["@type"]) return "";
-  return "border border-gray-400";
-});
-
 const btnHandler = {
   onObjectDelete: () => {
     emit("deleteConfigField");
@@ -137,7 +132,9 @@ const isPrintedAsArray = (key) => {
 
 /* List of not-editable text fields */
 const isFieldDisabled = (key) => {
-  if (key === "@type") {
+  const disabledFieldsArray = ["@type"];
+
+  if (disabledFieldsArray.includes(key)) {
     return true;
   }
 

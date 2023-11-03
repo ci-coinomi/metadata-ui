@@ -45,8 +45,10 @@ import { useConfigStore } from "@/stores/configs";
 
 const configStore = useConfigStore();
 
-const props = defineProps(["blockchain"]);
 const emit = defineEmits(["isModalConfirmed"]);
+const props = defineProps({
+  blockchain: String,
+});
 
 const { providerNetworks } = storeToRefs(configStore);
 

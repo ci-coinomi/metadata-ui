@@ -1,14 +1,12 @@
 <template>
   <div
     class="flex w-full flex-col gap-2 rounded-md p-2"
-    :class="configBorderStyle"
+    :class="isDeepNestedObject ? 'border border-gray-400' : ''"
   >
     <ModalConfProviderAddAccount
       v-if="nestedObject?.accountApiKeyNames && isAddAcountModalVisible"
       :account-list="availableAccountApiKeyNamesForSelect"
       :current-provider-list="nestedObject?.accountApiKeyNames"
-      :default-list="defaultNestedObject.accountApiKeyNames"
-      :is-field-new="isFieldNew"
       @is-modal-confirmed="onAddAccountModalConfirmHandler"
     />
 
@@ -21,7 +19,7 @@
       </p>
 
       <UiButton
-        v-if="!nestedObject.accountApiKeyNames && additionalData.length > 0"
+        v-if="!nestedObject.accountApiKeyNames && networkDetails"
         class="success smallPaddings ml-auto mr-5"
         @click="() => (nestedObject.accountApiKeyNames = [])"
       >
@@ -31,7 +29,7 @@
       <UiButton
         v-if="isObjectDeletable"
         class="danger h-[34px] min-w-[34px]"
-        @click="onObjectDeleteClick"
+        @click="() => emit('deleteArrayItem')"
       >
         <img
           src="~/assets/icons/icon-trash.svg"
@@ -40,14 +38,14 @@
         />
       </UiButton>
     </div>
-    <!-- Original configProvider data -->
+
     <div
       v-for="(value, key) in nestedObject"
       :key="key"
-      class="flex gap-4 py-1"
-      :class="
+      class="flex gap-4"
+      :class="`${
         isObject(value) || Array.isArray(value) ? 'items-start' : 'items-center'
-      "
+      } ${key === 'networkIds' ? '-mt-2' : 'py-1'}`"
     >
       <template v-if="key !== 'networkIds'">
         <p
@@ -70,39 +68,24 @@
           />
         </template>
 
-        <UiSwitcher
-          v-else-if="typeof value === 'boolean'"
-          :value="nestedObject[key]"
-          :update-memo="configUpdateTrigger"
-          :is-memo="true"
-          @update:value="(data) => (nestedObject[key] = data)"
-        />
+        <template v-else-if="typeof value === 'boolean'">
+          <UiSwitcher
+            :value="nestedObject[key]"
+            :update-memo="configUpdateTrigger"
+            :is-memo="true"
+            @update:value="(data) => (nestedObject[key] = data)"
+          />
+        </template>
 
         <template v-else-if="Array.isArray(value)">
-          <div v-if="key === 'accountApiKeyNames'" class="flex w-full gap-2">
-            <UiInputField
-              :model-value="nestedObject.accountApiKeyNames"
-              type="text"
-              disabled
-              :update-memo="configUpdateTrigger"
-              :is-memo="true"
-            />
-            <UiButton
-              :disabled="isManageAccountBtnDisabled"
-              @click="isAddAcountModalVisible = !isAddAcountModalVisible"
-            >
-              Manage
-            </UiButton>
-          </div>
-
           <ConfigConfProviderNestedArrayEditor
-            v-else-if="isNestedArrayVisible(key)"
+            v-if="isPrintedAsArray(key)"
             :is-cloned="isCloned"
-            :config-nested-object="value"
-            :config-field-type="key"
+            :nested-array="value"
+            :array-key="key"
             :config-update-trigger="configUpdateTrigger"
+            :original-config="originalConfig"
             :blockchain="nestedObject['blockchain']"
-            :full-config-object="originalConfig"
             @set-blockchain="(data) => (nestedObject.blockchain = data)"
           />
           <UiInputField
@@ -116,20 +99,21 @@
               (data) => (nestedObject[key] = data.target.value.split(','))
             "
           />
+
+          <UiButton
+            v-if="key === 'accountApiKeyNames'"
+            :disabled="isManageAccountBtnDisabled"
+            @click="isAddAcountModalVisible = !isAddAcountModalVisible"
+          >
+            Manage
+          </UiButton>
         </template>
-        <UiInputField
-          v-else-if="key === 'blockchain'"
-          :model-value="nestedObject[key]"
-          type="text"
-          :placeholder="'Select parent...'"
-          :update-memo="configUpdateTrigger"
-          :is-memo="true"
-          :disabled="isFieldDisabled(key)"
-        />
+
         <UiInputField
           v-else
           v-model="nestedObject[key]"
           type="text"
+          :placeholder="key === 'blockchain' ? 'Select parent...' : ''"
           :update-memo="configUpdateTrigger"
           :is-memo="true"
           :disabled="isFieldDisabled(key)"
@@ -137,120 +121,95 @@
       </template>
     </div>
 
-    <!-- Additional show-only data -->
-    <div v-if="additionalData.length > 0" class="flex flex-col gap-2">
+    <div v-if="networkDetails" class="flex flex-col gap-2">
+      <h3 class="text-center">Network details</h3>
+
       <div
-        v-for="additionalDataItem in additionalData"
-        :key="additionalDataItem.id"
+        v-for="(value, key) in networkDetails"
+        :key="key"
+        :class="nestedLineClass(key, value)"
       >
-        <h3 class="text-center">Network details</h3>
-        <div
-          v-for="(value, key) in additionalDataItem"
-          :key="key"
-          :class="nestedLineClass(key, value)"
-        >
-          <template v-if="key !== 'id'">
-            <p
-              :class="
-                isObject(value) || Array.isArray(value)
-                  ? 'text-gray-600'
-                  : 'text-gray-400'
-              "
-            >
-              {{ key }}
-            </p>
-            <UiSwitcher
-              v-if="typeof value === 'boolean'"
-              :value="value"
-              disabled
-              class="opacity-50"
-            />
+        <template v-if="key !== 'id'">
+          <p
+            :class="
+              isObject(value) || Array.isArray(value)
+                ? 'text-gray-600'
+                : 'text-gray-400'
+            "
+          >
+            {{ key }}
+          </p>
+
+          <UiSwitcher
+            v-if="typeof value === 'boolean'"
+            :value="value"
+            disabled
+            class="opacity-50"
+          />
+
+          <div
+            v-else-if="key === 'capabilities'"
+            class="flex flex-col gap-2 rounded-lg border border-gray-400 p-2"
+          >
             <div
-              v-else-if="key === 'capabilities'"
-              class="flex flex-col gap-2 rounded-lg border border-gray-400 p-2"
+              v-for="capability in value"
+              :key="capability"
+              class="cursor-default text-sm text-gray-400"
             >
-              <div
-                v-for="capability in value"
-                :key="capability"
-                class="cursor-default text-sm text-gray-400"
-              >
-                {{ capability }}
-              </div>
+              {{ capability }}
             </div>
-            <UiInputField
-              v-else
-              :model-value="value"
-              type="text"
-              :disabled="true"
-            />
-          </template>
-        </div>
+          </div>
+
+          <UiInputField
+            v-else
+            :model-value="value"
+            type="text"
+            :disabled="true"
+          />
+        </template>
       </div>
     </div>
   </div>
 </template>
+<!-- 
+  NetworkIds
 
+  Each network has id-field that not displayed in template.
+  NetworkIds - not-displayed disabled array in each provider in which the ID from the network is pushed automaticay.
+  It can be changed only by changing the network.
+-->
+
+<!-- 
+  AccountApiKeyNames
+
+  Each Network has array of accountApiKeyNames, as well as Provider.
+  Providers' AccountApiKeyNames can have only values from it's network (or empty array). 
+  This values are settable from modal (in <NestedArrayEditor />). Also in this modal there is some editional read-olny data for each AccountApiKeyNames[n] wich is saved as configStore.providerAccounts. 
+-->
 <script setup>
 import { storeToRefs } from "pinia";
 import { useConfigStore } from "@/stores/configs";
 
 const configStore = useConfigStore();
-const { storedConfigList, providerNetworks } = storeToRefs(configStore);
+const { providerNetworks, blockchainConfigsList } = storeToRefs(configStore);
 
+const emit = defineEmits(["deleteArrayItem"]);
 const props = defineProps({
-  blockchain: String,
-  isFieldNew: Boolean,
-
   nestedObject: Object,
   isCloned: Boolean,
   configUpdateTrigger: Number,
   isObjectDeletable: Boolean,
   originalConfig: Object,
+
+  /* Blockchain is used for updating lists in ModalConfProviderNetwork and ModalConfProviderGroup after changing parent during creation config. */
+  blockchain: String,
 });
-const emit = defineEmits(["deleteConfigField"]);
 
 const defaultNestedObject = ref(cleared(props.nestedObject));
-const isConfigUpdated = ref(false);
+
 const isAddAcountModalVisible = ref(false);
 const availableAccountApiKeyNamesForSelect = ref([]);
-
-const additionalData = computed(() => {
-  if (!providerNetworks.value) {
-    // eslint-disable-next-line no-console
-    console.error("providerNetworks were not found");
-    return [];
-  }
-
-  const additionalDataArray = [];
-
-  defaultNestedObject.value?.networkIds?.forEach((networkId) => {
-    const itemInResponse = providerNetworks.value.find(
-      (item) => item.id === networkId,
-    );
-    if (itemInResponse) {
-      additionalDataArray.push(itemInResponse);
-    }
-
-    if (itemInResponse && itemInResponse.accountApiKeyNames) {
-      availableAccountApiKeyNamesForSelect.value = [
-        ...itemInResponse.accountApiKeyNames,
-      ];
-    }
-  });
-
-  return additionalDataArray;
-});
-
-const onObjectDeleteClick = () => {
-  emit("deleteConfigField");
-};
-
-const onAddAccountModalConfirmHandler = (data) => {
-  isAddAcountModalVisible.value = false;
-  if (data) {
-    props.nestedObject.accountApiKeyNames = data;
-  }
-};
+const networkDetails = ref(null);
 
 /* All level-1 nested objects have @type - field */
 const isDeepNestedObject = computed(
@@ -259,48 +218,50 @@ const isDeepNestedObject = computed(
     !Object.prototype.hasOwnProperty.call(props.nestedObject, "@type"),
 );
 
-const blockchainsList = computed(() =>
-  storedConfigList.value
-    .filter((item) => item.configType === "BLOCKCHAIN")
-    .map((item) => {
-      const configFileObj = JSON.parse(item.configFile);
-      return {
-        name: item.configName,
-        eucId: configFileObj.eucId,
-      };
-    }),
-);
-
+/**
+ * ManageAccounts modal can not be opened in following situations:
+ */
 const isManageAccountBtnDisabled = computed(() => {
   if (!availableAccountApiKeyNamesForSelect.value) return true;
   if (availableAccountApiKeyNamesForSelect.value.length === 0) return true;
 });
 
-const configBorderStyle = computed(() => {
-  if (props.nestedObject?.["@type"]) return "";
-  return "border border-gray-400";
-});
-
-const isNestedArrayVisible = (key) => key === "providers";
-
-const isFieldDisabled = (key) => {
-  if (
-    key === "@type" ||
-    key === "providerName" ||
-    key === "networkIds" ||
-    key === "blockchain" ||
-    key === "accountApiKeyNames"
-  ) {
-    return true;
-  } else if (!props.isCloned && key === "eucId") {
-    return true;
-  } else {
-    return false;
+const onAddAccountModalConfirmHandler = (data) => {
+  isAddAcountModalVisible.value = false;
+  if (data) {
+    props.nestedObject.accountApiKeyNames = data;
   }
 };
 
+/* List of not-editable text fields */
+const isFieldDisabled = (key) => {
+  const disabledFieldsArray = [
+    "@type",
+    "blockchain",
+    "providerName",
+    "networkIds",
+    "accountApiKeyNames",
+  ];
+
+  if (disabledFieldsArray.includes(key)) {
+    return true;
+  }
+
+  if (!props.isCloned && key === "eucId") {
+    return true;
+  }
+
+  return false;
+};
+
+/* Should nested array be printed as <ConfigConfProviderNestedArrayEditor> or as input type "text" */
+const isPrintedAsArray = (key) => {
+  const arrayKeyNames = ["providers"];
+  return arrayKeyNames.includes(key);
+};
+
 const nestedLineClass = (key, value) => {
-  let classNames = "flex gap-4 rounded-sm ";
+  let classNames = "flex gap-4 rounded-md ";
 
   if (isObject(value) || Array.isArray(value)) {
     classNames += " items-start";
@@ -311,42 +272,58 @@ const nestedLineClass = (key, value) => {
   key !== "id" ? (classNames += " py-1") : (classNames += "");
   return classNames;
 };
-const isObject = (value) => {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+
+/**
+ * Get additional read-only data from providerNetworks.
+ * Also updating data for AccountApiKeyNames by adding available values for the modal.
+ */
+const getNetwork = () => {
+  if (!providerNetworks.value || !defaultNestedObject.value?.networkIds) return;
+  defaultNestedObject.value?.networkIds?.forEach((networkId) => {
+    const itemInResponse = providerNetworks.value.find(
+      (item) => item.id === networkId,
+    );
+    if (itemInResponse) {
+      networkDetails.value = itemInResponse;
+    }
+    if (itemInResponse && itemInResponse.accountApiKeyNames) {
+      availableAccountApiKeyNamesForSelect.value = [
+        ...itemInResponse.accountApiKeyNames,
+      ];
+    }
+  });
 };
 
-watch(
-  () => props.nestedObject,
-  () => {
-    !areObjectsEqual(
-      cleared(defaultNestedObject.value),
-      cleared(props.nestedObject),
-    )
-      ? (isConfigUpdated.value = true)
-      : (isConfigUpdated.value = false);
-  },
-  {
-    deep: true,
-  },
-);
+onMounted(() => {
+  getNetwork();
+});
 
+/* Update config watcher */
 watch(
   () => props.configUpdateTrigger,
   () => {
     defaultNestedObject.value = cleared(props.nestedObject);
-    isConfigUpdated.value = false;
   },
 );
 
+/**
+ * Available only during config creating and for level-1 object.
+ * Updating blockchain-field in object after changing the parent.
+ * Also clearing providers list to make sure that all providers have valid blockchain.
+ */
 watch(
   () => props.originalConfig?.parentConfig,
   () => {
-    const parent = props.originalConfig?.parentConfig;
-    if (parent) {
-      const selectedParent = blockchainsList.value.find(
-        (item) => item.name === parent.configName,
+    if (!isDeepNestedObject.value) {
+      const parent = props.originalConfig?.parentConfig;
+      if (!parent) return;
+
+      const selectedParent = blockchainConfigsList.value.find(
+        (item) => item.configName === parent.configName,
       );
+
       props.nestedObject.blockchain = selectedParent.eucId;
+      props.nestedObject.providers = [];
     }
   },
 );

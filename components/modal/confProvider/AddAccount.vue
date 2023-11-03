@@ -2,9 +2,9 @@
   <div
     class="fixed inset-0 z-30 flex items-center justify-center bg-[#0D0D0D]/[.9]"
   >
-    <article
+    <div
       ref="modalRef"
-      class="box-border flex w-[50vw] flex-col items-center gap-2 overflow-x-auto rounded-md bg-white px-14 py-7"
+      class="box-border flex w-[50vw] flex-col items-center gap-2 overflow-x-auto rounded-md bg-white p-5"
     >
       <h2 class="text-center text-2xl font-bold">Manage accounts</h2>
 
@@ -14,7 +14,7 @@
       </div>
 
       <div
-        class="flex max-h-[65vh] w-full items-start justify-center gap-6 overflow-x-auto pr-2 pt-2 shadow-sm"
+        class="flex max-h-[65vh] w-full items-start justify-center gap-6 overflow-x-auto pr-2 pt-1 shadow-sm"
       >
         <div class="w-1/2">
           <p
@@ -23,18 +23,16 @@
           >
             No accounts available
           </p>
+
           <div v-else class="flex flex-col items-center justify-center gap-4">
-            <article
-              v-for="availableAccount in availableAccounts"
-              :key="availableAccount.name"
+            <div
+              v-for="account in availableAccounts"
+              :key="account.name"
               class="flex w-full flex-col justify-center gap-2"
             >
               <div class="flex items-center justify-between">
-                <p>Name: {{ availableAccount.name }}</p>
-                <UiButton
-                  class="success"
-                  @click="onAddAccountClick(availableAccount)"
-                >
+                <p>Name: {{ account.name }}</p>
+                <UiButton class="success" @click="onAddAccountClick(account)">
                   Add
                 </UiButton>
               </div>
@@ -42,7 +40,7 @@
                 class="flex flex-col gap-2 rounded-lg border border-gray-400 p-2"
               >
                 <div
-                  v-for="(value, key) in availableAccount.fullAccount"
+                  v-for="(value, key) in account.fullAccount"
                   :key="key"
                   class="flex gap-2 py-1"
                   :class="
@@ -70,11 +68,11 @@
                     v-else
                     :model-value="value"
                     type="text"
-                    :disabled="true"
+                    disabled
                   />
                 </div>
               </div>
-            </article>
+            </div>
           </div>
         </div>
 
@@ -86,7 +84,7 @@
             No selected accounts
           </p>
           <div v-else class="flex flex-col items-center justify-center gap-4">
-            <article
+            <div
               v-for="selectedAccount in selectedAccounts"
               :key="selectedAccount.name"
               class="flex w-full flex-col justify-center gap-2"
@@ -132,15 +130,16 @@
                     v-else
                     :model-value="value"
                     type="text"
-                    :disabled="true"
+                    disabled
                   />
                 </div>
               </div>
-            </article>
+            </div>
           </div>
         </div>
       </div>
-      <div class="flex w-1/2 justify-evenly gap-4">
+
+      <div class="flex w-1/2 justify-evenly gap-4 pt-3">
         <UiButton class="danger w-1/3" @click="onCanselClickHandler">
           Cancel
         </UiButton>
@@ -148,7 +147,7 @@
           Confirm
         </UiButton>
       </div>
-    </article>
+    </div>
   </div>
 </template>
 
@@ -158,23 +157,16 @@ import { useConfigStore } from "@/stores/configs";
 
 const configStore = useConfigStore();
 
-const props = defineProps([
-  "currentProviderList",
-  "accountList",
-  "defaultList",
-  "isFieldNew",
-]);
 const emit = defineEmits(["isModalConfirmed"]);
+const props = defineProps({
+  currentProviderList: Array,
+  accountList: Array,
+});
 
 const { providerAccounts } = storeToRefs(configStore);
 const modalRef = ref();
 const availableAccounts = ref([]);
 const selectedAccounts = ref([]);
-
-// const isApiKeyDeletable = (name) => {
-//   if (props.defaultList.find((item) => item === name) && !props.isFieldNew)
-//     return true;
-// };
 
 const onAddAccountClick = (acc) => {
   const newArray = availableAccounts.value.filter(
@@ -215,6 +207,7 @@ const serializeAccouts = () => {
     console.error("providerAccounts were not received");
     return;
   }
+
   const totalAccounts = props.accountList.map((acc) => {
     const fullAccountObject = providerAccounts.value.find(
       (item) => item.keyName === acc,

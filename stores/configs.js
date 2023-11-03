@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { getChainNameFromConfigItem } from "@/utils/utilfunc";
 
 export const useConfigStore = defineStore("config", () => {
   /* RESPONSES */
@@ -97,6 +96,19 @@ export const useConfigStore = defineStore("config", () => {
   });
 
   /**
+   * Get all configs with type === 'blockchain'
+   */
+  const blockchainConfigsList = computed(() =>
+    storedConfigList.value
+      .filter((item) => item.configType === "BLOCKCHAIN")
+      .map((item) => {
+        const configFileObject = JSON.parse(item.configFile);
+        item.eucId = configFileObject.eucId;
+        return cleared(item);
+      }),
+  );
+
+  /**
    * Get all closest config blockchains and use them for 'blockchains' sorting block.
    * Add new field to typeToDefaultChain with default value (for configs without blockchain config in parents chain) to enable filtration by chain for config type.
    * config.configChain - value from serializeConfigs function, not from BE.
@@ -165,5 +177,6 @@ export const useConfigStore = defineStore("config", () => {
     visibleConfigs,
     filtredConfigs,
     blockchains,
+    blockchainConfigsList,
   };
 });

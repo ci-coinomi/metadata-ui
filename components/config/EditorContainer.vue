@@ -119,11 +119,11 @@ const { $toast } = useNuxtApp();
 const configStore = useConfigStore();
 const router = useRouter();
 
+const emit = defineEmits(["configUpdateEmit"]);
 const props = defineProps({
   originalConfig: Object,
 });
 
-const emit = defineEmits(["configUpdateEmit"]);
 const { storedConfigList } = storeToRefs(configStore);
 
 const isLoading = ref(false);
@@ -160,7 +160,6 @@ const isChangeParentButtonVisible = computed(() => {
     "BANNER",
     "ECO_SETTING",
     "DAPP",
-    "CONFIGURED_PROVIDERS",
   ];
   return validConfigTypes.includes(editingConfig.value.configType);
 });

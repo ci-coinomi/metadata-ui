@@ -2,33 +2,34 @@
   <main
     class="m-auto mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
-    <modalConfirm
+    <ModalConfirm
       v-if="isConfirmModalVisible"
-      :payload="confirmModalPayload"
       @is-modal-confirmed="modalConfirmHandler"
-      >{{ confirmModalText }}</modalConfirm
     >
+      {{ confirmModalText }}
+    </ModalConfirm>
 
-    <modalUserData
+    <ModalUserData
       v-if="isUserDataModalVisible"
-      :payload="userDataModalPayload"
-      :usersList="usersList"
-      @update-user-data="updateUserDataHandler"
+      :selected-user="userDataModalPayload"
+      :users-list="usersList"
+      @modal-handler="updateUserDataHandler"
     />
 
-    <userSkeleton v-if="isLoading" />
+    <DesignUserSkeleton v-if="isLoading" />
+
     <div v-else class="flex w-full flex-col items-center justify-center gap-2">
       <div class="flex w-full items-center justify-between">
         <p>
           <span class="text-gray-500">Total users: </span>
           <span> {{ usersList.length }}</span>
         </p>
-        <uiButton class="success" @click="onAddNewUserHandler"
-          >Add user</uiButton
-        >
+        <UiButton class="success" @click="onAddNewUserHandler">
+          Add user
+        </UiButton>
       </div>
 
-      <userListItem
+      <UserListItem
         v-for="(user, index) in usersList"
         :key="user.username"
         :user="user"
@@ -39,6 +40,7 @@
     </div>
   </main>
 </template>
+
 <script setup>
 import { useAppStore } from "@/stores/app";
 import { addUser, deleteUser, getUsers, updateUser } from "~/api/user";
@@ -62,7 +64,7 @@ const isUserDataModalVisible = ref(false);
 const userDataModalType = ref("");
 const userDataModalPayload = ref(null);
 
-// Handlers
+/* HANDLERS */
 
 const onDeleteClickHandler = (userName) => {
   isConfirmModalVisible.value = true;
@@ -82,10 +84,10 @@ const onAddNewUserHandler = () => {
   userDataModalType.value = "CREATE";
 };
 
-const modalConfirmHandler = (isConfirmed, payload) => {
+const modalConfirmHandler = (isConfirmed) => {
   isConfirmModalVisible.value = false;
   if (confirmModalType.value === "DELETE" && isConfirmed) {
-    deleteUserByLogin(payload);
+    deleteUserByLogin(confirmModalPayload.value);
   }
   confirmModalPayload.value = null;
   confirmModalType.value = "";
@@ -103,7 +105,7 @@ const updateUserDataHandler = (data) => {
   userDataModalType.value = "";
 };
 
-// Requests
+/* REQUESTS */
 
 const deleteUserByLogin = async (userName) => {
   isLoading.value = true;

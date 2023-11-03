@@ -14,13 +14,13 @@
       class="flex w-full items-start gap-4 rounded-sm"
     >
       <div class="flex w-full flex-col gap-2">
-        <h2 v-if="!defaultNestedObject[key]" class="text-center text-gray-600">
+        <h2 v-if="!defaultNestedArray[key]" class="text-center text-gray-600">
           New item
         </h2>
 
         <template v-if="isObject(value)">
           <ConfigDefaultNestedObjectEditor
-            :isCloned="isCloned"
+            :is-cloned="isCloned"
             :nested-object="value"
             :config-update-trigger="configUpdateTrigger"
             :original-config="originalConfig"
@@ -70,7 +70,7 @@ const props = defineProps({
   originalConfig: Object,
 });
 
-const defaultNestedObject = ref(cleared(props.nestedArray));
+const defaultNestedArray = ref(cleared(props.nestedArray));
 
 /* New elements can be added to provided arrayKeys */
 const areNewElementsAddable = computed(() => {
@@ -85,7 +85,7 @@ const areNewElementsAddable = computed(() => {
  * For now all nested array elements were objects, so deleting new test/bool/array fields is not supported for now.
  */
 const isNextLevelObjectDeletable = (key) => {
-  if (!defaultNestedObject.value[key]) return true;
+  if (!defaultNestedArray.value[key]) return true;
 
   const deletableTypesArray = ["categories"];
   return deletableTypesArray.includes(props.arrayKey);
@@ -149,7 +149,7 @@ onMounted(() => {
 watch(
   () => props.configUpdateTrigger,
   () => {
-    defaultNestedObject.value = cleared(props.nestedArray);
+    defaultNestedArray.value = cleared(props.nestedArray);
   },
 );
 </script>

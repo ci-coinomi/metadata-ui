@@ -21,8 +21,22 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   });
 
+  /**
+   * GetMe and Login without redirect in the case of 401 error (when user entered wrong login data).
+   * For login and redirect pages.
+   */
+  const loginApi = $fetch.create({
+    baseURL: config.public.METADATA_URL,
+    headers: {
+      "Access-Control-Allow-Credentials": true,
+      "Content-type": "application/json",
+    },
+    credentials: "include",
+  });
+
   const wss_api = config.public.COINAPI_WSS;
 
   nuxtApp.provide("api", api);
+  nuxtApp.provide("loginApi", loginApi);
   nuxtApp.provide("wss_api", wss_api);
 });

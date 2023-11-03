@@ -17,9 +17,9 @@
         <ConfigConfProviderGroupModalItem
           v-for="group in providerGroups"
           :key="group.providerGroupName"
-          :groupItem="group"
+          :group-item="group"
           :blockchain="blockchain"
-          :isSelected="
+          :is-selected="
             selectedGroup?.providerGroupName === group.providerGroupName
           "
           @on-group-item-click="onGroupClickHandler"
@@ -27,12 +27,12 @@
       </template>
 
       <div class="flex w-full justify-evenly gap-4">
-        <UiButton class="danger w-1/3" @click="onCanselClickHandler"
-          >Cancel</UiButton
-        >
-        <UiButton class="success w-1/3" @click="onConfirmHandler"
-          >Confirm</UiButton
-        >
+        <UiButton class="danger w-1/3" @click="onCanselClickHandler">
+          Cancel
+        </UiButton>
+        <UiButton class="success w-1/3" @click="onConfirmHandler">
+          Confirm
+        </UiButton>
       </div>
     </div>
   </div>
@@ -44,9 +44,11 @@ import { useConfigStore } from "@/stores/configs";
 
 const configStore = useConfigStore();
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const props = defineProps(["blockchain"]);
 const emit = defineEmits(["isModalConfirmed"]);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = defineProps({
+  blockchain: String,
+});
 
 const { providerGroups } = storeToRefs(configStore);
 const modalRef = ref();

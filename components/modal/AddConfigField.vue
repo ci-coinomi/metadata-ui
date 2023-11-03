@@ -1,3 +1,6 @@
+<!-- Modal for creating elements in <NestedArrayDeepEditor />-->
+<!-- Not in use for now -->
+
 <template>
   <div
     class="popup fixed inset-0 z-30 flex items-center justify-center bg-[#0D0D0D]/[.9] p-32"
@@ -80,36 +83,36 @@
       </article>
 
       <div class="flex gap-2">
-        <UiButton class="success" @click="onAddNewLineHandler('text')"
-          >Add text/number</UiButton
-        >
-        <UiButton class="success" @click="onAddNewLineHandler('boolean')"
-          >Add boolean</UiButton
-        >
-        <UiButton class="success" @click="onAddNewLineHandler('object')"
-          >Add object</UiButton
-        >
-        <UiButton class="success" @click="onAddNewLineHandler('array')"
-          >Add array</UiButton
-        >
+        <UiButton class="success" @click="onAddNewLineHandler('text')">
+          Add text/number
+        </UiButton>
+        <UiButton class="success" @click="onAddNewLineHandler('boolean')">
+          Add boolean
+        </UiButton>
+        <UiButton class="success" @click="onAddNewLineHandler('object')">
+          Add object
+        </UiButton>
+        <UiButton class="success" @click="onAddNewLineHandler('array')">
+          Add array
+        </UiButton>
       </div>
 
       <div class="mt-auto flex justify-between gap-4">
-        <UiButton class="danger w-2/5" @click="onCanselHandler"
-          >Cancel</UiButton
-        >
-        <UiButton class="success w-2/5" @click="onConfirmHandler"
-          >Confirm</UiButton
-        >
+        <UiButton class="danger w-2/5" @click="onCanselHandler">
+          Cancel
+        </UiButton>
+        <UiButton class="success w-2/5" @click="onConfirmHandler">
+          Confirm
+        </UiButton>
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-const emit = defineEmits(["modal-handler"]);
-
 const { $toast } = useNuxtApp();
+
+const emit = defineEmits(["modal-handler"]);
 
 const configuredObject = ref([]);
 const isAddFieldConfigVisible = ref(false);

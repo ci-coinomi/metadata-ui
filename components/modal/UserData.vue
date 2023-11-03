@@ -3,30 +3,30 @@
     class="popup fixed inset-0 z-30 flex items-center justify-center bg-[#0D0D0D]/[.9]"
   >
     <div class="flex flex-col gap-6 rounded-md bg-white p-10">
-      <h2 v-if="props.payload" class="text-center text-lg font-bold">
-        <span class="text-gray-500">Editing user: </span
-        >{{ props.payload?.username }}
+      <h2 v-if="selectedUser" class="text-center text-lg font-bold">
+        <span class="text-gray-500">Editing user: </span>
+        {{ selectedUser?.username }}
       </h2>
 
-      <h2 v-else class="text-center text-lg font-bold">
-        <span>Create user</span>
-      </h2>
-      <UiInputField
-        v-if="!props.payload"
-        v-model="username"
-        type="text"
-        :placeholder="'Username...'"
-      />
-      <UiInputField
-        v-if="!props.payload"
-        v-model="password"
-        type="password"
-        :placeholder="'Password...'"
-      />
+      <h2 v-else class="text-center text-lg font-bold">Create user</h2>
+
+      <template v-if="!selectedUser">
+        <UiInputField
+          v-model="username"
+          type="text"
+          :placeholder="'Username...'"
+        />
+        <UiInputField
+          v-model="password"
+          type="password"
+          :placeholder="'Password...'"
+        />
+      </template>
+
       <div class="flex flex-col gap-1">
-        <label for="role-select" class="text-sm text-gray-500"
-          >Choose role:</label
-        >
+        <label for="role-select" class="text-center text-sm text-gray-500">
+          Choose role:
+        </label>
         <select
           id="role-select"
           v-model="role"
@@ -46,36 +46,42 @@
       </div>
 
       <div class="flex justify-between gap-4">
-        <UiButton class="danger w-2/5" @click="onCanselHandler"
-          >Cancel</UiButton
-        >
-        <UiButton class="success w-2/5" @click="onConfirmHandler"
-          >Confirm</UiButton
-        >
+        <UiButton class="danger w-2/5" @click="onCanselHandler">
+          Cancel
+        </UiButton>
+        <UiButton class="success w-2/5" @click="onConfirmHandler">
+          Confirm
+        </UiButton>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-const emit = defineEmits(["updateUserData"]);
-const props = defineProps(["payload", "usersList"]);
-
 const { $toast } = useNuxtApp();
+const emit = defineEmits(["modalHandler"]);
 
-const username = ref(props.payload?.username || "");
+const props = defineProps({
+  selectedUser: Object,
+  usersList: Array,
+});
+
+const username = ref(props.selectedUser?.username || "");
 const password = ref("");
 const role = ref("admin");
-const status = ref(props.payload ? props.payload?.enabled : true);
+const status = ref(props.selectedUser ? props.selectedUser?.enabled : true);
 
 const onRoleSelectHandler = (evt) => {
   role.value = evt.target.value;
 };
 
 const onCanselHandler = () => {
-  emit("updateUserData", false);
+  emit("modalHandler", false);
 };
 
+/**
+ * Roles is response - array of strings. For superadmin access user needs to have 2 values in array, ["ADMIN", "SUPER_ADMIN"].
+ */
 const convertRoleToRolesArr = (role) => {
   switch (role) {
     case "admin":
@@ -87,7 +93,7 @@ const convertRoleToRolesArr = (role) => {
 
 const onConfirmHandler = () => {
   if (
-    !props.payload &&
+    !props.selectedUser &&
     (username.value.trim() === "" || password.value.trim() === "")
   ) {
     $toast.warning(`You need to enter username and password`);
@@ -96,14 +102,14 @@ const onConfirmHandler = () => {
 
   const usernamesArr = props.usersList.map((user) => user.username);
 
-  if (!props.payload && usernamesArr.includes(username.value.trim())) {
+  if (!props.selectedUser && usernamesArr.includes(username.value.trim())) {
     $toast.warning(`User with the same name already exists`);
     return;
   }
 
   const rolesArr = convertRoleToRolesArr(role.value);
 
-  emit("updateUserData", {
+  emit("modalHandler", {
     username: username.value,
     password: password.value,
     role: rolesArr,
@@ -112,7 +118,7 @@ const onConfirmHandler = () => {
 };
 
 onMounted(() => {
-  if (props.payload?.roles.length === 2) {
+  if (props.selectedUser?.roles.length === 2) {
     role.value = "super_admin";
   }
 });
