@@ -6,16 +6,8 @@
       <h1 class="text-xl">Metadata UI</h1>
 
       <div v-if="isLoggedIn" class="w-[300px]">
-        <h2 class="text-center">You are signed in</h2>
-
-        <div class="mt-4 flex justify-between gap-4">
-          <UiButton class="danger flex-1" @click="onLogoutHandler">
-            Sign out
-          </UiButton>
-          <UiButton class="success flex-1" @click="toConfigsNavigateHandler">
-            To configs
-          </UiButton>
-        </div>
+        <h2 class="text-center text-lg">You are signed in</h2>
+        <p class="mt-4 text-center">Redirecting...</p>
       </div>
 
       <template v-else>
@@ -44,11 +36,10 @@
 
 <script setup>
 import { useAppStore } from "@/stores/app";
-import { signin, signout, getLoginMe } from "@/api/user";
+import { signin, getLoginMe } from "@/api/user";
 
 const router = useRouter();
 const appStore = useAppStore();
-const { $toast } = useNuxtApp();
 
 const loginData = ref("");
 const passwordData = ref("");
@@ -79,28 +70,13 @@ const formSubmitHandler = async () => {
   }
 };
 
-const onLogoutHandler = async () => {
-  const response = await signout();
-  if (!response.success) {
-    $toast.error(`Logout request error, status: ${response.status}`);
-    return;
-  }
-
-  router.push({
-    path: `/`,
-  });
-  isLoggedIn.value = false;
-  appStore.setCurrentUser(null);
-};
-
-const toConfigsNavigateHandler = () => {
-  router.push({
-    path: `/configs`,
-  });
-};
-
 onMounted(async () => {
   const response = await getLoginMe();
-  if (response.success) isLoggedIn.value = true;
+  if (response.success) {
+    isLoggedIn.value = true;
+    router.push({
+      path: "/configs",
+    });
+  }
 });
 </script>
