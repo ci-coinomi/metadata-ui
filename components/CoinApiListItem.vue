@@ -1,5 +1,5 @@
 <template>
-  <article class="w-full items-start rounded-xl border border-black p-6">
+  <article class="w-full items-start rounded-lg border border-black p-6">
     <div class="flex w-full items-center gap-3">
       <h2 class="w-1/5">{{ chain.name }}</h2>
 
@@ -17,6 +17,7 @@
             </p>
           </template>
         </div>
+
         <div class="flex flex-wrap gap-1">
           <h3 class="text-gray-400">Api Providers:</h3>
           <p v-if="chain.apiProviders.length === 0" class="text-gray-400">
@@ -59,6 +60,7 @@
             </p>
           </div>
         </div>
+
         <div
           v-if="
             chainsHeight && chainsHeight.length > 0 && chainsHeight.length > 3
@@ -84,6 +86,7 @@
         </div>
       </div>
     </div>
+
     <div class="flex gap-3">
       <div class="w-1/5" />
       <div class="flex flex-1" />
@@ -116,7 +119,9 @@ import { Client } from "@stomp/stompjs";
 
 const app = useNuxtApp();
 
-const props = defineProps(["chain"]);
+const props = defineProps({
+  chain: Object,
+});
 
 const client = ref(null);
 const heightValue = ref(null);
@@ -128,6 +133,21 @@ const onShowMoreChainsClick = () => {
   showChains.value = !showChains.value;
 };
 
+const onWsUpdateHandler = (message) => {
+  const payload = JSON.parse(message.body);
+  if (!payload) return;
+
+  const { chainHeights, currentHeight, zoneId } = payload;
+
+  if (currentHeight) heightValue.value = currentHeight;
+  if (chainHeights) {
+    chainsHeight.value = chainHeights.sort(
+      (a, b) => Number(a.chainId) - Number(b.chainId),
+    );
+  }
+  if (zoneId) zoneData.value = zoneId;
+};
+
 onMounted(() => {
   const wssUrlString = app.$wss_api + "/" + props.chain.eucId;
   client.value = new Client({
@@ -135,20 +155,8 @@ onMounted(() => {
     reconnectDelay: 1000,
     heartbeatIncoming: 1000,
     heartbeatOutgoing: 1000,
-    onConnect: function () {
-      client.value.subscribe("/topic/blockchain/height", function (message) {
-        const payload = JSON.parse(message.body);
-        if (!payload) return;
-        const { chainHeights, currentHeight, zoneId } = payload;
-
-        if (currentHeight) heightValue.value = currentHeight;
-        if (chainHeights) {
-          chainsHeight.value = chainHeights.sort(
-            (a, b) => Number(a.chainId) - Number(b.chainId),
-          );
-        }
-        if (zoneId) zoneData.value = zoneId;
-      });
+    onConnect: () => {
+      client.value.subscribe("/topic/blockchain/height", onWsUpdateHandler);
     },
   });
   client.value.activate();

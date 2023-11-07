@@ -45,14 +45,20 @@
 </template>
 
 <script setup>
-const props = defineProps(["groupItem", "isSelected", "blockchain"]);
+const props = defineProps({
+  groupItem: Object,
+  isSelected: Boolean,
+  blockchain: String,
+});
 const emit = defineEmits(["onGroupItemClick"]);
 
 const networksVisible = ref(false);
 
+/* Available networks in group filtred by passed blockchain */
 const filtredGroupItem = computed(() =>
   props.groupItem.networks.filter((el) => el.network === props.blockchain),
 );
+
 const modalClass = computed(() => {
   if (filtredGroupItem.value.length === 0) {
     return "border-gray-400";
@@ -64,6 +70,7 @@ const modalClass = computed(() => {
   }
 });
 
+/* Return selected group name and list of selected networks */
 const onGroupClickHandler = () => {
   if (filtredGroupItem.value.length > 0) {
     const objectToReturn = {

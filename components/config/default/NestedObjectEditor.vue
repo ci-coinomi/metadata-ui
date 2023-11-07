@@ -1,26 +1,18 @@
 <template>
   <div
-    class="flex w-full flex-col gap-2 rounded-sm p-2"
-    :class="configBorderStyle"
+    class="flex w-full flex-col gap-2 rounded-md p-2"
+    :class="isDeepNestedObject ? 'border border-gray-400' : ''"
   >
-    <div
-      v-if="
-        props.configNestedObject &&
-        !props.configNestedObject.hasOwnProperty('@type')
-      "
-      class="flex justify-between"
-    >
+    <div v-if="isDeepNestedObject" class="flex justify-between">
       <p class="text-gray-400">
-        <span> Object </span>
-        <span v-if="Object.entries(props.configNestedObject).length === 0">
-          (empty)
-        </span>
+        Object
+        <span v-if="Object.entries(nestedObject).length === 0"> (empty) </span>
       </p>
 
       <uiButton
         v-if="isObjectDeletable"
         class="danger h-[34px] min-w-[34px]"
-        @click="onObjectDeleteClick"
+        @click="btnHandler.onObjectDelete"
       >
         <img
           src="~/assets/icons/icon-trash.svg"
@@ -29,13 +21,14 @@
         />
       </uiButton>
     </div>
+
     <div
-      v-for="(value, key) in props.configNestedObject"
+      v-for="(value, key) in nestedObject"
       :key="key"
+      class="flex gap-4 py-1"
       :class="
         isObject(value) || Array.isArray(value) ? 'items-start' : 'items-center'
       "
-      class="flex gap-4 rounded-sm py-1"
     >
       <p
         :class="
@@ -49,43 +42,45 @@
 
       <template v-if="isObject(value)">
         <ConfigDefaultNestedObjectEditor
-          :isCloned="isCloned"
-          :configNestedObject="value"
-          :configUpdateTrigger="configUpdateTrigger"
+          :is-cloned="isCloned"
+          :nested-object="value"
+          :config-update-trigger="configUpdateTrigger"
+          :original-config="originalConfig"
+          :is-object-deletable="false"
         />
       </template>
 
-      <UiSwitcher
-        v-else-if="typeof value === 'boolean'"
-        :value="configNestedObject[key]"
-        :update-memo="configUpdateTrigger"
-        :is-memo="true"
-        @update:value="(data) => (configNestedObject[key] = data)"
-      />
+      <template v-else-if="typeof value === 'boolean'">
+        <UiSwitcher
+          :value="nestedObject[key]"
+          :update-memo="configUpdateTrigger"
+          :is-memo="true"
+          @update:value="(data) => (nestedObject[key] = data)"
+        />
+      </template>
 
       <template v-else-if="Array.isArray(value)">
-        <configDefaultNestedArrayEditor
-          v-if="isNestedArrayVisible(key)"
-          :isCloned="isCloned"
-          :configNestedObject="value"
-          :configFieldType="key"
-          :configUpdateTrigger="configUpdateTrigger"
+        <ConfigDefaultNestedArrayEditor
+          v-if="isPrintedAsArray(key)"
+          :is-cloned="isCloned"
+          :nested-array="value"
+          :array-key="key"
+          :config-update-trigger="configUpdateTrigger"
+          :original-config="originalConfig"
         />
         <UiInputField
           v-else
-          :model-value="configNestedObject[key]"
+          :model-value="nestedObject[key]"
           type="text"
           :update-memo="configUpdateTrigger"
           :is-memo="true"
-          @input="
-            (data) => (configNestedObject[key] = data.target.value.split(','))
-          "
+          @input="(data) => (nestedObject[key] = data.target.value.split(','))"
         />
       </template>
 
       <UiInputField
         v-else
-        v-model="configNestedObject[key]"
+        v-model="nestedObject[key]"
         type="text"
         :update-memo="configUpdateTrigger"
         :is-memo="true"
@@ -97,53 +92,64 @@
 
 <script setup>
 const props = defineProps({
-  configNestedObject: Object,
+  nestedObject: Object,
   isCloned: Boolean,
   configUpdateTrigger: Number,
   isObjectDeletable: Boolean,
+  originalConfig: Object,
 });
 
 const emit = defineEmits(["deleteConfigField"]);
 
-const onObjectDeleteClick = () => {
-  emit("deleteConfigField");
+const defaultNestedObject = ref(cleared(props.nestedObject));
+
+/* All level-1 nested objects have @type - field */
+const isDeepNestedObject = computed(
+  () =>
+    props.nestedObject &&
+    !Object.prototype.hasOwnProperty.call(props.nestedObject, "@type"),
+);
+
+const btnHandler = {
+  onObjectDelete: () => {
+    emit("deleteConfigField");
+  },
 };
 
-const defaultNestedObject = ref(cleared(props.configNestedObject));
+/* Should nested array be printed as <ConfigDefaultNestedArrayEditor> or as input type "text" */
+const isPrintedAsArray = (key) => {
+  const arrayKeyNames = [
+    "nodeProviders",
+    "apiProviders",
+    "configuredProviderGroups",
+    "providers",
+    "categories",
+    "networks",
+    "accounts",
+  ];
+  return arrayKeyNames.includes(key);
+};
 
-const isNestedArrayVisible = (key) =>
-  key === "nodeProviders" ||
-  key === "apiProviders" ||
-  key === "configuredProviderGroups" ||
-  key === "providers" ||
-  key === "categories" ||
-  key === "linkouts" ||
-  key === "networks" ||
-  key === "accounts";
-
-const configBorderStyle = computed(() => {
-  if (props.configNestedObject?.["@type"]) return "";
-  return "border border-gray-400";
-});
-
+/* List of not-editable text fields */
 const isFieldDisabled = (key) => {
-  if (key === "@type") {
+  const disabledFieldsArray = ["@type"];
+
+  if (disabledFieldsArray.includes(key)) {
     return true;
-  } else if (!props.isCloned && key === "eucId") {
-    return true;
-  } else {
-    return false;
   }
+
+  if (!props.isCloned && key === "eucId") {
+    return true;
+  }
+
+  return false;
 };
 
-const isObject = (value) => {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-};
-
+/* Update config watcher */
 watch(
   () => props.configUpdateTrigger,
   () => {
-    defaultNestedObject.value = cleared(props.configNestedObject);
+    defaultNestedObject.value = cleared(props.nestedObject);
   },
 );
 </script>

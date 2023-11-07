@@ -65,7 +65,7 @@ const route = useRoute();
 const appStore = useAppStore();
 const { $toast } = useNuxtApp();
 
-const { headerTitle, isSuperAdmin } = storeToRefs(appStore);
+const { headerTitle, isSuperAdmin } = storeToRefs(appStore); // Used in layout
 
 const onConfigsNavigateHandler = () => {
   appStore.setHeaderTitle("Select config type");
@@ -90,10 +90,13 @@ const onLogoutHandler = async () => {
   const response = await signout();
   if (!response.success) {
     $toast.error(`Logout request error, status: ${response.status}`);
+    return;
   }
+
   router.push({
     path: `/`,
   });
+  appStore.setCurrentUser(null);
 };
 
 const onUsersNavigateHandler = () => {

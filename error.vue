@@ -12,8 +12,6 @@ const router = useRouter();
 
 const onPreviousPageHandler = () => {
   clearError();
-  router.go(-1);
+  router.go(-2);
 };
 </script>
-
-<!-- Vercel update comment -->

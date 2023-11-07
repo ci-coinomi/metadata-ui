@@ -2,22 +2,22 @@
   <main
     class="m-auto mt-3 flex flex-col items-center justify-center gap-6 rounded bg-white p-4 shadow-md"
   >
-    <section class="flex w-full flex-col items-center justify-center gap-6">
-      <CoinApiSkeleton v-if="isLoading" />
-      <template v-else-if="chainsList.length === 0">
-        <h2 class="text-2xl">Data was not recieved</h2>
-      </template>
+    <DesignCoinApiSkeleton v-if="isLoading" />
 
-      <template v-else>
-        <CoinApiListItem
-          v-for="chain in chainsList"
-          :key="chain.eucId"
-          :chain="chain"
-        />
-      </template>
-    </section>
+    <h2 v-else-if="chainsList.length === 0" class="text-2xl">
+      Data was not recieved
+    </h2>
+
+    <template v-else>
+      <CoinApiListItem
+        v-for="chain in chainsList"
+        :key="chain.eucId"
+        :chain="chain"
+      />
+    </template>
   </main>
 </template>
+
 <script setup>
 import { getBlockchains, getProviders } from "~/api/coinapi";
 import { useAppStore } from "@/stores/app";
@@ -58,8 +58,8 @@ const getCoinApiData = async () => {
   chainsList.value = chains;
 };
 
-onMounted(async () => {
+onMounted(() => {
   appStore.setHeaderTitle("CoinApi Status");
-  await getCoinApiData();
+  getCoinApiData();
 });
 </script>

@@ -2,22 +2,24 @@
   <input
     class="flex w-full justify-center rounded-md border-0 py-1.5 pl-6 text-gray-900 outline-none ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 disabled:text-gray-400 sm:text-sm sm:leading-6"
     :class="fieldBg"
-    :placeholder="props.placeholder"
-    :type="props.type"
+    :placeholder="placeholder"
+    :type="type"
     :value="modelValue || ''"
     @input="updateInput"
   />
 </template>
 
 <script setup>
-const props = defineProps([
-  "type",
-  "modelValue",
-  "placeholder",
-  "isMemo",
-  "updateMemo",
-]);
 const emit = defineEmits(["update:modelValue"]);
+
+const props = defineProps({
+  type: String,
+  modelValue: String || Number || Array,
+  placeholder: String,
+  isMemo: Boolean,
+  updateMemo: Number,
+});
+
 /*
  * Optional. If we want to memoize default input value (for highlighting updated fields for example)
  * and reset it by changing updateMemo.

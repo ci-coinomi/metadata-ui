@@ -35,7 +35,6 @@ const route = useRoute();
 
 const { storedConfigList, selectedType, storedSearch, filtredConfigs } =
   storeToRefs(configStore);
-
 const search = ref(null);
 
 /**

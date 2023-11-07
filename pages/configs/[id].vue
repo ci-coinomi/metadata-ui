@@ -20,6 +20,7 @@ definePageMeta({
 });
 
 const route = useRoute();
+const router = useRouter();
 const appStore = useAppStore();
 const configStore = useConfigStore();
 
@@ -91,9 +92,14 @@ onMounted(async () => {
       (originalConfig) => originalConfig.configId === Number(route.params.id),
     );
 
-    if (configFromStore) {
-      originalConfig.value = cleared(configFromStore);
+    if (!configFromStore) {
+      router.push({
+        path: "/error",
+      });
+      return;
     }
+
+    originalConfig.value = cleared(configFromStore);
 
     appStore.setHeaderTitle(`Config ${originalConfig.value.configName}`);
   } else {

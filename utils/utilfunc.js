@@ -74,10 +74,12 @@ export const areObjectsEqual = (obj1, obj2) => {
   return true;
 };
 
-/*
-Get chain name from passed config.
-Specifically from config.configFile.eucId, (value after '@')
-*/
+/**
+ * To delete
+ * Get chain name from passed config.
+ * Specifically from config.configFile.eucId, (value after '@').
+ * Deprecated after creating serializeConfigs and adding configChain field with information about closest blockchain parent.
+ */
 export const getChainNameFromConfigItem = (config, searchPlace) => {
   if (searchPlace === "eucId") {
     const configObj = JSON.parse(config.configFile);

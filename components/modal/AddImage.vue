@@ -39,10 +39,12 @@
 </template>
 
 <script setup>
-const emit = defineEmits(["modal-handler"]);
-const props = defineProps(["oldImage"]);
-
 const { $toast } = useNuxtApp();
+
+const emit = defineEmits(["modal-handler"]);
+const props = defineProps({
+  oldImage: Object,
+});
 
 const fileInput = ref(null);
 const imageName = ref(props.oldImage?.imageName || "");

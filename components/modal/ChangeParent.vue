@@ -25,7 +25,7 @@
       <div class="flex flex-col gap-1">
         <template v-if="isBlockchainOnlyValidParent">
           <div
-            v-for="blockchain in blockchainsArray"
+            v-for="blockchain in blockchainConfigsList"
             :key="blockchain.configId"
             class="cursor-pointer rounded-lg border border-gray-400 px-4 py-2 hover:border-gray-900"
             @click="onBlockchainClickHandler(blockchain)"
@@ -91,19 +91,9 @@ const props = defineProps({
   originalConfig: Object,
 });
 
-const { storedConfigList } = storeToRefs(configStore);
+const { blockchainConfigsList } = storeToRefs(configStore);
 
 const textInputValue = ref("");
-
-const blockchainsArray = computed(() =>
-  storedConfigList.value
-    .filter((item) => item.configType === "BLOCKCHAIN")
-    .map((item) => {
-      const configFileObject = JSON.parse(item.configFile);
-      item.eucId = configFileObject.eucId;
-      return item;
-    }),
-);
 
 const isBlockchainOnlyValidParent = computed(() => {
   const validConfigTypes = [
@@ -121,8 +111,11 @@ const onCanselHandler = () => {
 };
 
 const onBlockchainClickHandler = (item) => {
-  delete item.eucId;
-  emit("modalHandler", item);
+  const selectedBlockchain = {
+    ...item,
+  };
+  delete selectedBlockchain.eucId;
+  emit("modalHandler", selectedBlockchain);
 };
 
 const onConfirmHandler = () => {
@@ -138,7 +131,7 @@ const onConfirmHandler = () => {
   let newParentConfig;
 
   if (configType === "PARTNER") {
-    newParentConfig = blockchainsArray.value.find(
+    newParentConfig = blockchainConfigsList.value.find(
       (item) =>
         item.configName === trimmedName &&
         (item.configType === "ASSET" || item.configType === "BLOCKCHAIN"),

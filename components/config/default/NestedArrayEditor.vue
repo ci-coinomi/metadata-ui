@@ -1,38 +1,61 @@
 <template>
-  <div class="flex w-full flex-col gap-2 rounded-sm border border-gray-400 p-2">
+  <div class="flex w-full flex-col gap-2 rounded-md border border-gray-400 p-2">
     <UiButton
-      v-if="isArrayEditable"
+      v-if="areNewElementsAddable"
       class="success ml-auto"
-      @click="onAddProviderHandler"
+      @click="btnHandler.onAddArrayElement"
     >
       Add item
     </UiButton>
+
     <div
-      v-for="(value, key) in props.configNestedObject"
+      v-for="(value, key) in nestedArray"
       :key="value"
       class="flex w-full items-start gap-4 rounded-sm"
     >
       <div class="flex w-full flex-col gap-2">
-        <div v-if="isFieldNew(key)" class="flex items-center justify-between">
-          <h2 class="text-gray-600">New item</h2>
-          <!-- categories can be deleted anyway, not only when they are new -->
-          <uiButton
-            v-if="configFieldType !== 'categories'"
-            class="danger h-[34px] min-w-[34px]"
-            @click="onDeleteClickHandler(key)"
-          >
-            Delete
-          </uiButton>
-        </div>
-        <div class="flex w-full flex-col gap-2 rounded-sm">
+        <h2 v-if="!defaultNestedArray[key]" class="text-center text-gray-600">
+          New item
+        </h2>
+
+        <template v-if="isObject(value)">
           <ConfigDefaultNestedObjectEditor
-            :isCloned="isCloned"
-            :configNestedObject="value"
-            :configUpdateTrigger="configUpdateTrigger"
-            :isObjectDeletable="isNextLevelObjectDeletable(configFieldType)"
-            @delete-config-field="() => onDeleteNestedLineHandler(key)"
+            :is-cloned="isCloned"
+            :nested-object="value"
+            :config-update-trigger="configUpdateTrigger"
+            :original-config="originalConfig"
+            :is-object-deletable="isNextLevelObjectDeletable(key)"
+            @delete-config-field="() => btnHandler.onDeleteElementInArray(key)"
           />
-        </div>
+        </template>
+
+        <template v-else-if="typeof value === 'boolean'">
+          <UiSwitcher
+            :value="nestedArray[key]"
+            :update-memo="configUpdateTrigger"
+            :is-memo="true"
+            @update:value="(data) => (nestedArray[key] = data)"
+          />
+        </template>
+
+        <template v-else-if="Array.isArray(value)">
+          <configDefaultNestedArrayEditor
+            :is-cloned="isCloned"
+            :nested-array="value"
+            :array-key="key"
+            :config-update-trigger="configUpdateTrigger"
+            :original-config="originalConfig"
+          />
+        </template>
+
+        <UiInputField
+          v-else
+          v-model="nestedArray[key]"
+          type="text"
+          :update-memo="configUpdateTrigger"
+          :is-memo="true"
+          :disabled="false"
+        />
       </div>
     </div>
   </div>
@@ -40,102 +63,93 @@
 
 <script setup>
 const props = defineProps({
-  configNestedObject: Object,
+  nestedArray: Object,
   isCloned: Boolean,
   configUpdateTrigger: Number,
-  configFieldType: String,
+  arrayKey: String,
+  originalConfig: Object,
 });
 
-const defaultNestedObject = ref(cleared(props.configNestedObject));
-const isArrayEditable = computed(
-  () =>
-    props.configFieldType === "nodeProviders" ||
-    props.configFieldType === "apiProviders" ||
-    props.configFieldType === "categories" ||
-    props.configFieldType === "linkouts",
-);
+const defaultNestedArray = ref(cleared(props.nestedArray));
 
-const isNextLevelObjectDeletable = (type) => {
-  return type === "categories" || type === "linkouts";
+/* New elements can be added to provided arrayKeys */
+const areNewElementsAddable = computed(() => {
+  const editableKeysArray = ["nodeProviders", "apiProviders", "categories"];
+  return editableKeysArray.includes(props.arrayKey);
+});
+
+/**
+ * If array element is an object, whether it is deletable or not.
+ * Deletable if element in array was not saved yet (for new items in array).
+ * Also if array key is 'categories' (eco-settings type) - elements are always deletable, even if they were saved before.
+ * For now all nested array elements were objects, so deleting new test/bool/array fields is not supported for now.
+ */
+const isNextLevelObjectDeletable = (key) => {
+  if (!defaultNestedArray.value[key]) return true;
+
+  const deletableTypesArray = ["categories"];
+  return deletableTypesArray.includes(props.arrayKey);
 };
 
-const onDeleteNestedLineHandler = (idx) => {
-  props.configNestedObject.splice(idx, 1);
+const btnHandler = {
+  onDeleteElementInArray: (index) => {
+    props.nestedArray.splice(index, 1);
+  },
+
+  onAddArrayElement: () => {
+    let defaultArrayObject;
+
+    if (
+      props.arrayKey === "nodeProviders" ||
+      props.arrayKey === "apiProviders"
+    ) {
+      defaultArrayObject = {
+        name: "",
+        url: "",
+        visible: false,
+        priority: "",
+        companyName: "",
+        network: "",
+        supportedMethods: [],
+      };
+    }
+    if (props.arrayKey === "categories") {
+      defaultArrayObject = {
+        name: "",
+        color: "",
+        visible: false,
+        sortOrder: "",
+      };
+    }
+
+    props.nestedArray.push(defaultArrayObject);
+  },
 };
 
-const onAddProviderHandler = () => {
-  let defaultArrayObject;
-
-  if (
-    props.configFieldType === "nodeProviders" ||
-    props.configFieldType === "apiProviders"
-  ) {
-    defaultArrayObject = {
-      name: "",
-      url: "",
-      visible: false,
-      priority: "",
-      companyName: "",
-      network: "",
-      supportedMethods: [],
-    };
-  }
-  if (props.configFieldType === "categories") {
-    defaultArrayObject = {
-      name: "",
-      color: "",
-      visible: false,
-      sortOrder: "",
-      // linkouts: [],
-    };
-  }
-  if (props.configFieldType === "linkouts") {
-    defaultArrayObject = {
-      name: "",
-      url: "",
-      imageName: "",
-      visible: false,
-      sortOrder: "",
-    };
-  }
-
-  props.configNestedObject.push(defaultArrayObject);
-};
-
-const isFieldNew = (key) => {
-  return !defaultNestedObject.value[key];
-};
-
-const onDeleteClickHandler = (key) => {
-  props.configNestedObject.splice(key, 1);
-};
-
+/**
+ * Web-832. Needs to add companyName and network to all existed providers.
+ */
 onMounted(() => {
-  /**
-   * Web-832. We adding companyName and network to all existed providers. If props was passed
-   */
+  const keysToCheck = ["nodeProviders", "apiProviders"];
 
-  if (
-    props.configFieldType === "nodeProviders" ||
-    props.configFieldType === "apiProviders"
-  ) {
-    // eslint-disable-next-line array-callback-return
-    props.configNestedObject.map((item, index) => {
+  if (keysToCheck.includes(props.arrayKey)) {
+    props.nestedArray.forEach((item) => {
       if (!("companyName" in item)) {
-        props.configNestedObject[index].companyName = "";
+        item.companyName = "";
       }
 
       if (!("network" in item)) {
-        props.configNestedObject[index].network = "";
+        item.network = "";
       }
     });
   }
 });
 
+/* Update config watcher */
 watch(
   () => props.configUpdateTrigger,
   () => {
-    defaultNestedObject.value = cleared(props.configNestedObject);
+    defaultNestedArray.value = cleared(props.nestedArray);
   },
 );
 </script>

@@ -3,7 +3,7 @@
     <input
       :checked="isChecked"
       type="checkbox"
-      :disabled="props.disabled"
+      :disabled="disabled"
       @change="onSwitchHandler"
     />
     <span class="slider" :class="switcherColor" />
@@ -11,6 +11,8 @@
 </template>
 
 <script setup>
+const emit = defineEmits(["update:value"]);
+
 const props = defineProps({
   value: {
     type: Boolean,
@@ -32,7 +34,6 @@ const props = defineProps({
     default: 1,
   },
 });
-const emit = defineEmits(["update:value"]);
 
 const isChecked = ref(props.value);
 const memoSwitcher = ref(null);

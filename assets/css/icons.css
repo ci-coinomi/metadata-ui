@@ -9,3 +9,9 @@
   mask: url(~/assets/icons/icon-add.svg) no-repeat center / contain;
   background-color: white;
 }
+
+.icon-update {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  mask: url(~/assets/icons/icon-update.svg) no-repeat center / contain;
+  background-color: white;
+}

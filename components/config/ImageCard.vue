@@ -39,11 +39,10 @@
   </article>
 </template>
 <script setup>
+const emit = defineEmits(["onDeleteClick", "onUpdateClick"]);
 const props = defineProps({
   image: Object,
 });
-
-const emit = defineEmits(["onDeleteClick", "onUpdateClick"]);
 
 const onDeleteClickHandler = () => {
   emit("onDeleteClick", props.image);
@@ -53,6 +52,7 @@ const onUpdateClickHandler = () => {
   emit("onUpdateClick", props.image);
 };
 
+/* Images are in base64-format so we need some extra convertations */
 const getImageSrc = (image) => {
   if (image.imageName.includes("svg")) {
     return `data:image/svg+xml;base64,${image.imageData}`;
@@ -65,17 +65,3 @@ const getImageSrc = (image) => {
   return `${base64Prefix}${image.imageData}`;
 };
 </script>
-
-<style scoped>
-.icon-trash {
-  filter: invert(1) grayscale(100%) brightness(200%);
-  mask: url(~/assets/icons/icon-trash.svg) no-repeat center / contain;
-  background-color: white;
-}
-
-.icon-update {
-  filter: invert(1) grayscale(100%) brightness(200%);
-  mask: url(~/assets/icons/icon-update.svg) no-repeat center / contain;
-  background-color: white;
-}
-</style>

@@ -16,9 +16,8 @@
 
     <ModalChangeParent
       v-if="isParentModalVisible"
-      :configs="storedConfigList"
-      :current-config="editingConfig"
-      @is-modal-confirmed="modalHandler.parent"
+      :original-config="editingConfig"
+      @modal-handler="modalHandler.parent"
     />
 
     <DesignConfigBannerSkeleton v-if="isLoading" />
@@ -40,14 +39,15 @@
           </div>
           <ConfigConfProviderNestedObjectEditor
             v-if="editingConfig.configType === 'CONFIGURED_PROVIDERS'"
-            :config-nested-object="fileObject"
+            :nested-object="fileObject"
             :is-cloned="true"
-            :full-config-object="editingConfig"
+            :original-config="editingConfig"
           />
           <ConfigDefaultNestedObjectEditor
             v-else
-            :config-nested-object="fileObject"
+            :nested-object="fileObject"
             :is-cloned="true"
+            :original-config="editingConfig"
           />
         </section>
 
@@ -65,7 +65,7 @@
             </UiButton>
           </div>
           <div v-else class="flex flex-col items-center justify-center gap-4">
-            <configImageCard
+            <ConfigImageCard
               v-for="image in configImages"
               :key="image.imageId"
               :image="image"
@@ -142,6 +142,7 @@ const addImageModalType = ref(null);
 const addImageOldValue = ref(null);
 const isParentModalVisible = ref(false);
 
+/* List of configTypes we can change parent during creation */
 const isChangeParentButtonVisible = computed(() => {
   const validConfigTypes = [
     "PARTNER",
@@ -258,6 +259,9 @@ const modalHandler = {
 
 /* REQUESTS */
 
+/**
+ * Serializing edit data, sending request, updating stored configs list and sending request to upload config images
+ */
 const cloneConfigRequest = async () => {
   isNameFieldUnderlined.value = null;
   isLoading.value = true;
@@ -428,14 +432,12 @@ const createDefaultCurrentConfig = (config) => {
 
 /**
  * Edit configFile.
+ *
+ * Note only for configuredProviders config type:
+ * createEmptyConfigFileClone-function (called in onMount hook) clears parent config fields. It also clears all arrays and add empty sting to them. But empty string as value of providers array in configuredProviders is invalid.
  */
 const processConfig = (configFile) => {
   const serializedConfigFile = JSON.parse(configFile);
-  /**
-   * Only for configuredProviders.
-   * createEmptyConfigFileClone clears all arrays and add empty string to them.
-   * Empty string as value of providers array in configuredProviders is invalid.
-   */
   if (
     serializedConfigFile["@type"] === "configuredProviders" &&
     serializedConfigFile.providers?.length === 1 &&
