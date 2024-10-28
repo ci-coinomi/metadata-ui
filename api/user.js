@@ -2,7 +2,7 @@ const api = async (endpoint, method, payload) => {
   try {
     const app = useNuxtApp();
     const response = await app.$api.raw(endpoint, {
-      method: method,
+      method,
       body: payload,
     });
     return response;
@@ -18,9 +18,18 @@ const api = async (endpoint, method, payload) => {
 const loginApi = async (endpoint, method, payload) => {
   try {
     const app = useNuxtApp();
+
+    const formData = new FormData();
+    for (const key in payload) {
+      formData.append(key, payload[key]);
+    }
+
     const response = await app.$loginApi.raw(endpoint, {
-      method: method,
-      body: payload,
+      method,
+      body: formData,
+      headers: {
+        "Content-type": "multipart/form-data",
+      },
     });
     return response;
   } catch (err) {
@@ -29,7 +38,7 @@ const loginApi = async (endpoint, method, payload) => {
 };
 
 export const signin = async (username, password) => {
-  const response = await loginApi(`admin/auth/login`, "POST", {
+  const response = await loginApi(`auth/login`, "POST", {
     username,
     password,
   });
