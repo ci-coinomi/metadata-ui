@@ -27,9 +27,6 @@ const loginApi = async (endpoint, method, payload) => {
     const response = await app.$loginApi.raw(endpoint, {
       method,
       body: formData,
-      headers: {
-        "Content-type": "multipart/form-data",
-      },
     });
     return response;
   } catch (err) {
@@ -43,7 +40,7 @@ export const signin = async (username, password) => {
     password,
   });
 
-  if (response && response.status === 204)
+  if (response && (response.status === 204 || response.status === 200))
     return { success: true, status: response.status };
   if (response && response.status !== 204)
     return { success: false, status: response.status };
