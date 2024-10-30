@@ -29,7 +29,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     baseURL: config.public.METADATA_URL,
     headers: {
       "Access-Control-Allow-Credentials": true,
-      "Content-type": "application/json",
+      Accept: "application/json",
     },
     credentials: "include",
   });
@@ -40,3 +40,4 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.provide("loginApi", loginApi);
   nuxtApp.provide("wss_api", wss_api);
 });
+//
