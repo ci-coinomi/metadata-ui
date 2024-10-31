@@ -13,7 +13,7 @@ const api = async (endpoint, method, payload) => {
 };
 
 export const getBlockchains = async () => {
-  const response = await api(`/v5/blockchains`, "GET");
+  const response = await api(`/v1/blockchains`, "GET");
   if (response._data) return { success: true, data: response._data };
   if (response.status) return { success: false, status: response.status };
   return { success: false, status: "Cors Error" };
