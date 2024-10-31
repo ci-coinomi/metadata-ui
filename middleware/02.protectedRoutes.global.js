@@ -10,22 +10,22 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const { currentUser } = storeToRefs(appStore);
   const rolesArr = currentUser.value?.roles;
 
-  if (to.name === "configs" && !rolesArr?.includes("ROLE_ADMIN")) {
+  if (to.name === "configs" && !rolesArr?.includes("ADMIN")) {
     return navigateTo("/forbidden");
   }
 
-  if (to.name === "questions" && !rolesArr?.includes("ROLE_ADMIN")) {
+  if (to.name === "questions" && !rolesArr?.includes("ADMIN")) {
     return navigateTo("/forbidden");
   }
 
-  if (to.name === "create" && !rolesArr?.includes("ROLE_ADMIN")) {
+  if (to.name === "create" && !rolesArr?.includes("ADMIN")) {
     return navigateTo("/forbidden");
   }
 
   if (
     to.name === "users" &&
-    rolesArr?.includes("ROLE_ADMIN") &&
-    !rolesArr?.includes("ROLE_SUPER_ADMIN")
+    rolesArr?.includes("ADMIN") &&
+    !rolesArr?.includes("SUPER_ADMIN")
   ) {
     return navigateTo("/forbidden");
   }

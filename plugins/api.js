@@ -4,7 +4,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   const api = $fetch.create({
     baseURL: config.public.METADATA_URL,
     headers: {
-      "Access-Control-Allow-Credentials": true,
       "Content-type": "application/json",
     },
     credentials: "include",
@@ -28,7 +27,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   const loginApi = $fetch.create({
     baseURL: config.public.METADATA_URL,
     headers: {
-      "Access-Control-Allow-Credentials": true,
       Accept: "application/json",
     },
     credentials: "include",

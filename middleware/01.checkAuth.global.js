@@ -9,7 +9,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   const appStore = useAppStore();
   const { currentUser } = storeToRefs(appStore);
-
   if (!currentUser.value) {
     const response = await getMe();
     if (response.success) {
