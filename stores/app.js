@@ -12,7 +12,7 @@ export const useAppStore = defineStore("app", () => {
   };
 
   const isSuperAdmin = computed(() =>
-    currentUser.value?.roles?.includes("ROLE_SUPER_ADMIN"),
+    currentUser.value?.roles?.includes("SUPER_ADMIN"),
   );
 
   return {
