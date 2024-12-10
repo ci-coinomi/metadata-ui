@@ -4,9 +4,6 @@ export const useConfigStore = defineStore("config", () => {
   /* RESPONSES */
   const storedConfigList = ref([]);
   const configTypes = ref([]);
-  const providerGroups = ref(null);
-  const providerNetworks = ref(null);
-  const providerAccounts = ref(null);
 
   /* CONFIG FILTERS */
   const selectedType = ref(null);
@@ -30,15 +27,6 @@ export const useConfigStore = defineStore("config", () => {
         type !== "CONFIGURED_PROVIDER_GROUPS" &&
         type !== "CONFIGURED_PROVIDER_ACCOUNTS",
     );
-  };
-  const setProviderGroups = (payload) => {
-    providerGroups.value = payload;
-  };
-  const setProviderNetworks = (payload) => {
-    providerNetworks.value = payload;
-  };
-  const setProviderAccounts = (payload) => {
-    providerAccounts.value = payload;
   };
 
   /* CONFIG FILTERS */
@@ -157,18 +145,12 @@ export const useConfigStore = defineStore("config", () => {
   return {
     storedConfigList,
     configTypes,
-    providerGroups,
-    providerNetworks,
-    providerAccounts,
     selectedType,
     selectedChain,
     storedSearch,
     visibleItemsCount,
     setConfigList,
     setConfigTypes,
-    setProviderGroups,
-    setProviderNetworks,
-    setProviderAccounts,
     setSelectedType,
     setSelectedChain,
     setStoredSearch,

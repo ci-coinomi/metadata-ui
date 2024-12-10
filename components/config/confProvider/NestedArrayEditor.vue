@@ -1,35 +1,9 @@
 <template>
-  <ModalConfProviderNetwork
-    v-if="isNetworkModalVisible"
-    :blockchain="blockchain"
-    @is-modal-confirmed="onNetworkModalConfirmHandler"
-  />
-
-  <ModalConfProviderGroup
-    v-if="isGroupModalVisible"
-    :blockchain="blockchain"
-    @is-modal-confirmed="onGroupModalConfirmHandler"
-  />
-
   <div class="flex w-full flex-col gap-2 rounded-lg border border-gray-400 p-2">
     <div class="flex items-center gap-2">
       <p v-if="!blockchain" class="text-gray-400">
         Select parent to provide blockchain
       </p>
-      <UiButton
-        v-if="blockchain"
-        class="success ml-auto"
-        @click="() => (isNetworkModalVisible = true)"
-      >
-        Add network
-      </UiButton>
-      <UiButton
-        v-if="blockchain"
-        class="success"
-        @click="() => (isGroupModalVisible = true)"
-      >
-        Add group
-      </UiButton>
 
       <UiButton
         v-if="!blockchain && originalConfig.configChain"
@@ -84,8 +58,6 @@ const emit = defineEmits(["setBlockchain"]);
 const { blockchainConfigsList } = storeToRefs(configStore);
 
 const defaultNestedArray = ref(cleared(props.nestedArray));
-const isNetworkModalVisible = ref(false);
-const isGroupModalVisible = ref(false);
 
 /**
  * If config has no blockchain but it has parentConfig - set it eucId as blockchain.
@@ -95,49 +67,6 @@ const onAddChainFromParent = () => {
     (item) => item.configId === props.originalConfig.configChain.configId,
   );
   emit("setBlockchain", chain.eucId);
-};
-
-/**
- * Create network item and add it to array
- */
-const onNetworkModalConfirmHandler = (selectedNetwork) => {
-  isNetworkModalVisible.value = false;
-  if (selectedNetwork) {
-    const addedNetworkObject = {
-      priority: "",
-      providerName: selectedNetwork.providerName,
-      networkIds: [selectedNetwork.id],
-    };
-    if (selectedNetwork.accountApiKeyNames) {
-      addedNetworkObject.accountApiKeyNames = [
-        ...selectedNetwork.accountApiKeyNames,
-      ];
-    }
-    props.nestedArray.push(addedNetworkObject);
-  }
-};
-
-/**
- * Create several network items and add them to array
- */
-const onGroupModalConfirmHandler = (selectedGroup) => {
-  isGroupModalVisible.value = false;
-  if (!selectedGroup) return;
-
-  const newNetworkObjects = selectedGroup.networks.map((item) => {
-    const networkObject = {
-      priority: "",
-      accountApiKeyNames: [],
-      providerName: item.providerName,
-      networkIds: [item.id],
-    };
-    if (item.accountApiKeyNames) {
-      networkObject.accountApiKeyNames = [...item.accountApiKeyNames];
-    }
-    return networkObject;
-  });
-
-  props.nestedArray.push(...newNetworkObjects);
 };
 
 /* Update config watcher */

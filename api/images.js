@@ -2,7 +2,7 @@ const api = async (endpoint, method, payload) => {
   try {
     const app = useNuxtApp();
     const response = await app.$api.raw(endpoint, {
-      method: method,
+      method,
       body: payload,
     });
     return response;
@@ -13,15 +13,16 @@ const api = async (endpoint, method, payload) => {
 };
 
 export const getImagesByConfigId = async (configId) => {
-  const response = await api(`v1/admin/configs/${configId}/images`, "GET");
+  const response = await api(`v1/admin/configs/${configId}/image`, "GET");
   if (response._data) return { success: true, data: response._data };
+  if (response.status === 204) return { success: true, data: null };
   if (response.status) return { success: false, status: response.status };
   return { success: false, status: "Cors Error" };
 };
 
 export const addNewImage = async ({ imageName, imageData }, parentConfig) => {
   const response = await api(
-    `v1/admin/configs/${parentConfig.configId}/images`,
+    `v1/admin/configs/${parentConfig.configId}/image`,
     "POST",
     {
       configId: parentConfig.configId,
@@ -32,35 +33,5 @@ export const addNewImage = async ({ imageName, imageData }, parentConfig) => {
   );
   if (response._data) return { success: true, data: response._data };
   if (response.status) return { success: false, status: response.status };
-  return { success: false, status: "Cors Error" };
-};
-
-export const updateImageById = async (image, imageId, parentConfig) => {
-  const { imageName, imageData } = image;
-  const response = await api(
-    `v1/admin/configs/${parentConfig.configId}/images/${imageId}`,
-    "PUT",
-    {
-      configId: parentConfig.configId,
-      imageId,
-      imageName,
-      imageData,
-      parentConfig,
-    },
-  );
-  if (response._data) return { success: true, data: response._data };
-  if (response.status) return { success: false, status: response.status };
-  return { success: false, status: "Cors Error" };
-};
-
-export const deleteImageById = async (imageId, parentConfigId) => {
-  const response = await api(
-    `v1/admin/configs/${parentConfigId}/images/${imageId}`,
-    "DELETE",
-  );
-  if (response && response.status === 204)
-    return { success: true, status: response.status };
-  if (response && response.status !== 204)
-    return { success: false, status: response.status };
   return { success: false, status: "Cors Error" };
 };

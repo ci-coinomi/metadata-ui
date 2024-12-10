@@ -4,26 +4,19 @@
   >
     <div class="flex h-[200px] items-center justify-center">
       <img
-        :src="getImageSrc(props.image)"
+        :src="getImageSrc(image)"
         class="h-auto max-h-[200px] max-w-[216px] self-center"
-        :title="props.image.imageName"
+        :title="props.image?.imageName"
       />
     </div>
     <div class="flex flex-col gap-4">
       <h3 class="flex items-center justify-center break-all">
-        {{ props.image.imageName }}
+        {{ props.image?.imageName }}
       </h3>
-      <div class="flex items-center justify-evenly gap-1">
-        <uiButton
-          class="warning h-[34px] px-2 py-2"
-          @click="onUpdateClickHandler"
-        >
-          <img
-            src="~/assets/icons/icon-update.svg"
-            class="icon-update h-6 w-6"
-            alt="delete user"
-          />
-        </uiButton>
+      <div
+        v-if="props.createCard"
+        class="flex items-center justify-evenly gap-1"
+      >
         <uiButton
           class="danger h-[34px] px-2 py-2"
           @click="onDeleteClickHandler"
@@ -39,21 +32,24 @@
   </article>
 </template>
 <script setup>
-const emit = defineEmits(["onDeleteClick", "onUpdateClick"]);
+const emit = defineEmits(["onDeleteClick"]);
 const props = defineProps({
   image: Object,
+  createCard: {
+    type: Boolean,
+    default: false,
+  },
 });
-
 const onDeleteClickHandler = () => {
   emit("onDeleteClick", props.image);
 };
 
-const onUpdateClickHandler = () => {
-  emit("onUpdateClick", props.image);
-};
-
 /* Images are in base64-format so we need some extra convertations */
 const getImageSrc = (image) => {
+  if (!image) return "";
+  if (image.imageUrl) return image.imageUrl;
+
+  if (!image.imageName) return "";
   if (image.imageName.includes("svg")) {
     return `data:image/svg+xml;base64,${image.imageData}`;
   }
