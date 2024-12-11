@@ -6,12 +6,7 @@
 </template>
 <script setup>
 import { storeToRefs } from "pinia";
-import {
-  getConfigs,
-  getProviderGroups,
-  getProviderNetworks,
-  getProviderAccounts,
-} from "@/api/configs";
+import { getConfigs } from "@/api/configs";
 import { useAppStore } from "@/stores/app";
 import { useConfigStore } from "@/stores/configs";
 
@@ -24,8 +19,7 @@ const router = useRouter();
 const appStore = useAppStore();
 const configStore = useConfigStore();
 
-const { storedConfigList, providerGroups, providerNetworks, providerAccounts } =
-  storeToRefs(configStore);
+const { storedConfigList } = storeToRefs(configStore);
 
 const originalConfig = ref(null);
 const isLoading = ref(true);
@@ -44,48 +38,9 @@ const fetchConfigs = async () => {
   }
 };
 
-/**
- * Get all providers data in one place if they don't exist in store.
- */
-const fetchProvidersData = async () => {
-  if (!providerGroups.value) {
-    const groupResponse = await getProviderGroups();
-    if (groupResponse.success) {
-      configStore.setProviderGroups(groupResponse.data);
-    } else {
-      $toast.error(
-        `Getting provider groups error, status: ${groupResponse.status}`,
-      );
-    }
-  }
-
-  if (!providerNetworks.value) {
-    const networksResponse = await getProviderNetworks();
-    if (networksResponse.success) {
-      configStore.setProviderNetworks(networksResponse.data);
-    } else {
-      $toast.error(
-        `Getting provider networks error, status: ${networksResponse.status}`,
-      );
-    }
-  }
-
-  if (!providerAccounts.value) {
-    const accountsResponse = await getProviderAccounts();
-    if (accountsResponse.success) {
-      configStore.setProviderAccounts(accountsResponse.data);
-    } else {
-      $toast.error(
-        `Getting provider accounts error, status: ${accountsResponse.status}`,
-      );
-    }
-  }
-};
-
 onMounted(async () => {
   isLoading.value = true;
   await fetchConfigs();
-  await fetchProvidersData();
 
   if (storedConfigList.value.length) {
     const configFromStore = storedConfigList.value.find(

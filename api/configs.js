@@ -2,7 +2,7 @@ const api = async (endpoint, method, payload) => {
   try {
     const app = useNuxtApp();
     const response = await app.$api.raw(endpoint, {
-      method: method,
+      method,
       body: payload,
     });
     return response;
@@ -64,26 +64,5 @@ export const deleteConfig = async (configId) => {
     return { success: true, status: response.status };
   if (response && response.status !== 204)
     return { success: false, status: response.status };
-  return { success: false, status: "Cors Error" };
-};
-
-export const getProviderGroups = async () => {
-  const response = await api("admin/v2/provider/groups", "GET");
-  if (response._data) return { success: true, data: response._data };
-  if (response.status) return { success: false, status: response.status };
-  return { success: false, status: "Cors Error" };
-};
-
-export const getProviderNetworks = async () => {
-  const response = await api("admin/v2/provider/networks", "GET");
-  if (response._data) return { success: true, data: response._data };
-  if (response.status) return { success: false, status: response.status };
-  return { success: false, status: "Cors Error" };
-};
-
-export const getProviderAccounts = async () => {
-  const response = await api("admin/v2/provider/accounts", "GET");
-  if (response._data) return { success: true, data: response._data };
-  if (response.status) return { success: false, status: response.status };
   return { success: false, status: "Cors Error" };
 };

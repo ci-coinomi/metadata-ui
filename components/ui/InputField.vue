@@ -14,7 +14,7 @@ const emit = defineEmits(["update:modelValue"]);
 
 const props = defineProps({
   type: String,
-  modelValue: String || Number || Array,
+  modelValue: [String, Number, Array],
   placeholder: String,
   isMemo: Boolean,
   updateMemo: Number,

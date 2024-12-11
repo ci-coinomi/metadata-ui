@@ -52,7 +52,7 @@
 
       <div class="flex flex-col items-center justify-center gap-4">
         <div
-          v-if="configImages.length === 0"
+          v-if="!configImage"
           class="flex h-[323px] w-[250px] items-center justify-center rounded-md border shadow-md"
         >
           <UiButton class="success" @click="btnHandler.onAddImage">
@@ -64,27 +64,17 @@
           </UiButton>
         </div>
         <div v-else class="flex flex-col items-center justify-center gap-4">
-          <ConfigImageCard
-            v-for="image in configImages"
-            :key="image.imageId"
-            :image="image"
-            class="w-[250px]"
-            @on-update-click="btnHandler.onUpdateImage"
-            @on-delete-click="btnHandler.onDeleteImage"
-          />
-          <UiButton class="success" @click="btnHandler.onAddImage">
-            <img
-              src="~/assets/icons/icon-add.svg"
-              class="icon-add h-6 w-6"
-              alt="add"
-            />
-          </UiButton>
+          <ConfigImageCard :image="configImage" class="w-[250px]" />
         </div>
       </div>
     </div>
 
     <fieldset class="flex w-[70%] justify-center gap-4">
-      <UiButton class="success w-1/5" @click="btnHandler.onCloneConfig">
+      <UiButton
+        v-if="editingConfig?.configType !== 'BLOCKCHAIN'"
+        class="success w-1/5"
+        @click="btnHandler.onCloneConfig"
+      >
         Clone config
       </UiButton>
       <UiButton
@@ -106,12 +96,7 @@
 
 <script setup>
 import { storeToRefs } from "pinia";
-import {
-  getImagesByConfigId,
-  deleteImageById,
-  updateImageById,
-  addNewImage,
-} from "~/api/images";
+import { getImagesByConfigId, addNewImage } from "~/api/images";
 import { deleteConfig, updateConfig } from "~/api/configs";
 import { useConfigStore } from "@/stores/configs";
 
@@ -128,7 +113,7 @@ const { storedConfigList } = storeToRefs(configStore);
 
 const isLoading = ref(false);
 const editingConfig = ref(cleared(props.originalConfig)); // Original object we are working with
-const configImages = ref([]);
+const configImage = ref(null);
 const fileObject = ref(null); // Config file turned to object which will send to BE
 const isConfigUpdated = ref(false); // For 'No updates' check before updating config
 const isParentUpdated = ref(false); // For 'No updates' check before updating config
@@ -217,15 +202,6 @@ const modalConfirmHandler = (isConfirmed) => {
 
   if (isConfirmed && confirmModalType.value === "DELETE_CONFIG") {
     deleteConfigRequest();
-  }
-
-  if (isConfirmed && confirmModalType.value === "DELETE_IMAGE") {
-    deleteImageRequest(confirmModalPayload.value);
-  }
-
-  if (isConfirmed && confirmModalType.value === "UPDATE_IMAGE") {
-    /* New and old images */
-    updateImageRequest(confirmModalPayload.value, imageModalPayload.value);
   }
 
   if (isConfirmed && confirmModalType.value === "UPDATE_CONFIG") {
@@ -366,51 +342,12 @@ const uploadNewImageRequest = async (image) => {
   isLoading.value = false;
 };
 
-/* Update image and refetch images of current config */
-const updateImageRequest = async (newImageData, oldImage) => {
-  isLoading.value = true;
-
-  const response = await updateImageById(
-    newImageData,
-    oldImage.imageId,
-    editingConfig.value,
-  );
-
-  if (response.success) {
-    await fetchConfigImages();
-    $toast.success(`Image was updated`);
-  } else {
-    $toast.error(`Updating image error, status: ${response.status}`);
-  }
-
-  isLoading.value = false;
-};
-
-/* Delete image and refetch images of current config */
-const deleteImageRequest = async (image) => {
-  isLoading.value = true;
-
-  const response = await deleteImageById(
-    image.imageId,
-    editingConfig.value.configId,
-  );
-
-  if (response.success) {
-    await fetchConfigImages();
-    $toast.success("Image was deleted");
-  } else {
-    $toast.error(`Deleting image error, status: ${response.status}`);
-  }
-
-  isLoading.value = false;
-};
-
 /* Fetch array of config images */
 const fetchConfigImages = async () => {
   isLoading.value = true;
   const response = await getImagesByConfigId(editingConfig.value.configId);
   if (response.success) {
-    configImages.value = response.data;
+    configImage.value = response.data;
   } else {
     $toast.error(
       `Getting config ${editingConfig.value.configId} images error, status: ${response.status}`,

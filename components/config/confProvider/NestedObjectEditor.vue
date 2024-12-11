@@ -3,13 +3,6 @@
     class="flex w-full flex-col gap-2 rounded-md p-2"
     :class="isDeepNestedObject ? 'border border-gray-400' : ''"
   >
-    <ModalConfProviderAddAccount
-      v-if="nestedObject?.accountApiKeyNames && isAddAcountModalVisible"
-      :account-list="availableAccountApiKeyNamesForSelect"
-      :current-provider-list="nestedObject?.accountApiKeyNames"
-      @is-modal-confirmed="onAddAccountModalConfirmHandler"
-    />
-
     <div v-if="isDeepNestedObject" class="flex justify-between">
       <p class="text-gray-400">
         Object
@@ -99,14 +92,6 @@
               (data) => (nestedObject[key] = data.target.value.split(','))
             "
           />
-
-          <UiButton
-            v-if="key === 'accountApiKeyNames'"
-            :disabled="isManageAccountBtnDisabled"
-            @click="isAddAcountModalVisible = !isAddAcountModalVisible"
-          >
-            Manage
-          </UiButton>
         </template>
 
         <UiInputField
@@ -207,7 +192,6 @@ const props = defineProps({
 
 const defaultNestedObject = ref(cleared(props.nestedObject));
 
-const isAddAcountModalVisible = ref(false);
 const availableAccountApiKeyNamesForSelect = ref([]);
 const networkDetails = ref(null);
 
@@ -221,17 +205,6 @@ const isDeepNestedObject = computed(
 /**
  * ManageAccounts modal can not be opened in following situations:
  */
-const isManageAccountBtnDisabled = computed(() => {
-  if (!availableAccountApiKeyNamesForSelect.value) return true;
-  if (availableAccountApiKeyNamesForSelect.value.length === 0) return true;
-});
-
-const onAddAccountModalConfirmHandler = (data) => {
-  isAddAcountModalVisible.value = false;
-  if (data) {
-    props.nestedObject.accountApiKeyNames = data;
-  }
-};
 
 /* List of not-editable text fields */
 const isFieldDisabled = (key) => {
@@ -278,7 +251,8 @@ const nestedLineClass = (key, value) => {
  * Also updating data for AccountApiKeyNames by adding available values for the modal.
  */
 const getNetwork = () => {
-  if (!providerNetworks.value || !defaultNestedObject.value?.networkIds) return;
+  if (!providerNetworks?.value || !defaultNestedObject?.value?.networkIds)
+    return;
   defaultNestedObject.value?.networkIds?.forEach((networkId) => {
     const itemInResponse = providerNetworks.value.find(
       (item) => item.id === networkId,
