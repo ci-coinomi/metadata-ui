@@ -43,6 +43,7 @@ const search = ref(null);
  */
 const isCreateEmptyConfigVisible = computed(() => {
   if (selectedType.value === "CONFIGURED_PROVIDERS") return true;
+  if (selectedType.value === "BLOCKCHAIN") return false;
   if (filtredConfigs.value.length === 0) return false;
   if (filtredConfigs.value.some((el) => el.parentConfig)) return false;
   return true;

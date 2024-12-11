@@ -368,20 +368,20 @@ const setInitParentForConfiguredProviders = () => {
  * Create payload to pass it to api.cloneConfig - request.
  */
 const createNewConfigObject = () => {
-  const { imageData, imageName } = configImage.value;
-  const newConfigObject = {
-    configName: editingConfig.value.configName,
-    configFile: JSON.stringify(fileObject.value),
-    configType: editingConfig.value.configType,
-    imageData,
-    uploadedImageFileName: imageName,
+  const { configName, configType, parentConfig } = editingConfig.value;
+  const { imageData, imageName } = configImage.value || {};
+  const configFile = JSON.stringify(fileObject.value);
+
+  return {
+    configName,
+    configType,
+    configFile,
+    ...(configImage.value && {
+      imageData,
+      uploadedImageFileName: imageName,
+    }),
+    ...(parentConfig && { parentConfig }),
   };
-
-  if (editingConfig.value.parentConfig) {
-    newConfigObject.parentConfig = editingConfig.value.parentConfig;
-  }
-
-  return newConfigObject;
 };
 
 /**
