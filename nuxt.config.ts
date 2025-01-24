@@ -41,4 +41,6 @@ export default defineNuxtConfig({
     emitError: false,
     exclude: ["**/.nuxt/**"],
   },
+
+  compatibilityDate: "2025-01-24",
 });
