@@ -57,7 +57,8 @@ export const serializeConfigs = (allConfigs) => {
 
 const getClosestChain = (config, allConfigs, depth = 0) => {
   if (depth > 100) {
-    return "Infinite circle error";
+    console.error("Infinite circle error for config", config);
+    return null;
   }
 
   if (config.configType === "BLOCKCHAIN") {
