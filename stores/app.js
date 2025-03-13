@@ -8,6 +8,7 @@ export const useAppStore = defineStore("app", () => {
     headerTitle.value = payload;
   };
   const setCurrentUser = (payload) => {
+    console.log("setCurrentUser");
     currentUser.value = payload;
   };
 
