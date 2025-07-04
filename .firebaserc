@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "coinomi-staging"
+  },
+  "targets": {
+    "coinomi-staging": {
+      "hosting": {
+        "metadata-ui": [
+          "metadata-ui"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
