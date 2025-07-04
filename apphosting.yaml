@@ -9,14 +9,6 @@ runConfig:
   # Increase startup timeout significantly
   startupTimeoutSeconds: 600
 
-# Explicitly configure build and run commands
-# See https://firebase.google.com/docs/app-hosting/configure#build-run-scripts
-build:
-  commands:
-    - yarn build
-run:
-  commands:
-    - yarn start
 
 # Environment variables and secrets.
 env:
