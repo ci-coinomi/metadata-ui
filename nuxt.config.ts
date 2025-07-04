@@ -1,10 +1,13 @@
 export default defineNuxtConfig({
   modules: ["@nuxtjs/eslint-module", "@nuxtjs/tailwindcss", "@pinia/nuxt"],
   css: ["@/assets/css/icons.css"],
-  
-  nitro: {
-    preset: 'firebase',
-  },
+ 
+  // nitro: {
+  //   preset: 'firebase',
+  //   output: {
+  //     serverDir: '.output/server'
+  //   },
+  // },
   // Ensure SSR is enabled for production
   ssr: true,
   
