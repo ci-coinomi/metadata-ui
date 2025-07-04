@@ -12,18 +12,13 @@ runConfig:
 
 scripts:
   buildCommand: nuxt build
-  runCommand: NITRO_PORT=8080 node .output/server/index.mjs
+  runCommand: node .output/server/index.mjs
 
 # Environment variables and secrets.
 env:
 # PORT is reserved for internal use by Firebase App Hosting
 -   variable: HOST
     value: 0.0.0.0
--   variable: PORT
-    value: 3000
-    availability:
-      - BUILD
-      - RUNTIME
 -   variable: METADATA_URL
     value: "https://backend-dev.euclabs.net/metadata-api"
     availability:
