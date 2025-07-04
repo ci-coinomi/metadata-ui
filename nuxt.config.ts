@@ -1,7 +1,12 @@
 export default defineNuxtConfig({
   modules: ["@nuxtjs/eslint-module", "@nuxtjs/tailwindcss", "@pinia/nuxt"],
   css: ["@/assets/css/icons.css"],
-
+  nitro: {
+    preset: 'firebase',
+  },
+  // Ensure SSR is enabled for production
+  ssr: true,
+  
   runtimeConfig: {
     public: {
       METADATA_URL: process.env.METADATA_URL,
@@ -42,5 +47,5 @@ export default defineNuxtConfig({
     exclude: ["**/.nuxt/**"],
   },
 
-  compatibilityDate: "2025-01-24",
+  // compatibilityDate: "2025-01-24",
 });
