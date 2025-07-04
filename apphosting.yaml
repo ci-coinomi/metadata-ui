@@ -5,15 +5,25 @@ runConfig:
   maxInstances: 1
   concurrency: 80
   cpu: 1
-  memoryMiB: 512
-  # Add startup timeout to give container more time to start
-  startupTimeoutSeconds: 300
+  memoryMiB: 1024
+  # Increase startup timeout significantly
+  startupTimeoutSeconds: 600
 
 # Environment variables and secrets.
 env:
 # PORT is reserved for internal use by Firebase App Hosting
 -   variable: HOST
     value: 0.0.0.0
+-   variable: METADATA_URL
+    value: "https://backend-dev.euclabs.net/metadata-api"
+    availability:
+      - BUILD
+      - RUNTIME
+-   variable: COINAPI_WSS
+    value: "wss://backend-dev2.euclabs.net/coinapi-websockets"
+    availability:
+      - BUILD
+      - RUNTIME
 # env:
   # Configure environment variables.
   # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment

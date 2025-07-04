@@ -42,10 +42,5 @@ export default defineNuxtConfig({
 
   eslint: {
     lintOnStart: false,
-    emitWarning: false,
-    emitError: false,
-    exclude: ["**/.nuxt/**"],
   },
-
-  // compatibilityDate: "2025-01-24",
 });
