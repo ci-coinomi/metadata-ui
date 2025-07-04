@@ -7,6 +7,10 @@ export default defineNuxtConfig({
   // Ensure SSR is enabled for production
   ssr: true,
   
+  devServer: {
+    port: 8080
+  },
+  
   runtimeConfig: {
     public: {
       METADATA_URL: process.env.METADATA_URL,

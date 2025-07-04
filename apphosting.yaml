@@ -10,6 +10,10 @@ runConfig:
   startupTimeoutSeconds: 600
 
 
+scripts:
+  buildCommand: nuxt build
+  runCommand: NITRO_PORT=8080 node .output/server/index.mjs
+
 # Environment variables and secrets.
 env:
 # PORT is reserved for internal use by Firebase App Hosting
