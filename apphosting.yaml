@@ -10,10 +10,6 @@ runConfig:
   startupTimeoutSeconds: 600
 
 
-scripts:
-  buildCommand: yarn build
-  runCommand: yarn start
-
 # Environment variables and secrets.
 env:
 # PORT is reserved for internal use by Firebase App Hosting
