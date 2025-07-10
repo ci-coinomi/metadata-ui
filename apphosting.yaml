@@ -12,7 +12,7 @@ runConfig:
 
 scripts:
   buildCommand: nuxt build
-  runCommand: NITRO_PORT=8080 node .output/server/index.mjs
+  runCommand: node .output/server/index.mjs
 
 # Environment variables and secrets.
 env:
