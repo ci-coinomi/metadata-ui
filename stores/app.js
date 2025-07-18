@@ -3,12 +3,17 @@ import { defineStore } from "pinia";
 export const useAppStore = defineStore("app", () => {
   const headerTitle = ref("");
   const currentUser = ref(null);
+  const currentFirebaseUser = ref(null);
 
   const setHeaderTitle = (payload) => {
     headerTitle.value = payload;
   };
   const setCurrentUser = (payload) => {
     currentUser.value = payload;
+  };
+
+  const setCurrentFirebaseUser = (payload) => {
+    currentFirebaseUser.value = payload;
   };
 
   const isSuperAdmin = computed(() =>
@@ -21,5 +26,7 @@ export const useAppStore = defineStore("app", () => {
     setHeaderTitle,
     setCurrentUser,
     isSuperAdmin,
+    currentFirebaseUser,
+    setCurrentFirebaseUser,
   };
 });
