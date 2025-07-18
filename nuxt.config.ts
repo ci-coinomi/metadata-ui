@@ -6,6 +6,12 @@ export default defineNuxtConfig({
     public: {
       METADATA_URL: process.env.METADATA_URL,
       COINAPI_WSS: process.env.COINAPI_WSS,
+      fbaseApiKey: process.env.FBASE_API_KEY,
+      fbaseAuthDomain: process.env.FBASE_AUTH_DOMAIN,
+      fbaseProjectId: process.env.FBASE_PROJECT_ID,
+      fbaseStorageBucket: process.env.FBASE_STORAGE_BUCKET,
+      fbaseMessagingSenderId: process.env.FBASE_MESSAGING_SENDER_ID,
+      fbaseAppId: process.env.FBASE_APP_ID,
     },
   },
 
