@@ -7,7 +7,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       "Content-type": "application/json",
     },
     credentials: "include",
-    async onResponseError({ request, response, options }) {
+    onResponseError({ _request, response }) {
       const router = useRouter();
       switch (response.status) {
         case 401:
@@ -32,9 +32,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     credentials: "include",
   });
 
-  const wss_api = config.public.COINAPI_WSS;
+  const wssApi = config.public.COINAPI_WSS;
 
   nuxtApp.provide("api", api);
   nuxtApp.provide("loginApi", loginApi);
-  nuxtApp.provide("wss_api", wss_api);
+  nuxtApp.provide("wss_api", wssApi);
 });

@@ -2,7 +2,7 @@ import { storeToRefs } from "pinia";
 import { useAppStore } from "@/stores/app";
 import { getMe } from "@/api/user";
 
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   if (process.server || to.name === "index" || to.name === "forbidden") {
     return;
   }

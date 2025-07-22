@@ -21,7 +21,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      console.log("Logged in user: ", user);
+      console.info("Logged in user: ", user);
       const idToken = await auth.currentUser.getIdToken(true);
       localStorage.setItem("firebaseToken", idToken);
       appStore.setCurrentFirebaseUser(user);

@@ -63,7 +63,7 @@
 <script setup>
 import { useAppStore } from "@/stores/app";
 import { signin, getLoginMe } from "@/api/user";
-import { useAuth } from "/composables/useFirebaseAuth";
+import { useAuth } from "@/composables/useFirebaseAuth";
 
 const { login, loginWithGoogle } = useAuth();
 
