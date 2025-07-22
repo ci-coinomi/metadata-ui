@@ -1,12 +1,10 @@
 // plugins/firebase.client.js
 import { defineNuxtPlugin } from "#app";
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { useAppStore } from "@/stores/app";
+import { getAuth } from "firebase/auth";
 
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig().public;
-  const appStore = useAppStore();
 
   const app = initializeApp({
     apiKey: config.fbaseApiKey,
@@ -18,18 +16,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   });
 
   const auth = getAuth(app);
-
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      console.info("Logged in user: ", user);
-      const idToken = await auth.currentUser.getIdToken(true);
-      localStorage.setItem("firebaseToken", idToken);
-      appStore.setCurrentFirebaseUser(user);
-    } else {
-      appStore.setCurrentFirebaseUser(null);
-      localStorage.removeItem("firebaseToken");
-    }
-  });
 
   nuxtApp.provide("auth", auth);
 });
