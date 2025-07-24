@@ -12,15 +12,6 @@ const api = async (endpoint, method, payload) => {
   }
 };
 
-export const signout = async () => {
-  const response = await api("admin/auth/logout", "POST");
-  if (response && response.status === 204)
-    return { success: true, status: response.status };
-  if (response && response.status !== 204)
-    return { success: false, status: response.status };
-  return { success: false, status: "Cors Error" };
-};
-
 export const addUser = async (username, password, roles, enabled) => {
   const response = await api(`admin/users`, "POST", {
     username,

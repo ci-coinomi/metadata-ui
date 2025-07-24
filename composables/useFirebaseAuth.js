@@ -6,19 +6,23 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { useNuxtApp } from "#app";
+import { storeToRefs } from "pinia";
+
 import { useAppStore } from "@/stores/app";
 
 export function useAuth() {
   const { $auth } = useNuxtApp();
   const appStore = useAppStore();
 
-  const user = ref(null);
+  const { currentFirebaseUser, currentUserToken } = storeToRefs(appStore);
 
   const login = (email, password) => {
     return signInWithEmailAndPassword($auth, email, password);
   };
 
   const logout = () => {
+    appStore.setCurrentUserToken(null);
+    appStore.setCurrentFirebaseUser(null);
     return signOut($auth);
   };
 
@@ -27,23 +31,40 @@ export function useAuth() {
     return signInWithPopup($auth, provider);
   };
 
-  onMounted(() => {
-    onAuthStateChanged($auth, async (u) => {
-      console.info("user", u);
-      user.value = u;
-
-      if (u) {
-        const idToken = await u.getIdToken(true);
-        localStorage.setItem("firebaseToken", idToken);
-        appStore.setCurrentFirebaseUser(u);
-      } else {
-        localStorage.removeItem("firebaseToken");
-        appStore.setCurrentFirebaseUser(null);
-      }
+  const fetchCurrentUser = () => {
+    return new Promise((resolve, reject) => {
+      const unsubscribe = onAuthStateChanged(
+        $auth,
+        async (user) => {
+          if (user) {
+            if (!currentUserToken.value) {
+              const idToken = await user.getIdToken(true);
+              appStore.setCurrentUserToken(idToken);
+            }
+            appStore.setCurrentFirebaseUser(user);
+          }
+          unsubscribe();
+          resolve(user);
+        },
+        (error) => {
+          unsubscribe();
+          reject(error);
+          appStore.setCurrentUserToken(null);
+          appStore.setCurrentFirebaseUser(null);
+        },
+      );
     });
-  });
+  };
 
-  const isAuthenticated = computed(() => user.value);
+  const isAuthenticated = computed(() => currentFirebaseUser.value);
 
-  return { login, logout, loginWithGoogle, isAuthenticated };
+  return {
+    login,
+    logout,
+    loginWithGoogle,
+    isAuthenticated,
+    fetchCurrentUser,
+    currentFirebaseUser,
+    currentUserToken,
+  };
 }

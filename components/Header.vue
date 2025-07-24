@@ -44,7 +44,7 @@
             />
           </UiButton>
         </ClientOnly>
-        <UiButton @click="onLogoutHandler">
+        <UiButton @click="onLogoutClickHandler">
           <img
             src="~/assets/icons/icon-logout.svg"
             class="h-4 w-4"
@@ -57,13 +57,14 @@
 </template>
 <script setup>
 import { storeToRefs } from "pinia";
-import { signout } from "~/api/user";
+import { useAuth } from "@/composables/useFirebaseAuth";
+
 import { useAppStore } from "@/stores/app";
 
 const router = useRouter();
 const route = useRoute();
 const appStore = useAppStore();
-const { $toast } = useNuxtApp();
+const { logout } = useAuth();
 
 const { headerTitle, isSuperAdmin } = storeToRefs(appStore); // Used in layout
 
@@ -86,17 +87,11 @@ const onCoinApiStatusNavigateHandler = () => {
   });
 };
 
-const onLogoutHandler = async () => {
-  const response = await signout();
-  if (!response.success) {
-    $toast.error(`Logout request error, status: ${response.status}`);
-    return;
-  }
-
+const onLogoutClickHandler = async () => {
+  await logout();
   router.push({
-    path: `/`,
+    path: "/",
   });
-  appStore.setCurrentUser(null);
 };
 
 const onUsersNavigateHandler = () => {

@@ -1,4 +1,5 @@
 <template>
+  <div></div>
   <content-loader
     viewBox="0 0 838 600"
     :speed="2"

@@ -1,5 +1,11 @@
+import { storeToRefs } from "pinia";
+import { useAppStore } from "@/stores/app";
+
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig();
+  const appStore = useAppStore();
+
+  const { currentUserToken } = storeToRefs(appStore);
 
   const api = $fetch.create({
     baseURL: config.public.METADATA_URL,
@@ -8,14 +14,11 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
     credentials: "include",
     onRequest({ options }) {
-      if (process.client) {
-        const token = localStorage.getItem("firebaseToken");
-        if (token) {
-          options.headers = {
-            ...options.headers,
-            Authorization: `Bearer ${token}`,
-          };
-        }
+      if (process.client && currentUserToken.value) {
+        options.headers = {
+          ...options.headers,
+          Authorization: `Bearer ${currentUserToken.value}`,
+        };
       }
     },
     onResponseError({ _request, response }) {

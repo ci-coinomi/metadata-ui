@@ -47,7 +47,8 @@
 import { useAppStore } from "@/stores/app";
 import { useAuth } from "@/composables/useFirebaseAuth";
 
-const { login, loginWithGoogle, isAuthenticated, logout } = useAuth();
+const { login, loginWithGoogle, isAuthenticated, logout, fetchCurrentUser } =
+  useAuth();
 
 const router = useRouter();
 const appStore = useAppStore();
@@ -62,7 +63,10 @@ const firebaseFormSubmitHandler = async () => {
   appStore.setCurrentUser(null);
   isFirebaseAuthMessage.value = "";
   try {
-    const response = await login(firebaseLogin.value, firebasePassword.value);
+    const response = await login(
+      firebaseLogin.value.trim(),
+      firebasePassword.value.trim(),
+    );
     if (response.user) {
       router.push({
         path: `/configs`,
@@ -88,12 +92,14 @@ const onGoogle = async () => {
   }
 };
 
-watch(isAuthenticated, (value) => {
-  isLoggedIn.value = value;
-  if (value) {
-    router.push({
-      path: "/configs",
-    });
+onMounted(async () => {
+  const authenticated = isAuthenticated.value || (await fetchCurrentUser());
+
+  if (!authenticated) {
+    return;
   }
+
+  isLoggedIn.value = true;
+  router.push({ path: "/configs" });
 });
 </script>

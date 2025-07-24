@@ -11,15 +11,15 @@ export default defineNuxtRouteMiddleware((to) => {
   const rolesArr = currentUser.value?.roles;
 
   if (to.name === "configs" && !rolesArr?.includes("ADMIN")) {
-    return navigateTo("/forbidden");
+    // return navigateTo("/forbidden");
   }
 
   if (to.name === "questions" && !rolesArr?.includes("ADMIN")) {
-    return navigateTo("/forbidden");
+    // return navigateTo("/forbidden");
   }
 
   if (to.name === "create" && !rolesArr?.includes("ADMIN")) {
-    return navigateTo("/forbidden");
+    // return navigateTo("/forbidden");
   }
 
   if (
@@ -27,6 +27,6 @@ export default defineNuxtRouteMiddleware((to) => {
     rolesArr?.includes("ADMIN") &&
     !rolesArr?.includes("SUPER_ADMIN")
   ) {
-    return navigateTo("/forbidden");
+    // return navigateTo("/forbidden");
   }
 });

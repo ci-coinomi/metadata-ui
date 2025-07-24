@@ -4,6 +4,7 @@ export const useAppStore = defineStore("app", () => {
   const headerTitle = ref("");
   const currentUser = ref(null);
   const currentFirebaseUser = ref(null);
+  const currentUserToken = ref(null);
 
   const setHeaderTitle = (payload) => {
     headerTitle.value = payload;
@@ -20,6 +21,10 @@ export const useAppStore = defineStore("app", () => {
     currentUser.value?.roles?.includes("SUPER_ADMIN"),
   );
 
+  const setCurrentUserToken = (payload) => {
+    currentUserToken.value = payload;
+  };
+
   return {
     headerTitle,
     currentUser,
@@ -28,5 +33,7 @@ export const useAppStore = defineStore("app", () => {
     isSuperAdmin,
     currentFirebaseUser,
     setCurrentFirebaseUser,
+    currentUserToken,
+    setCurrentUserToken,
   };
 });

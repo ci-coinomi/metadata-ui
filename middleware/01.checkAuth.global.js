@@ -1,19 +1,14 @@
-import { storeToRefs } from "pinia";
-import { useAppStore } from "@/stores/app";
-import { getMe } from "@/api/user";
+import { useAuth } from "@/composables/useFirebaseAuth";
 
 export default defineNuxtRouteMiddleware(async (to) => {
+  const { currentFirebaseUser, fetchCurrentUser } = useAuth();
   if (process.server || to.name === "index" || to.name === "forbidden") {
     return;
   }
 
-  const appStore = useAppStore();
-  const { currentUser } = storeToRefs(appStore);
-  if (!currentUser.value) {
-    const response = await getMe();
-    if (response.success) {
-      appStore.setCurrentUser(response.data);
-    } else {
+  if (!currentFirebaseUser.value) {
+    const currentUser = await fetchCurrentUser();
+    if (!currentUser) {
       return navigateTo("/");
     }
   }
