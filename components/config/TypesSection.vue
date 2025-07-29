@@ -22,7 +22,7 @@
 
     <div
       v-if="!isBlockchainBlockHidden"
-      class="flex w-full justify-center gap-4"
+      class="flex w-full justify-center gap-4 flex-wrap"
     >
       <UiButton
         v-for="chain in blockchains"

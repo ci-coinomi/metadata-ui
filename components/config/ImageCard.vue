@@ -4,15 +4,14 @@
   >
     <div class="flex h-[200px] items-center justify-center">
       <img
-        :src="getImageSrc(image)"
+        :src="imageAddress"
         class="h-auto max-h-[200px] max-w-[216px] self-center"
-        :title="props.image?.imageName"
       />
     </div>
     <div class="flex flex-col gap-4">
-      <h3 class="flex items-center justify-center break-all">
+      <!-- <h3 class="flex items-center justify-center break-all">
         {{ props.image?.imageName }}
-      </h3>
+      </h3> -->
       <div
         v-if="props.createCard"
         class="flex items-center justify-evenly gap-1"
@@ -35,6 +34,7 @@
 const emit = defineEmits(["onDeleteClick"]);
 const props = defineProps({
   image: Object,
+  imageAddress: String,
   createCard: {
     type: Boolean,
     default: false,
@@ -45,19 +45,19 @@ const onDeleteClickHandler = () => {
 };
 
 /* Images are in base64-format so we need some extra convertations */
-const getImageSrc = (image) => {
-  if (!image) return "";
-  if (image.imageUrl) return image.imageUrl;
+// const getImageSrc = (image) => {
+//   if (!image) return "";
+//   if (image.imageUrl) return image.imageUrl;
 
-  if (!image.imageName) return "";
-  if (image.imageName.includes("svg")) {
-    return `data:image/svg+xml;base64,${image.imageData}`;
-  }
+//   if (!image.imageName) return "";
+//   if (image.imageName.includes("svg")) {
+//     return `data:image/svg+xml;base64,${image.imageData}`;
+//   }
 
-  const extension = image.imageName.substring(
-    image.imageName.lastIndexOf(".") + 1,
-  );
-  const base64Prefix = "data:image/" + extension + ";base64,";
-  return `${base64Prefix}${image.imageData}`;
-};
+//   const extension = image.imageName.substring(
+//     image.imageName.lastIndexOf(".") + 1,
+//   );
+//   const base64Prefix = "data:image/" + extension + ";base64,";
+//   return `${base64Prefix}${image.imageData}`;
+// };
 </script>

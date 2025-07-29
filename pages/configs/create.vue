@@ -99,6 +99,7 @@ import { storeToRefs } from "pinia";
 import { useAppStore } from "@/stores/app";
 import { useConfigStore } from "@/stores/configs";
 import { cloneConfig, getConfigs } from "@/api/configs";
+import { validateUniqueFields } from "@/utils/validations";
 
 definePageMeta({
   layout: "signedin",
@@ -244,6 +245,20 @@ const modalHandler = {
  */
 const cloneConfigRequest = async () => {
   isNameFieldUnderlined.value = null;
+
+  const validationResponse = validateUniqueFields({
+    fileData: fileObject.value,
+    fields: ["coinomiId", "assetId"],
+    editingConfig: editingConfig.value,
+    storedConfigList: storedConfigList.value,
+  });
+
+  if (!validationResponse.isValid) {
+    isLoading.value = false;
+    $toast.error(validationResponse.errorMessage);
+    return;
+  }
+
   isLoading.value = true;
 
   const newConfigObject = createNewConfigObject();

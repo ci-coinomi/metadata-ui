@@ -1,10 +1,10 @@
 <template>
-  <div></div>
   <content-loader
     viewBox="0 0 838 600"
     :speed="2"
     primary-color="#f3f3f3"
     secondary-color="#ecebeb"
+    :unique-key="'config-skeleton'"
   >
     <rect x="40" y="0" rx="6" ry="6" width="770" height="95" />
     <rect x="330" y="105" rx="6" ry="6" width="185" height="35" />
