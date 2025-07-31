@@ -1,7 +1,7 @@
 import { storeToRefs } from "pinia";
 import { useAppStore } from "@/stores/app";
 
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware((to) => {
   if (process.server || to.name === "index" || to.name === "forbidden") {
     return;
   }
@@ -11,15 +11,15 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const rolesArr = currentUser.value?.roles;
 
   if (to.name === "configs" && !rolesArr?.includes("ADMIN")) {
-    return navigateTo("/forbidden");
+    // return navigateTo("/forbidden");
   }
 
   if (to.name === "questions" && !rolesArr?.includes("ADMIN")) {
-    return navigateTo("/forbidden");
+    // return navigateTo("/forbidden");
   }
 
   if (to.name === "create" && !rolesArr?.includes("ADMIN")) {
-    return navigateTo("/forbidden");
+    // return navigateTo("/forbidden");
   }
 
   if (
@@ -27,6 +27,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     rolesArr?.includes("ADMIN") &&
     !rolesArr?.includes("SUPER_ADMIN")
   ) {
-    return navigateTo("/forbidden");
+    // return navigateTo("/forbidden");
   }
 });

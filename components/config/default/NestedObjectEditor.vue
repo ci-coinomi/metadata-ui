@@ -126,6 +126,9 @@ const isPrintedAsArray = (key) => {
     "categories",
     "networks",
     "accounts",
+    "partners",
+    "conditions",
+    "partnerPlatforms",
   ];
   return arrayKeyNames.includes(key);
 };

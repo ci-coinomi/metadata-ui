@@ -64,7 +64,7 @@
           </UiButton>
         </div>
         <div v-else class="flex flex-col items-center justify-center gap-4">
-          <ConfigImageCard :image="configImage" class="w-[250px]" />
+          <ConfigImageCard :image-address="configImage" class="w-[250px]" />
         </div>
       </div>
     </div>
@@ -96,9 +96,10 @@
 
 <script setup>
 import { storeToRefs } from "pinia";
-import { getImagesByConfigId, addNewImage } from "~/api/images";
+import { addNewImage } from "~/api/images";
 import { deleteConfig, updateConfig } from "~/api/configs";
 import { useConfigStore } from "@/stores/configs";
+import { validateUniqueFields } from "@/utils/validations";
 
 const { $toast } = useNuxtApp();
 const configStore = useConfigStore();
@@ -278,6 +279,19 @@ const updateConfigRequest = async () => {
     return;
   }
 
+  const validationResponse = validateUniqueFields({
+    fileData: fileObject.value,
+    fields: ["coinomiId", "assetId"],
+    editingConfig: editingConfig.value,
+    storedConfigList: storedConfigList.value,
+  });
+
+  if (!validationResponse.isValid) {
+    isLoading.value = false;
+    $toast.error(validationResponse.errorMessage);
+    return;
+  }
+
   const updatedConfigString = JSON.stringify(fileObject.value);
   const response = await updateConfig(editingConfig.value, updatedConfigString);
 
@@ -300,6 +314,8 @@ const updateConfigRequest = async () => {
 
   configUpdateTrigger.value += 1;
   isConfigUpdated.value = false;
+  const currentImage = replacePlaceholder(fileObject.value?.imageLink, "large");
+  configImage.value = currentImage;
   emit("configUpdateEmit", isConfigUpdated.value);
   isLoading.value = false;
 };
@@ -343,22 +359,31 @@ const uploadNewImageRequest = async (image) => {
 };
 
 /* Fetch array of config images */
-const fetchConfigImages = async () => {
-  isLoading.value = true;
-  const response = await getImagesByConfigId(editingConfig.value.configId);
-  if (response.success) {
-    configImage.value = response.data;
-  } else {
-    $toast.error(
-      `Getting config ${editingConfig.value.configId} images error, status: ${response.status}`,
-    );
+// const fetchConfigImages = async () => {
+//   isLoading.value = true;
+//   const response = await getImagesByConfigId(editingConfig.value.configId);
+//   if (response.success) {
+//     configImage.value = response.data;
+//   } else {
+//     $toast.error(
+//       `Getting config ${editingConfig.value.configId} images error, status: ${response.status}`,
+//     );
+//   }
+//   isLoading.value = false;
+// };
+
+const replacePlaceholder = (template, value) => {
+  if (!template || !template.includes("%s")) {
+    return template;
   }
-  isLoading.value = false;
+  return template.replace(/%s/g, value);
 };
 
 onMounted(() => {
   fileObject.value = JSON.parse(editingConfig.value.configFile);
-  fetchConfigImages();
+  const currentImage = replacePlaceholder(fileObject.value?.imageLink, "large");
+  configImage.value = currentImage;
+  // fetchConfigImages();
 });
 
 /* isConfigUpdated deep watcher works via comparing old and new config files */

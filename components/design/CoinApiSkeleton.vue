@@ -4,6 +4,7 @@
     :speed="2"
     primary-color="#f3f3f3"
     secondary-color="#ecebeb"
+    :unique-key="'coinapi-skeleton'"
   >
     <rect x="85" y="0" rx="6" ry="6" width="730" height="100" />
     <rect x="85" y="124" rx="6" ry="6" width="730" height="100" />

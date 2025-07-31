@@ -2,7 +2,7 @@ const api = async (endpoint, method, payload) => {
   try {
     const app = useNuxtApp();
     const response = await app.$api.raw(endpoint, {
-      method: method,
+      method,
       body: payload,
     });
     return response;

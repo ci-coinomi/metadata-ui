@@ -4,6 +4,7 @@
     :speed="2"
     primary-color="#f3f3f3"
     secondary-color="#ecebeb"
+    :unique-key="'user-skeleton'"
   >
     <rect x="85" y="0" rx="6" ry="6" width="35" height="35" />
     <rect x="750" y="0" rx="6" ry="6" width="70" height="35" />

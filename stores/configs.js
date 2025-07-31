@@ -64,8 +64,8 @@ export const useConfigStore = defineStore("config", () => {
       const defaultChain = blockchains.value.includes("koala")
         ? "koala"
         : blockchains.value.includes("other")
-        ? "other"
-        : null;
+          ? "other"
+          : null;
 
       if (selectedChain.value === "all") return true;
       if (selectedChain.value === defaultChain) return !item.configChain;

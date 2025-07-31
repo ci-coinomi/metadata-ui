@@ -17,8 +17,9 @@
   </main>
 </template>
 <script setup>
-import { getLoginMe } from "@/api/user";
+import { useAuth } from "@/composables/useFirebaseAuth";
 
+const { isAuthenticated } = useAuth();
 const router = useRouter();
 
 const isLoggedIn = ref(false);
@@ -40,8 +41,7 @@ const toConfigsNavigateHandler = () => {
   });
 };
 
-onMounted(async () => {
-  const response = await getLoginMe();
-  if (response.success) isLoggedIn.value = true;
+watch(isAuthenticated, (value) => {
+  isLoggedIn.value = value;
 });
 </script>

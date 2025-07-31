@@ -1,5 +1,11 @@
+import { storeToRefs } from "pinia";
+import { useAppStore } from "@/stores/app";
+
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig();
+  const appStore = useAppStore();
+
+  const { currentUserToken } = storeToRefs(appStore);
 
   const api = $fetch.create({
     baseURL: config.public.METADATA_URL,
@@ -7,7 +13,15 @@ export default defineNuxtPlugin((nuxtApp) => {
       "Content-type": "application/json",
     },
     credentials: "include",
-    async onResponseError({ request, response, options }) {
+    onRequest({ options }) {
+      if (process.client && currentUserToken.value) {
+        options.headers = {
+          ...options.headers,
+          Authorization: `Bearer ${currentUserToken.value}`,
+        };
+      }
+    },
+    onResponseError({ _request, response }) {
       const router = useRouter();
       switch (response.status) {
         case 401:
@@ -20,21 +34,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   });
 
-  /**
-   * GetMe and Login without redirect in the case of 401 error (when user entered wrong login data).
-   * For login and redirect pages.
-   */
-  const loginApi = $fetch.create({
-    baseURL: config.public.METADATA_URL,
-    headers: {
-      Accept: "application/json",
-    },
-    credentials: "include",
-  });
-
-  const wss_api = config.public.COINAPI_WSS;
+  const wssApi = config.public.COINAPI_WSS;
 
   nuxtApp.provide("api", api);
-  nuxtApp.provide("loginApi", loginApi);
-  nuxtApp.provide("wss_api", wss_api);
+  nuxtApp.provide("wss_api", wssApi);
 });
